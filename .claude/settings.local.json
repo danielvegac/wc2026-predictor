@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test:*)",
+      "Bash(npx tsc:*)",
+      "Bash(timeout 10 npx vite --host)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(mkdir -p C:/Users/jorge/projects/wc2026-predictor-app/src/components/dashboard)",
+      "Bash(mkdir -p C:/Users/jorge/projects/wc2026-predictor-app/src/workers)"
+    ]
+  }
+}
