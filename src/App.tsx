@@ -7,6 +7,7 @@ import { groups } from "./data/groups";
 import { GroupStage } from "./components/bracket/GroupStage";
 import { Dashboard } from "./components/dashboard/Dashboard";
 import { usePredictionStore } from "./store/predictionStore";
+import { useLiveData } from "./hooks/useLiveData";
 import type { MonteCarloResults } from "./types";
 
 type View = "predictions" | "simulation" | "dashboard";
@@ -23,6 +24,9 @@ function App() {
   const getTotalProgress = usePredictionStore((s) => s.getTotalProgress);
 
   const { completed, total } = getTotalProgress();
+
+  // Live data integration
+  const { isLive, lastUpdated, loading: liveLoading, refresh: refreshLive } = useLiveData();
 
   const runSimulation = useCallback(() => {
     setRunning(true);
@@ -49,17 +53,49 @@ function App() {
       {/* Header */}
       <header className="bg-white border-b border-border sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-text-primary">
-              WC2026
-              <span className="text-accent-gold ml-2">Predictor</span>
-            </h1>
-            <p className="text-text-muted text-xs mt-0.5">
-              Your football brain vs. the math
-            </p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-2xl font-extrabold tracking-tight text-text-primary">
+                WC2026
+                <span className="text-accent-gold ml-2">Predictor</span>
+              </h1>
+              <p className="text-text-muted text-xs mt-0.5">
+                Your football brain vs. the math
+              </p>
+            </div>
+
+            {/* Live badge */}
+            {isLive && (
+              <div className="flex items-center gap-1.5 bg-accent-green/10 text-accent-green px-2.5 py-1 rounded-full">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-green" />
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wider">Live</span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Last updated */}
+            {lastUpdated && (
+              <button
+                onClick={refreshLive}
+                disabled={liveLoading}
+                className="hidden sm:flex items-center gap-1 text-[10px] text-text-muted hover:text-text-secondary transition-colors cursor-pointer"
+                title="Click to refresh live data"
+              >
+                {liveLoading ? (
+                  <span className="animate-spin">↻</span>
+                ) : (
+                  <span>↻</span>
+                )}
+                <span>
+                  Updated {formatTimeAgo(lastUpdated)}
+                </span>
+              </button>
+            )}
+
             {/* Progress badge */}
             <div className="hidden sm:flex items-center gap-2 text-xs bg-bg-secondary rounded-full px-3 py-1.5">
               <span className="text-text-muted">Predictions:</span>
@@ -237,6 +273,15 @@ function App() {
       </main>
     </div>
   );
+}
+
+function formatTimeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ago`;
 }
 
 export default App;

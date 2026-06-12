@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMonteCarloWorker } from "../../hooks/useMonteCarloWorker";
 import { usePredictionStore } from "../../store/predictionStore";
+import { useResultsStore } from "../../store/resultsStore";
 import { getFlagClass } from "../../data/flags";
 import { getTeamMap, teams } from "../../data/teams";
 import { groups } from "../../data/groups";
@@ -632,13 +633,15 @@ function GroupStageComparison({
 
 // ─── Section 4: Score & Accuracy ────────────────────────────
 
-function ScoreAccuracy({
-  predictions,
-}: {
-  predictions: Record<string, Prediction>;
-}) {
-  // Score user predictions against model's most likely scores
-  const scoring = useMemo(() => {
+interface ScoringResult {
+  totalPoints: number;
+  correctResults: number;
+  correctScores: number;
+  matchesScored: number;
+}
+
+function useModelScoring(predictions: Record<string, Prediction>): ScoringResult {
+  return useMemo(() => {
     const teamMap = getTeamMap();
     const strengths = calculateStrengthFromElo(teams);
     const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
@@ -648,7 +651,6 @@ function ScoreAccuracy({
     let correctScores = 0;
     let matchesScored = 0;
 
-    // For each user prediction, compare against model's most likely score
     for (const [matchId, userPred] of Object.entries(predictions)) {
       const match = groupStageSchedule.find((m) => m.id === matchId);
       if (!match) continue;
@@ -660,7 +662,6 @@ function ScoreAccuracy({
       if (!homeTeam || !awayTeam || !homeStr || !awayStr) continue;
 
       const simResult = analyzeMatch(matchId, homeTeam, awayTeam, homeStr, awayStr);
-
       const modelPred: Prediction = {
         matchId,
         homeGoals: simResult.mostLikelyScore[0],
@@ -677,6 +678,56 @@ function ScoreAccuracy({
 
     return { totalPoints, correctResults, correctScores, matchesScored };
   }, [predictions]);
+}
+
+function useActualScoring(predictions: Record<string, Prediction>): ScoringResult & { hasActual: boolean } {
+  const results = useResultsStore((s) => s.results);
+  const getResult = useResultsStore((s) => s.getResultForMatch);
+
+  return useMemo(() => {
+    let totalPoints = 0;
+    let correctResults = 0;
+    let correctScores = 0;
+    let matchesScored = 0;
+
+    for (const [matchId, userPred] of Object.entries(predictions)) {
+      const actual = getResult(matchId);
+      if (!actual) continue;
+
+      const actualPred: Prediction = {
+        matchId,
+        homeGoals: actual.homeScore,
+        awayGoals: actual.awayScore,
+        source: "model",
+      };
+
+      const score = scoreMatch(userPred, actualPred);
+      totalPoints += score.points;
+      if (score.category !== "wrong") correctResults++;
+      if (score.category === "exact") correctScores++;
+      matchesScored++;
+    }
+
+    return {
+      totalPoints,
+      correctResults,
+      correctScores,
+      matchesScored,
+      hasActual: results.some((r) => r.completed),
+    };
+  }, [predictions, results, getResult]);
+}
+
+function ScoreAccuracy({
+  predictions,
+}: {
+  predictions: Record<string, Prediction>;
+}) {
+  const [mode, setMode] = useState<"model" | "actual">("model");
+  const modelScoring = useModelScoring(predictions);
+  const actualScoring = useActualScoring(predictions);
+
+  const scoring = mode === "actual" && actualScoring.hasActual ? actualScoring : modelScoring;
 
   if (scoring.matchesScored === 0) return null;
 
@@ -693,9 +744,43 @@ function ScoreAccuracy({
 
   return (
     <div className="bg-white rounded-xl border border-border shadow-sm p-6">
-      <h2 className="text-lg font-bold text-text-primary mb-5">
-        Score & Accuracy
-      </h2>
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-lg font-bold text-text-primary">
+          Score & Accuracy
+        </h2>
+
+        {/* Mode toggle */}
+        {actualScoring.hasActual && (
+          <div className="flex bg-bg-secondary rounded-lg p-0.5">
+            <button
+              onClick={() => setMode("model")}
+              className={`text-xs px-3 py-1 rounded-md cursor-pointer transition-colors ${
+                mode === "model"
+                  ? "bg-white text-text-primary font-medium shadow-sm"
+                  : "text-text-muted hover:text-text-secondary"
+              }`}
+            >
+              vs Model
+            </button>
+            <button
+              onClick={() => setMode("actual")}
+              className={`text-xs px-3 py-1 rounded-md cursor-pointer transition-colors ${
+                mode === "actual"
+                  ? "bg-white text-text-primary font-medium shadow-sm"
+                  : "text-text-muted hover:text-text-secondary"
+              }`}
+            >
+              vs Actual Results
+            </button>
+          </div>
+        )}
+      </div>
+
+      {mode === "actual" && (
+        <p className="text-xs text-text-muted mb-4">
+          Scoring your predictions against real match results ({actualScoring.matchesScored} completed matches)
+        </p>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="text-center p-4 bg-bg-secondary rounded-xl">

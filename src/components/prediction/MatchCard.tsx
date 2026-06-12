@@ -1,6 +1,7 @@
 import type { Match, Team, Prediction } from "../../types";
 import { getFlagClass } from "../../data/flags";
 import { formatMatchDate } from "../../data/schedule";
+import { useResultsStore } from "../../store/resultsStore";
 import { ScoreInput } from "./ScoreInput";
 
 interface MatchCardProps {
@@ -22,6 +23,7 @@ export function MatchCard({
 }: MatchCardProps) {
   const homeGoals = prediction?.homeGoals ?? null;
   const awayGoals = prediction?.awayGoals ?? null;
+  const actualResult = useResultsStore((s) => s.getResultForMatch)(match.id);
 
   const handleHomeChange = (goals: number) => {
     onScoreChange(match.id, goals, awayGoals ?? 0);
@@ -31,9 +33,43 @@ export function MatchCard({
     onScoreChange(match.id, homeGoals ?? 0, goals);
   };
 
+  // Accuracy indicator when actual result exists
+  let accuracyIcon = "";
+  let accuracyColor = "";
+  if (actualResult && homeGoals !== null && awayGoals !== null) {
+    const exactMatch =
+      homeGoals === actualResult.homeScore &&
+      awayGoals === actualResult.awayScore;
+    const userResult =
+      homeGoals > awayGoals ? "H" : homeGoals < awayGoals ? "A" : "D";
+    const actualRes =
+      actualResult.homeScore > actualResult.awayScore
+        ? "H"
+        : actualResult.homeScore < actualResult.awayScore
+        ? "A"
+        : "D";
+    const correctResult = userResult === actualRes;
+
+    if (exactMatch) {
+      accuracyIcon = "⭐";
+      accuracyColor = "text-accent-gold";
+    } else if (correctResult) {
+      accuracyIcon = "✓";
+      accuracyColor = "text-accent-green";
+    } else {
+      accuracyIcon = "✗";
+      accuracyColor = "text-accent-red";
+    }
+  }
+
   // Result indicator colors
   let resultBorder = "border-transparent";
-  if (homeGoals !== null && awayGoals !== null) {
+  if (actualResult && homeGoals !== null && awayGoals !== null) {
+    // Color based on accuracy vs actual
+    if (accuracyIcon === "⭐") resultBorder = "border-accent-gold/50";
+    else if (accuracyIcon === "✓") resultBorder = "border-accent-green/40";
+    else if (accuracyIcon === "✗") resultBorder = "border-accent-red/40";
+  } else if (homeGoals !== null && awayGoals !== null) {
     if (homeGoals > awayGoals) resultBorder = "border-accent-green/40";
     else if (homeGoals < awayGoals) resultBorder = "border-accent-red/40";
     else resultBorder = "border-accent-gold/40";
@@ -44,9 +80,19 @@ export function MatchCard({
       className={`bg-white rounded-lg border ${resultBorder} px-4 py-3
         shadow-sm hover:shadow-md transition-shadow`}
     >
-      {/* Date label */}
-      <div className="text-[11px] font-mono text-text-muted mb-2">
-        {formatMatchDate(match.date)}
+      {/* Date label + accuracy icon */}
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[11px] font-mono text-text-muted">
+          {formatMatchDate(match.date)}
+        </span>
+        {accuracyIcon && (
+          <span className={`text-sm font-bold ${accuracyColor}`} title={
+            accuracyIcon === "⭐" ? "Exact score!" :
+            accuracyIcon === "✓" ? "Correct result" : "Wrong prediction"
+          }>
+            {accuracyIcon}
+          </span>
+        )}
       </div>
 
       {/* Match row */}
@@ -82,6 +128,18 @@ export function MatchCard({
           <span className={`${getFlagClass(awayTeam.id)} text-base shrink-0`} />
         </div>
       </div>
+
+      {/* Actual result row (when available) */}
+      {actualResult && (
+        <div className="mt-2 pt-2 border-t border-border/50 flex items-center justify-center gap-2">
+          <span className="text-[10px] uppercase tracking-wider text-text-muted font-medium">
+            Actual
+          </span>
+          <span className="font-mono text-sm font-bold text-text-primary">
+            {actualResult.homeScore} – {actualResult.awayScore}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

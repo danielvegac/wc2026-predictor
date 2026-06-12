@@ -7,7 +7,8 @@
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(mkdir -p C:/Users/jorge/projects/wc2026-predictor-app/src/components/dashboard)",
-      "Bash(mkdir -p C:/Users/jorge/projects/wc2026-predictor-app/src/workers)"
+      "Bash(mkdir -p C:/Users/jorge/projects/wc2026-predictor-app/src/workers)",
+      "Bash(npx vercel:*)"
     ]
   }
 }
