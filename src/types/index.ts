@@ -69,6 +69,7 @@ export interface Match {
   matchday?: number;
   date: string;
   venue: string;
+  kickoffCOT?: string;            // e.g. "2:00 PM" — Colombia Time (UTC-5)
 }
 
 // --- Prediction ---

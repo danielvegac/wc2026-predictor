@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useMonteCarloWorker } from "../../hooks/useMonteCarloWorker";
 import { usePredictionStore } from "../../store/predictionStore";
 import { useResultsStore } from "../../store/resultsStore";
+import { useModelPredictionStore } from "../../store/modelPredictionStore";
+import { useLiveEloStore } from "../../store/liveEloStore";
 import { getFlagClass } from "../../data/flags";
 import { getTeamMap, teams } from "../../data/teams";
 import { groups } from "../../data/groups";
@@ -13,6 +15,7 @@ import { simulateGroup } from "../../engine/groupSimulator";
 import { analyzeMatch } from "../../engine/matchSimulator";
 import { groupStageSchedule } from "../../data/schedule";
 import { scoreMatch } from "../../utils/scoring";
+import { expertPicks, calculateExpertAccuracy } from "../../data/expertPicks";
 import type { MonteCarloResults, Prediction } from "../../types";
 
 const NUM_SIMS = 10_000;
@@ -36,6 +39,9 @@ export function Dashboard() {
 
   return (
     <div className="flex flex-col gap-8">
+      <EloUpdateIndicator />
+      <ModelTrackRecord predictions={predictions} />
+      <ExpertAccuracyTracker predictions={predictions} />
       <ChampionshipComparison
         results={results}
         getGroupStandings={getGroupStandings}
@@ -103,6 +109,407 @@ const MODEL_META = [
   { key: "pele", label: "PELE", color: MODEL_COLORS.pele, source: "100K simulations — Nate Silver" },
   { key: "polymarket", label: "Polymarket", color: MODEL_COLORS.polymarket, source: "$1.26B trading volume — live market" },
 ] as const;
+
+// ─── Elo Update Indicator ──────────────────────────────────
+
+function EloUpdateIndicator() {
+  const recentChanges = useLiveEloStore((s) => s.recentChanges);
+  const lastSyncAt = useLiveEloStore((s) => s.lastSyncAt);
+  const teamMap = getTeamMap();
+
+  if (recentChanges.length === 0) return null;
+
+  const uniqueTeams = new Map<string, { before: number; after: number }>();
+  for (const c of recentChanges) {
+    uniqueTeams.set(c.teamId, { before: c.before, after: c.after });
+  }
+
+  const syncTime = lastSyncAt
+    ? new Date(lastSyncAt).toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+      })
+    : "—";
+
+  return (
+    <div className="bg-white rounded-xl border border-border shadow-sm p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-text-primary">
+            Elo updated: {uniqueTeams.size} team{uniqueTeams.size !== 1 ? "s" : ""}
+          </span>
+          <span className="text-[10px] text-text-muted">(last sync: {syncTime})</span>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        {[...uniqueTeams.entries()].map(([teamId, { before, after }]) => {
+          const team = teamMap.get(teamId);
+          const diff = after - before;
+          return (
+            <div
+              key={teamId}
+              className="flex items-center gap-1.5 bg-bg-secondary rounded-lg px-3 py-1.5"
+            >
+              <span className={`${getFlagClass(teamId)} text-sm`} />
+              <span className="text-xs font-medium">{team?.shortName ?? teamId}</span>
+              <span className="font-mono text-[10px] text-text-muted">{before}</span>
+              <span className="text-text-muted text-xs">&rarr;</span>
+              <span className="font-mono text-[10px] font-bold text-text-primary">{after}</span>
+              <span
+                className={`font-mono text-[10px] font-bold ${
+                  diff > 0 ? "text-accent-green" : diff < 0 ? "text-accent-red" : "text-text-muted"
+                }`}
+              >
+                ({diff > 0 ? "+" : ""}{diff})
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Expert Accuracy Tracker ───────────────────────────────
+
+function ExpertAccuracyTracker({
+  predictions,
+}: {
+  predictions: Record<string, Prediction>;
+}) {
+  const results = useResultsStore((s) => s.results);
+  const getResult = useResultsStore((s) => s.getResultForMatch);
+  const modelPredictions = useModelPredictionStore((s) => s.predictions);
+
+  const rows = useMemo(() => {
+    // Build actual results map
+    const actualMap: Record<string, { homeGoals: number; awayGoals: number }> = {};
+    for (const match of groupStageSchedule) {
+      const actual = getResult(match.id);
+      if (actual) {
+        actualMap[match.id] = { homeGoals: actual.homeScore, awayGoals: actual.awayScore };
+      }
+    }
+
+    if (Object.keys(actualMap).length === 0) return null;
+
+    // Expert accuracy
+    const expertRows = calculateExpertAccuracy(expertPicks, actualMap);
+
+    // Model accuracy
+    let modelCorrect = 0;
+    let modelExact = 0;
+    let modelTotal = 0;
+    for (const [matchId, actual] of Object.entries(actualMap)) {
+      const model = modelPredictions[matchId];
+      if (!model) continue;
+      modelTotal++;
+      const mResult = model.homeGoals > model.awayGoals ? "home" : model.homeGoals < model.awayGoals ? "away" : "draw";
+      const aResult = actual.homeGoals > actual.awayGoals ? "home" : actual.homeGoals < actual.awayGoals ? "away" : "draw";
+      if (mResult === aResult) modelCorrect++;
+      if (model.homeGoals === actual.homeGoals && model.awayGoals === actual.awayGoals) modelExact++;
+    }
+
+    // User accuracy
+    let userCorrect = 0;
+    let userExact = 0;
+    let userTotal = 0;
+    for (const [matchId, actual] of Object.entries(actualMap)) {
+      const userPred = predictions[matchId];
+      if (!userPred) continue;
+      userTotal++;
+      const uResult = userPred.homeGoals > userPred.awayGoals ? "home" : userPred.homeGoals < userPred.awayGoals ? "away" : "draw";
+      const aResult = actual.homeGoals > actual.awayGoals ? "home" : actual.homeGoals < actual.awayGoals ? "away" : "draw";
+      if (uResult === aResult) userCorrect++;
+      if (userPred.homeGoals === actual.homeGoals && userPred.awayGoals === actual.awayGoals) userExact++;
+    }
+
+    // Combine all rows
+    const all: Array<{ source: string; totalPicks: number; correctResults: number; exactScores: number; isSpecial?: string }> = [
+      ...expertRows,
+    ];
+
+    if (modelTotal > 0) {
+      all.push({ source: "Our Model", totalPicks: modelTotal, correctResults: modelCorrect, exactScores: modelExact, isSpecial: "model" });
+    }
+    if (userTotal > 0) {
+      all.push({ source: "You", totalPicks: userTotal, correctResults: userCorrect, exactScores: userExact, isSpecial: "user" });
+    }
+
+    // Sort by accuracy % descending
+    all.sort((a, b) => {
+      const pctA = a.totalPicks > 0 ? a.correctResults / a.totalPicks : 0;
+      const pctB = b.totalPicks > 0 ? b.correctResults / b.totalPicks : 0;
+      return pctB - pctA;
+    });
+
+    return all;
+  }, [results, getResult, modelPredictions, predictions]);
+
+  if (!rows || rows.length === 0) return null;
+
+  // Check if any expert pick has a corresponding result
+  const hasExpertWithResult = rows.some((r) => !r.isSpecial && r.totalPicks > 0);
+  if (!hasExpertWithResult) return null;
+
+  return (
+    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+      <h2 className="text-lg font-bold text-text-primary mb-1">
+        Expert Accuracy Tracker
+      </h2>
+      <p className="text-sm text-text-muted mb-5">
+        How expert predictions compare against actual results — including our model and your picks.
+      </p>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-text-secondary">
+              <th className="py-2 pr-2 font-medium">Source</th>
+              <th className="py-2 px-2 font-medium text-center">Picks</th>
+              <th className="py-2 px-2 font-medium text-center">Correct Results</th>
+              <th className="py-2 px-2 font-medium text-center">Exact Scores</th>
+              <th className="py-2 pl-2 font-medium text-center">Accuracy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const pct = r.totalPicks > 0 ? ((r.correctResults / r.totalPicks) * 100).toFixed(0) : "—";
+              const isModel = (r as { isSpecial?: string }).isSpecial === "model";
+              const isUser = (r as { isSpecial?: string }).isSpecial === "user";
+
+              return (
+                <tr
+                  key={r.source}
+                  className={`border-b border-border/30 hover:bg-bg-secondary/50 ${
+                    isModel ? "bg-blue-50/50" : isUser ? "bg-accent-gold/5" : ""
+                  }`}
+                >
+                  <td className="py-2 pr-2">
+                    <span
+                      className={`font-medium ${
+                        isModel
+                          ? "text-blue-500"
+                          : isUser
+                          ? "text-accent-gold"
+                          : "text-text-primary"
+                      }`}
+                    >
+                      {r.source}
+                    </span>
+                  </td>
+                  <td className="py-2 px-2 text-center font-mono text-xs">{r.totalPicks}</td>
+                  <td className="py-2 px-2 text-center font-mono text-xs">{r.correctResults}</td>
+                  <td className="py-2 px-2 text-center font-mono text-xs">{r.exactScores}</td>
+                  <td className="py-2 pl-2 text-center">
+                    <span
+                      className={`font-mono text-xs font-bold ${
+                        isModel
+                          ? "text-blue-500"
+                          : isUser
+                          ? "text-accent-gold"
+                          : "text-text-primary"
+                      }`}
+                    >
+                      {pct}%
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── Section 0: Model Track Record ─────────────────────────
+
+function ModelTrackRecord({
+  predictions,
+}: {
+  predictions: Record<string, Prediction>;
+}) {
+  const results = useResultsStore((s) => s.results);
+  const getResult = useResultsStore((s) => s.getResultForMatch);
+  const modelPredictions = useModelPredictionStore((s) => s.predictions);
+  const teamMap = getTeamMap();
+
+  const rows = useMemo(() => {
+    const out: Array<{
+      matchId: string;
+      homeTeamId: string;
+      awayTeamId: string;
+      userHome: number | null;
+      userAway: number | null;
+      modelHome: number;
+      modelAway: number;
+      actualHome: number;
+      actualAway: number;
+      userPts: number;
+      modelPts: number;
+      userCat: string;
+      modelCat: string;
+    }> = [];
+
+    for (const match of groupStageSchedule) {
+      const actual = getResult(match.id);
+      if (!actual) continue;
+
+      const model = modelPredictions[match.id];
+      if (!model) continue;
+
+      const userPred = predictions[match.id];
+
+      // Score model vs actual
+      const modelScore = scoreMatch(
+        { matchId: match.id, homeGoals: model.homeGoals, awayGoals: model.awayGoals, source: "model" },
+        { matchId: match.id, homeGoals: actual.homeScore, awayGoals: actual.awayScore, source: "model" }
+      );
+
+      // Score user vs actual
+      let userPts = 0;
+      let userCat = "none";
+      if (userPred) {
+        const userScore = scoreMatch(
+          userPred,
+          { matchId: match.id, homeGoals: actual.homeScore, awayGoals: actual.awayScore, source: "model" }
+        );
+        userPts = userScore.points;
+        userCat = userScore.category;
+      }
+
+      out.push({
+        matchId: match.id,
+        homeTeamId: match.homeTeamId,
+        awayTeamId: match.awayTeamId,
+        userHome: userPred?.homeGoals ?? null,
+        userAway: userPred?.awayGoals ?? null,
+        modelHome: model.homeGoals,
+        modelAway: model.awayGoals,
+        actualHome: actual.homeScore,
+        actualAway: actual.awayScore,
+        userPts,
+        modelPts: modelScore.points,
+        userCat,
+        modelCat: modelScore.category,
+      });
+    }
+
+    return out;
+  }, [predictions, results, getResult, modelPredictions]);
+
+  if (rows.length === 0) return null;
+
+  const userTotal = rows.reduce((s, r) => s + r.userPts, 0);
+  const modelTotal = rows.reduce((s, r) => s + r.modelPts, 0);
+  const userCorrect = rows.filter((r) => r.userCat !== "wrong" && r.userCat !== "none").length;
+  const userExact = rows.filter((r) => r.userCat === "exact").length;
+  const modelCorrect = rows.filter((r) => r.modelCat !== "wrong").length;
+  const modelExact = rows.filter((r) => r.modelCat === "exact").length;
+  const userPredicted = rows.filter((r) => r.userHome !== null).length;
+
+  const diff = userTotal - modelTotal;
+  const verdict =
+    diff > 0
+      ? `You're ahead by ${diff} point${diff !== 1 ? "s" : ""} 🎉`
+      : diff < 0
+      ? `The model is ahead by ${Math.abs(diff)} point${Math.abs(diff) !== 1 ? "s" : ""}`
+      : "It's a tie";
+
+  function catIcon(cat: string) {
+    if (cat === "exact") return <span className="text-accent-gold">⭐</span>;
+    if (cat === "goal_diff" || cat === "result") return <span className="text-accent-green">✓</span>;
+    if (cat === "wrong") return <span className="text-accent-red">✗</span>;
+    return <span className="text-text-muted">—</span>;
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+      <h2 className="text-lg font-bold text-text-primary mb-1">
+        Model Track Record
+      </h2>
+      <p className="text-sm text-text-muted mb-5">
+        Your predictions vs. the model's predictions, scored against actual results.
+      </p>
+
+      {/* Match rows */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-text-secondary">
+              <th className="py-2 pr-2 font-medium">Match</th>
+              <th className="py-2 px-2 font-medium text-center">Your Guess</th>
+              <th className="py-2 px-2 font-medium text-center text-blue-500">Model</th>
+              <th className="py-2 px-2 font-medium text-center">Actual</th>
+              <th className="py-2 px-2 font-medium text-center">You</th>
+              <th className="py-2 pl-2 font-medium text-center text-blue-500">Model</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const home = teamMap.get(r.homeTeamId);
+              const away = teamMap.get(r.awayTeamId);
+              return (
+                <tr key={r.matchId} className="border-b border-border/30 hover:bg-bg-secondary/50">
+                  <td className="py-2 pr-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`${getFlagClass(r.homeTeamId)} text-sm`} />
+                      <span className="text-xs font-medium">{home?.shortName}</span>
+                      <span className="text-text-muted text-xs">vs</span>
+                      <span className="text-xs font-medium">{away?.shortName}</span>
+                      <span className={`${getFlagClass(r.awayTeamId)} text-sm`} />
+                    </div>
+                  </td>
+                  <td className="py-2 px-2 text-center font-mono text-xs">
+                    {r.userHome !== null ? `${r.userHome}–${r.userAway}` : "—"}
+                  </td>
+                  <td className="py-2 px-2 text-center font-mono text-xs text-blue-500">
+                    {r.modelHome}–{r.modelAway}
+                  </td>
+                  <td className="py-2 px-2 text-center font-mono text-xs font-bold">
+                    {r.actualHome}–{r.actualAway}
+                  </td>
+                  <td className="py-2 px-2 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      {catIcon(r.userCat)}
+                      <span className="font-mono text-xs">{r.userHome !== null ? r.userPts : "—"}</span>
+                    </div>
+                  </td>
+                  <td className="py-2 pl-2 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      {catIcon(r.modelCat)}
+                      <span className="font-mono text-xs text-blue-500">{r.modelPts}</span>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Running totals */}
+      <div className="mt-5 pt-4 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="text-sm text-text-secondary">
+          <span className="font-medium">Your accuracy:</span>{" "}
+          {userCorrect}/{userPredicted} correct results, {userExact} exact score{userExact !== 1 ? "s" : ""}
+          {" "}— <span className="font-mono font-bold text-accent-gold">{userTotal} pts</span>
+        </div>
+        <div className="text-sm text-text-secondary">
+          <span className="font-medium text-blue-500">Model accuracy:</span>{" "}
+          {modelCorrect}/{rows.length} correct results, {modelExact} exact score{modelExact !== 1 ? "s" : ""}
+          {" "}— <span className="font-mono font-bold text-blue-500">{modelTotal} pts</span>
+        </div>
+      </div>
+
+      <div className="mt-3 text-center">
+        <span className="text-sm font-bold text-text-primary">{verdict}</span>
+      </div>
+    </div>
+  );
+}
 
 // ─── Section 1: Championship Comparison ─────────────────────
 

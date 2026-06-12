@@ -3,9 +3,12 @@
 // ============================================================
 // On mount: fetches Polymarket odds, Elo ratings, and match results.
 // Falls back to static data silently on failure.
+// After fetching results, syncs live Elo and recalculates predictions.
 
 import { useState, useCallback, useEffect } from "react";
 import { useResultsStore } from "../store/resultsStore";
+import { useLiveEloStore } from "../store/liveEloStore";
+import { useModelPredictionStore } from "../store/modelPredictionStore";
 import type { MatchResult } from "../store/resultsStore";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
@@ -61,6 +64,30 @@ export function useLiveData() {
       if (data.matches.length > 0) {
         setResults(data.matches, data.source);
         if (data.source === "live") anyLive = true;
+
+        // Sync live Elo ratings from completed matches
+        const completedMatches = data.matches
+          .filter((m) => m.completed && m.matchId)
+          .map((m) => ({
+            matchId: m.matchId!,
+            homeTeamId: m.homeTeamId,
+            awayTeamId: m.awayTeamId,
+            homeScore: m.homeScore,
+            awayScore: m.awayScore,
+          }));
+
+        if (completedMatches.length > 0) {
+          const eloStore = useLiveEloStore.getState();
+          eloStore.init();
+          eloStore.syncWithResults(completedMatches);
+
+          // Lock completed matches and recalculate predictions for unplayed matches
+          const modelStore = useModelPredictionStore.getState();
+          for (const m of completedMatches) {
+            modelStore.lockMatch(m.matchId);
+          }
+          modelStore.compute(eloStore.ratings);
+        }
       }
     }
 

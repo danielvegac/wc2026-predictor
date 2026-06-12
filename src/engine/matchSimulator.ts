@@ -10,13 +10,18 @@ import { eloGoalAdjustment } from "./elo";
 
 /**
  * Calculate expected goals (lambdas) for both teams in a match
+ * @param liveElo Optional live Elo ratings override
  */
 export function calculateLambdas(
   homeTeam: Team,
   awayTeam: Team,
   homeStrength: TeamStrength,
-  awayStrength: TeamStrength
+  awayStrength: TeamStrength,
+  liveElo?: Record<string, number>
 ): { lambdaHome: number; lambdaAway: number } {
+  const homeElo = liveElo?.[homeTeam.id] ?? homeTeam.eloRating;
+  const awayElo = liveElo?.[awayTeam.id] ?? awayTeam.eloRating;
+
   // Base expected goals from attack/defense strength
   let lambdaHome = getExpectedGoals(
     homeStrength.attackStrength,
@@ -28,8 +33,8 @@ export function calculateLambdas(
   );
 
   // Apply Elo adjustment
-  const eloAdjHome = eloGoalAdjustment(homeTeam.eloRating, awayTeam.eloRating);
-  const eloAdjAway = eloGoalAdjustment(awayTeam.eloRating, homeTeam.eloRating);
+  const eloAdjHome = eloGoalAdjustment(homeElo, awayElo);
+  const eloAdjAway = eloGoalAdjustment(awayElo, homeElo);
 
   lambdaHome *= eloAdjHome;
   lambdaAway *= eloAdjAway;

@@ -1,5 +1,5 @@
 // /api/results — Fetch completed WC 2026 match results
-// Source: Fotmob API (unofficial, public)
+// Source: ESPN API (public, no auth)
 // Cache: 30 minutes
 //
 // Returns completed matches with scores for scoring user predictions.
@@ -8,7 +8,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { resolveTeamId, WC_TEAM_IDS } from "./_teamMapping.js";
 
 interface MatchResult {
-  matchId: string | null;  // We'll try to map to our GS-X-Y IDs
+  matchId: string | null;
   homeTeamId: string;
   awayTeamId: string;
   homeScore: number;
@@ -18,80 +18,97 @@ interface MatchResult {
   completed: boolean;
 }
 
-// Fotmob league ID for FIFA World Cup
-const FOTMOB_WC_ID = 76;
+// WC 2026 date range — scan each day for results
+function getWC2026Dates(): string[] {
+  const dates: string[] = [];
+  const start = new Date("2026-06-11");
+  const today = new Date();
+  const limit = new Date("2026-07-20"); // WC final ~July 19
+
+  const stop = today < limit ? today : limit;
+  for (let d = new Date(start); d <= stop; d.setDate(d.getDate() + 1)) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    dates.push(`${y}${m}${dd}`);
+  }
+  return dates;
+}
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cache-Control", "s-maxage=1800, stale-while-revalidate=300");
 
   try {
-    const fotmobRes = await fetch(
-      `https://www.fotmob.com/api/leagues?id=${FOTMOB_WC_ID}`,
-      {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-          Accept: "application/json",
-          Referer: "https://www.fotmob.com/",
-        },
-        signal: AbortSignal.timeout(15000),
-      }
-    );
+    const results: MatchResult[] = [];
+    const dates = getWC2026Dates();
 
-    if (!fotmobRes.ok) {
-      return res.status(200).json({
-        matches: [],
-        source: "unavailable",
-        timestamp: new Date().toISOString(),
-        error: `Fotmob returned ${fotmobRes.status}`,
-      });
-    }
+    // Fetch each day's scoreboard from ESPN
+    for (const date of dates) {
+      const espnRes = await fetch(
+        `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=${date}`,
+        {
+          headers: {
+            "User-Agent": "WC2026-Predictor/1.0",
+            Accept: "application/json",
+          },
+          signal: AbortSignal.timeout(10000),
+        }
+      );
 
-    const data = await fotmobRes.json() as {
-      matches?: {
-        allMatches?: Array<{
-          home?: { name?: string; score?: number };
-          away?: { name?: string; score?: number };
-          status?: { finished?: boolean; started?: boolean };
-          timeTS?: number;
-          round?: number;
-          stage?: string;
+      if (!espnRes.ok) continue;
+
+      const data = await espnRes.json() as {
+        events?: Array<{
+          competitions?: Array<{
+            competitors?: Array<{
+              homeAway?: string;
+              score?: string;
+              team?: { displayName?: string; shortDisplayName?: string; abbreviation?: string };
+            }>;
+            status?: { type?: { name?: string; completed?: boolean } };
+            date?: string;
+            type?: { text?: string };
+          }>;
         }>;
       };
-    };
 
-    const results: MatchResult[] = [];
-    const allMatches = data?.matches?.allMatches ?? [];
+      const events = data?.events ?? [];
+      for (const event of events) {
+        const comp = event.competitions?.[0];
+        if (!comp) continue;
 
-    for (const match of allMatches) {
-      const homeName = match.home?.name;
-      const awayName = match.away?.name;
-      if (!homeName || !awayName) continue;
+        const homeComp = comp.competitors?.find((c) => c.homeAway === "home");
+        const awayComp = comp.competitors?.find((c) => c.homeAway === "away");
+        if (!homeComp || !awayComp) continue;
 
-      const homeTeamId = resolveTeamId(homeName);
-      const awayTeamId = resolveTeamId(awayName);
-      if (!homeTeamId || !awayTeamId) continue;
-      if (!WC_TEAM_IDS.has(homeTeamId) || !WC_TEAM_IDS.has(awayTeamId)) continue;
+        const homeName = homeComp.team?.displayName ?? homeComp.team?.shortDisplayName ?? "";
+        const awayName = awayComp.team?.displayName ?? awayComp.team?.shortDisplayName ?? "";
+        if (!homeName || !awayName) continue;
 
-      const completed = match.status?.finished === true;
-      const homeScore = match.home?.score ?? 0;
-      const awayScore = match.away?.score ?? 0;
-      const date = match.timeTS
-        ? new Date(match.timeTS).toISOString()
-        : "";
-      const stage = match.stage ?? (match.round ? `Round ${match.round}` : "group");
+        const homeTeamId = resolveTeamId(homeName) ?? resolveTeamId(homeComp.team?.abbreviation ?? "");
+        const awayTeamId = resolveTeamId(awayName) ?? resolveTeamId(awayComp.team?.abbreviation ?? "");
+        if (!homeTeamId || !awayTeamId) continue;
+        if (!WC_TEAM_IDS.has(homeTeamId) || !WC_TEAM_IDS.has(awayTeamId)) continue;
 
-      results.push({
-        matchId: null, // Frontend will match by team IDs
-        homeTeamId,
-        awayTeamId,
-        homeScore: completed ? homeScore : 0,
-        awayScore: completed ? awayScore : 0,
-        date,
-        stage,
-        completed,
-      });
+        const completed = comp.status?.type?.completed === true
+          || comp.status?.type?.name === "STATUS_FULL_TIME";
+        const homeScore = parseInt(homeComp.score ?? "0", 10) || 0;
+        const awayScore = parseInt(awayComp.score ?? "0", 10) || 0;
+        const eventDate = comp.date ?? "";
+        const stage = comp.type?.text ?? "group";
+
+        results.push({
+          matchId: null,
+          homeTeamId,
+          awayTeamId,
+          homeScore: completed ? homeScore : 0,
+          awayScore: completed ? awayScore : 0,
+          date: eventDate,
+          stage,
+          completed,
+        });
+      }
     }
 
     return res.status(200).json({

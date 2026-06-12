@@ -14,17 +14,20 @@ export const TOURNAMENT_AVG_GOALS = 1.35;
  * the tournament average. This is a simplified version that derives
  * strength from Elo ratings until real match data is loaded.
  *
- * In a full implementation, these would be calculated from the
- * last 50 matches using weighted goals scored/conceded.
+ * @param liveElo Optional live Elo ratings (overrides team.eloRating)
  */
-export function calculateStrengthFromElo(teams: Team[]): TeamStrength[] {
-  const avgElo = teams.reduce((sum, t) => sum + t.eloRating, 0) / teams.length;
+export function calculateStrengthFromElo(
+  teams: Team[],
+  liveElo?: Record<string, number>
+): TeamStrength[] {
+  const getElo = (t: Team) => liveElo?.[t.id] ?? t.eloRating;
+  const avgElo = teams.reduce((sum, t) => sum + getElo(t), 0) / teams.length;
 
   return teams.map((team) => {
     // Derive attack/defense from Elo as a baseline
     // Better teams (higher Elo) get proportionally higher attack
     // and lower defense (fewer goals conceded)
-    const eloRatio = team.eloRating / avgElo;
+    const eloRatio = getElo(team) / avgElo;
 
     // Attack strength: how many goals this team scores relative to average
     // Scale: 1.0 = average, >1 = above average
@@ -39,7 +42,7 @@ export function calculateStrengthFromElo(teams: Team[]): TeamStrength[] {
     // Lower teams (Elo < 1500) have ~10-30%
     const squadStrengthIndex = Math.min(
       1,
-      Math.max(0, (team.eloRating - 1300) / 800)
+      Math.max(0, (getElo(team) - 1300) / 800)
     );
 
     // Form index: baseline 0.5 (neutral), adjusted later from real data

@@ -1,12 +1,14 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { runMonteCarlo } from "./engine";
 import { calculateStrengthFromElo } from "./engine/strengthCalculator";
 import { teams, getTeamMap } from "./data/teams";
 import { getFlagClass } from "./data/flags";
 import { groups } from "./data/groups";
 import { GroupStage } from "./components/bracket/GroupStage";
+import { MatchesByDate } from "./components/prediction/MatchesByDate";
 import { Dashboard } from "./components/dashboard/Dashboard";
 import { usePredictionStore } from "./store/predictionStore";
+import { initModelPredictions } from "./store/modelPredictionStore";
 import { useLiveData } from "./hooks/useLiveData";
 import type { MonteCarloResults } from "./types";
 
@@ -24,6 +26,11 @@ function App() {
   const getTotalProgress = usePredictionStore((s) => s.getTotalProgress);
 
   const { completed, total } = getTotalProgress();
+
+  // Initialize model predictions on first load
+  useEffect(() => {
+    initModelPredictions();
+  }, []);
 
   // Live data integration
   const { isLive, lastUpdated, loading: liveLoading, refresh: refreshLive } = useLiveData();
@@ -126,7 +133,7 @@ function App() {
           <nav className="flex gap-1">
             {(
               [
-                { key: "predictions", label: "Predictions" },
+                { key: "predictions", label: "Matches" },
                 { key: "simulation", label: "Simulation" },
                 { key: "dashboard", label: "Dashboard" },
               ] as const
@@ -150,22 +157,11 @@ function App() {
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {view === "predictions" && (
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-text-primary">
-                Group Stage
-              </h2>
-              {completed > 0 && !locked && (
-                <button
-                  onClick={clearAllPredictions}
-                  className="text-xs text-text-muted hover:text-accent-red transition-colors cursor-pointer"
-                >
-                  Clear all
-                </button>
-              )}
-            </div>
-            <GroupStage />
-          </div>
+          <MatchesView
+            completed={completed}
+            locked={locked}
+            clearAllPredictions={clearAllPredictions}
+          />
         )}
 
         {view === "simulation" && (
@@ -271,6 +267,78 @@ function App() {
 
         {view === "dashboard" && <Dashboard />}
       </main>
+    </div>
+  );
+}
+
+type MatchesViewMode = "date" | "group";
+
+const MATCHES_VIEW_KEY = "wc2026-matches-view";
+
+function MatchesView({
+  completed,
+  locked,
+  clearAllPredictions,
+}: {
+  completed: number;
+  locked: boolean;
+  clearAllPredictions: () => void;
+}) {
+  const [mode, setMode] = useState<MatchesViewMode>(() => {
+    try {
+      const stored = localStorage.getItem(MATCHES_VIEW_KEY);
+      return stored === "group" ? "group" : "date";
+    } catch {
+      return "date";
+    }
+  });
+
+  const switchMode = (m: MatchesViewMode) => {
+    setMode(m);
+    try {
+      localStorage.setItem(MATCHES_VIEW_KEY, m);
+    } catch {}
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-text-primary">Group Stage</h2>
+        <div className="flex items-center gap-3">
+          {completed > 0 && !locked && (
+            <button
+              onClick={clearAllPredictions}
+              className="text-xs text-text-muted hover:text-accent-red transition-colors cursor-pointer"
+            >
+              Clear all
+            </button>
+          )}
+          {/* View toggle */}
+          <div className="flex bg-bg-tertiary rounded-lg p-0.5">
+            <button
+              onClick={() => switchMode("date")}
+              className={`text-xs px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
+                mode === "date"
+                  ? "bg-white text-text-primary font-medium shadow-sm"
+                  : "text-text-muted hover:text-text-secondary"
+              }`}
+            >
+              By Date
+            </button>
+            <button
+              onClick={() => switchMode("group")}
+              className={`text-xs px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
+                mode === "group"
+                  ? "bg-white text-text-primary font-medium shadow-sm"
+                  : "text-text-muted hover:text-text-secondary"
+              }`}
+            >
+              By Group
+            </button>
+          </div>
+        </div>
+      </div>
+      {mode === "date" ? <MatchesByDate /> : <GroupStage />}
     </div>
   );
 }

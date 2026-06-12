@@ -3,6 +3,9 @@
 // ============================================================
 // Uses Poisson distribution to calculate the probability of
 // specific scorelines given expected goals (lambda) for each team.
+// Optionally applies Dixon-Coles low-score correlation adjustment.
+
+import { DEFAULT_RHO, dixonColesDistribution, dixonColesOutcomeProbabilities } from "./dixonColes";
 
 /**
  * Calculate factorial (with memoization for performance)
@@ -40,12 +43,19 @@ export function scorelineProbability(
 /**
  * Generate full score distribution matrix
  * Returns probabilities for all scorelines from 0-0 to maxGoals-maxGoals
+ * When useDixonColes is true (default), applies the Dixon-Coles low-score
+ * correlation adjustment for more realistic scoreline probabilities.
  */
 export function scoreDistribution(
   lambdaHome: number,
   lambdaAway: number,
-  maxGoals: number = 7
+  maxGoals: number = 7,
+  useDixonColes: boolean = true
 ): Record<string, number> {
+  if (useDixonColes) {
+    return dixonColesDistribution(lambdaHome, lambdaAway, DEFAULT_RHO, maxGoals);
+  }
+
   const distribution: Record<string, number> = {};
 
   for (let h = 0; h <= maxGoals; h++) {
@@ -62,12 +72,18 @@ export function scoreDistribution(
 
 /**
  * Calculate match outcome probabilities (home win / draw / away win)
+ * When useDixonColes is true (default), applies the Dixon-Coles adjustment.
  */
 export function matchOutcomeProbabilities(
   lambdaHome: number,
   lambdaAway: number,
-  maxGoals: number = 7
+  maxGoals: number = 7,
+  useDixonColes: boolean = true
 ): { homeWin: number; draw: number; awayWin: number } {
+  if (useDixonColes) {
+    return dixonColesOutcomeProbabilities(lambdaHome, lambdaAway, DEFAULT_RHO, maxGoals);
+  }
+
   let homeWin = 0;
   let draw = 0;
   let awayWin = 0;
@@ -92,12 +108,28 @@ export function matchOutcomeProbabilities(
 
 /**
  * Find the most likely scoreline
+ * Uses Dixon-Coles adjusted probabilities by default.
  */
 export function mostLikelyScore(
   lambdaHome: number,
   lambdaAway: number,
-  maxGoals: number = 7
+  maxGoals: number = 7,
+  useDixonColes: boolean = true
 ): [number, number] {
+  if (useDixonColes) {
+    const dist = dixonColesDistribution(lambdaHome, lambdaAway, DEFAULT_RHO, maxGoals);
+    let bestProb = 0;
+    let bestScore: [number, number] = [0, 0];
+    for (const [key, prob] of Object.entries(dist)) {
+      if (prob > bestProb) {
+        bestProb = prob;
+        const [h, a] = key.split("-").map(Number);
+        bestScore = [h, a];
+      }
+    }
+    return bestScore;
+  }
+
   let bestProb = 0;
   let bestScore: [number, number] = [0, 0];
 
