@@ -3,30 +3,14 @@
 // Cache: 24 hours (ratings update daily)
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { WC_TEAM_IDS, resolveTeamId } from "./_teamMapping";
-
-// ClubElo uses different country codes than us
-const CLUBELO_CODES: Record<string, string> = {
-  MEX: "Mexico", KOR: "Korea_Republic", RSA: "South_Africa", CZE: "Czech_Republic",
-  SUI: "Switzerland", CAN: "Canada", QAT: "Qatar", BIH: "Bosnia-Herzegovina",
-  BRA: "Brazil", MAR: "Morocco", SCO: "Scotland", HAI: "Haiti",
-  USA: "United_States", TUR: "Turkey", AUS: "Australia", PAR: "Paraguay",
-  GER: "Germany", ECU: "Ecuador", CIV: "Ivory_Coast", CUW: "Curacao",
-  NED: "Netherlands", JPN: "Japan", SWE: "Sweden", TUN: "Tunisia",
-  BEL: "Belgium", EGY: "Egypt", IRN: "Iran", NZL: "New_Zealand",
-  ESP: "Spain", URU: "Uruguay", KSA: "Saudi_Arabia", CPV: "Cape_Verde",
-  FRA: "France", SEN: "Senegal", NOR: "Norway", IRQ: "Iraq",
-  ARG: "Argentina", AUT: "Austria", ALG: "Algeria", JOR: "Jordan",
-  POR: "Portugal", COL: "Colombia", UZB: "Uzbekistan", COD: "DR_Congo",
-  ENG: "England", CRO: "Croatia", GHA: "Ghana", PAN: "Panama",
-};
+import { WC_TEAM_IDS, resolveTeamId } from "./_teamMapping.js";
 
 interface EloEntry {
   teamId: string;
   elo: number;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(_req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=3600");
 
@@ -89,9 +73,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
     }
-
-    // Suppress unused variable warnings
-    void CLUBELO_CODES;
 
     return res.status(200).json({
       teams: results,

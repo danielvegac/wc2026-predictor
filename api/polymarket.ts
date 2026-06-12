@@ -3,7 +3,7 @@
 // Cache: 1 hour (markets update frequently)
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { resolveTeamId, WC_TEAM_IDS } from "./_teamMapping";
+import { resolveTeamId, WC_TEAM_IDS } from "./_teamMapping.js";
 
 interface PolymarketOutcome {
   teamId: string;
@@ -15,7 +15,7 @@ interface PolymarketOutcome {
 const POLYMARKET_GAMMA_URL = "https://gamma-api.polymarket.com/events";
 const SEARCH_QUERY = "FIFA World Cup 2026 Winner";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(_req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=600");
 

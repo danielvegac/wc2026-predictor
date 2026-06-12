@@ -5,7 +5,7 @@
 // Returns completed matches with scores for scoring user predictions.
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { resolveTeamId, WC_TEAM_IDS } from "./_teamMapping";
+import { resolveTeamId, WC_TEAM_IDS } from "./_teamMapping.js";
 
 interface MatchResult {
   matchId: string | null;  // We'll try to map to our GS-X-Y IDs
@@ -21,7 +21,7 @@ interface MatchResult {
 // Fotmob league ID for FIFA World Cup
 const FOTMOB_WC_ID = 76;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(_req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cache-Control", "s-maxage=1800, stale-while-revalidate=300");
 
