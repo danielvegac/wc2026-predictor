@@ -4,6 +4,7 @@ import { formatMatchDate } from "../../data/schedule";
 import { useResultsStore } from "../../store/resultsStore";
 import { useModelPredictionStore } from "../../store/modelPredictionStore";
 import { getExpertPicksForMatch } from "../../data/expertPicks";
+import { getOddsForMatch, noVigProbs } from "../../data/matchOdds";
 import { ScoreInput } from "./ScoreInput";
 
 interface MatchCardProps {
@@ -147,6 +148,9 @@ export function MatchCard({
         </div>
       </div>
 
+      {/* Market odds row (unplayed matches only) */}
+      <MarketOddsRow matchId={match.id} hasResult={!!actualResult} />
+
       {/* Model prediction row (when available) */}
       {modelPred && (
         <div className="mt-1.5 flex items-center justify-center gap-2">
@@ -173,6 +177,32 @@ export function MatchCard({
           </span>
         </div>
       )}
+    </div>
+  );
+}
+
+function MarketOddsRow({ matchId, hasResult }: { matchId: string; hasResult: boolean }) {
+  if (hasResult) return null;
+  const odds = getOddsForMatch(matchId);
+  if (!odds) return null;
+
+  const probs = noVigProbs(odds);
+
+  return (
+    <div className="mt-1.5 flex items-center justify-center gap-1.5" style={{ fontSize: "0.7rem" }}>
+      <span className="text-text-muted font-medium">Market odds</span>
+      <span className="text-text-secondary">
+        H {(probs.homeWin * 100).toFixed(0)}%
+      </span>
+      <span className="text-text-muted">|</span>
+      <span className="text-text-secondary">
+        D {(probs.draw * 100).toFixed(0)}%
+      </span>
+      <span className="text-text-muted">|</span>
+      <span className="text-text-secondary">
+        A {(probs.awayWin * 100).toFixed(0)}%
+      </span>
+      <span className="text-text-muted">({odds.source})</span>
     </div>
   );
 }

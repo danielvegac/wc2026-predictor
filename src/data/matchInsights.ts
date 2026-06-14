@@ -105,7 +105,7 @@ export const matchInsights: MatchInsight[] = [
   },
   {
     matchId: "GS-D-2",
-    date: "2026-06-13",
+    date: "2026-06-14",
     homeTeamId: "AUS", awayTeamId: "TUR",
     homeGoals: 2, awayGoals: 0,
     homeAttackMultiplier: 1.20,
