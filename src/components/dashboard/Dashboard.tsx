@@ -16,6 +16,7 @@ import { analyzeMatch } from "../../engine/matchSimulator";
 import { groupStageSchedule } from "../../data/schedule";
 import { scoreMatch } from "../../utils/scoring";
 import { expertPicks, calculateExpertAccuracy } from "../../data/expertPicks";
+import { matchInsights, getTeamFormMultipliers } from "../../data/matchInsights";
 import type { MonteCarloResults, Prediction } from "../../types";
 
 const NUM_SIMS = 10_000;
@@ -42,6 +43,7 @@ export function Dashboard() {
       <EloUpdateIndicator />
       <ModelTrackRecord predictions={predictions} />
       <ExpertAccuracyTracker predictions={predictions} />
+      <FormInsights />
       <ChampionshipComparison
         results={results}
         getGroupStandings={getGroupStandings}
@@ -317,6 +319,137 @@ function ExpertAccuracyTracker({
                 </tr>
               );
             })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── Form Insights ────────────────────────────────────────
+
+function FormInsights() {
+  const teamMap = getTeamMap();
+
+  const rows = useMemo(() => {
+    // Collect all unique teams that have played
+    const teamIds = new Set<string>();
+    for (const insight of matchInsights) {
+      teamIds.add(insight.homeTeamId);
+      teamIds.add(insight.awayTeamId);
+    }
+
+    return [...teamIds]
+      .map((teamId) => {
+        const team = teamMap.get(teamId);
+        const mults = getTeamFormMultipliers(teamId);
+        const attackDelta = (mults.attackMultiplier - 1) * 100;
+        const defenseDelta = (mults.defenseMultiplier - 1) * 100;
+        const matchCount = matchInsights.filter(
+          (m) => m.homeTeamId === teamId || m.awayTeamId === teamId
+        ).length;
+
+        // Get latest note for this team
+        const latestInsight = [...matchInsights]
+          .reverse()
+          .find((m) => m.homeTeamId === teamId || m.awayTeamId === teamId);
+        const note = latestInsight?.notes ?? "";
+
+        return {
+          teamId,
+          teamName: team?.name ?? teamId,
+          matchCount,
+          attackDelta,
+          defenseDelta,
+          totalAbsAdjust: Math.abs(attackDelta) + Math.abs(defenseDelta),
+          note: note.length > 80 ? note.slice(0, 77) + "..." : note,
+        };
+      })
+      .sort((a, b) => b.totalAbsAdjust - a.totalAbsAdjust);
+  }, [teamMap]);
+
+  if (rows.length === 0) return null;
+
+  function deltaArrow(delta: number, invert = false) {
+    // For defense, lower is better — so invert the color logic
+    const threshold = 10;
+    const isPositive = invert ? delta < -threshold : delta > threshold;
+    const isNegative = invert ? delta > threshold : delta < -threshold;
+
+    if (isPositive) return <span className="text-accent-green font-bold">↑</span>;
+    if (isNegative) return <span className="text-accent-red font-bold">↓</span>;
+    return <span className="text-text-muted">→</span>;
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+      <h2 className="text-lg font-bold text-text-primary mb-1">
+        Tournament Form Insights
+      </h2>
+      <p className="text-sm text-text-muted mb-5">
+        How the tournament is reshaping our model — performance adjustments from actual matches.
+      </p>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-text-secondary">
+              <th className="py-2 pr-2 font-medium">Team</th>
+              <th className="py-2 px-2 font-medium text-center">Matches</th>
+              <th className="py-2 px-2 font-medium text-center">Attack Δ</th>
+              <th className="py-2 px-2 font-medium text-center">Defense Δ</th>
+              <th className="py-2 pl-2 font-medium">Key Insight</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.teamId} className="border-b border-border/30 hover:bg-bg-secondary/50">
+                <td className="py-2 pr-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`${getFlagClass(r.teamId)} text-sm`} />
+                    <span className="font-medium text-text-primary text-xs">
+                      {r.teamName}
+                    </span>
+                  </div>
+                </td>
+                <td className="py-2 px-2 text-center font-mono text-xs">{r.matchCount}</td>
+                <td className="py-2 px-2 text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    {deltaArrow(r.attackDelta)}
+                    <span
+                      className={`font-mono text-xs font-bold ${
+                        r.attackDelta > 10
+                          ? "text-accent-green"
+                          : r.attackDelta < -10
+                          ? "text-accent-red"
+                          : "text-text-secondary"
+                      }`}
+                    >
+                      {r.attackDelta > 0 ? "+" : ""}{r.attackDelta.toFixed(0)}%
+                    </span>
+                  </div>
+                </td>
+                <td className="py-2 px-2 text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    {deltaArrow(r.defenseDelta, true)}
+                    <span
+                      className={`font-mono text-xs font-bold ${
+                        r.defenseDelta < -10
+                          ? "text-accent-green"
+                          : r.defenseDelta > 10
+                          ? "text-accent-red"
+                          : "text-text-secondary"
+                      }`}
+                    >
+                      {r.defenseDelta > 0 ? "+" : ""}{r.defenseDelta.toFixed(0)}%
+                    </span>
+                  </div>
+                </td>
+                <td className="py-2 pl-2 text-xs text-text-muted max-w-xs truncate">
+                  {r.note}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

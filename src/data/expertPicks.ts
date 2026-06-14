@@ -21,6 +21,12 @@ export const expertPicks: ExpertPick[] = [
   // Group C - MD1
   { matchId: "GS-C-1", source: "CBS Sports", homeGoals: 2, awayGoals: 1, note: "Brazil vs Morocco" },
   { matchId: "GS-C-2", source: "CBS Sports", homeGoals: 1, awayGoals: 2, note: "Haiti vs Scotland (CBS picks Scotland 2-1)" },
+
+  // June 14 - MD1 Groups E & F
+  { matchId: "GS-E-1", source: "Squawka AI", homeGoals: 3, awayGoals: 0, note: "Germany vs Curaçao — heavy favorite" },
+  { matchId: "GS-F-1", source: "Squawka AI", homeGoals: 2, awayGoals: 1, note: "Netherlands vs Japan" },
+  { matchId: "GS-E-2", source: "Squawka AI", homeGoals: 1, awayGoals: 1, note: "Ivory Coast vs Ecuador — tight match" },
+  { matchId: "GS-F-2", source: "Squawka AI", homeGoals: 1, awayGoals: 0, note: "Sweden vs Tunisia" },
 ];
 
 /** Get all expert picks for a specific match */

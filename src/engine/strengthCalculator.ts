@@ -5,6 +5,7 @@
 // Uses a Dixon-Coles inspired approach adapted for international football.
 
 import type { Team, TeamStrength } from "../types";
+import { getTeamFormMultipliers } from "../data/matchInsights";
 
 /** Historical World Cup average goals per team per match */
 export const TOURNAMENT_AVG_GOALS = 1.35;
@@ -31,11 +32,16 @@ export function calculateStrengthFromElo(
 
     // Attack strength: how many goals this team scores relative to average
     // Scale: 1.0 = average, >1 = above average
-    const attackStrength = Math.pow(eloRatio, 1.5);
+    let attackStrength = Math.pow(eloRatio, 1.5);
 
     // Defense strength: how many goals this team concedes relative to average
     // Scale: 1.0 = average, <1 = better defense (concedes fewer)
-    const defenseStrength = Math.pow(1 / eloRatio, 1.2);
+    let defenseStrength = Math.pow(1 / eloRatio, 1.2);
+
+    // Apply tournament form adjustments from match insights
+    const formMults = getTeamFormMultipliers(team.id);
+    attackStrength *= formMults.attackMultiplier;
+    defenseStrength *= formMults.defenseMultiplier;
 
     // Squad strength: approximate from Elo tier
     // Top teams (Elo > 1900) have ~80-95% players in top-5 leagues

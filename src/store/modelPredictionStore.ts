@@ -88,11 +88,9 @@ export const useModelPredictionStore = create<ModelPredictionState>()(
 
 /**
  * Initialize model predictions on first load.
- * Call this once from App mount — only computes if store is empty.
+ * Always recomputes to pick up latest strength adjustments (form insights, live Elo).
  */
 export function initModelPredictions() {
   const store = useModelPredictionStore.getState();
-  if (Object.keys(store.predictions).length === 0) {
-    store.compute();
-  }
+  store.compute();
 }
