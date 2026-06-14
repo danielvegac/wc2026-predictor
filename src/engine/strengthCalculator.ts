@@ -65,6 +65,34 @@ export function calculateStrengthFromElo(
 }
 
 /**
+ * Calculate base strengths WITHOUT tournament form adjustments.
+ * Used to reconstruct original pre-match predictions for completed matches
+ * when localStorage is cleared.
+ */
+export function calculateBaseStrengthFromElo(
+  teams: Team[],
+  liveElo?: Record<string, number>
+): TeamStrength[] {
+  const getElo = (t: Team) => liveElo?.[t.id] ?? t.eloRating;
+  const avgElo = teams.reduce((sum, t) => sum + getElo(t), 0) / teams.length;
+
+  return teams.map((team) => {
+    const eloRatio = getElo(team) / avgElo;
+    const attackStrength = Math.pow(eloRatio, 1.5);
+    const defenseStrength = Math.pow(1 / eloRatio, 1.2);
+    const squadStrengthIndex = Math.min(1, Math.max(0, (getElo(team) - 1300) / 800));
+
+    return {
+      teamId: team.id,
+      attackStrength,
+      defenseStrength,
+      squadStrengthIndex,
+      formIndex: 0.5,
+    };
+  });
+}
+
+/**
  * Get expected goals (lambda) for a team in a specific match
  *
  * lambda_home = attack_home * defense_away * TOURNAMENT_AVG_GOALS
