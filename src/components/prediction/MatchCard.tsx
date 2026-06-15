@@ -149,7 +149,7 @@ export function MatchCard({
       </div>
 
       {/* Expected goals row (unplayed matches only) */}
-      {!actualResult && modelPred && (
+      {!actualResult && modelPred && modelPred.expectedHomeGoals != null && (
         <div className="mt-1.5 flex items-center justify-center gap-1.5" style={{ fontSize: "0.7rem" }}>
           <span className="text-text-muted font-medium">Exp. goals</span>
           <span className="font-mono font-semibold text-blue-400">

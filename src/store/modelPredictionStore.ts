@@ -124,6 +124,15 @@ export const useModelPredictionStore = create<ModelPredictionState>()(
 export function initModelPredictions() {
   const store = useModelPredictionStore.getState();
 
+  // Migrate stale localStorage: if any existing prediction is missing
+  // expectedHomeGoals (added later), clear all predictions so they're
+  // recomputed fresh with the new fields.
+  const existing = store.predictions;
+  const anyStale = Object.values(existing).some((p) => p.expectedHomeGoals == null);
+  if (anyStale) {
+    useModelPredictionStore.setState({ predictions: {}, lockedMatchIds: [] });
+  }
+
   // Ensure all matches with known results are locked before recomputing.
   // This protects against localStorage being cleared — matchInsights is
   // the source of truth for which matches have been played.
