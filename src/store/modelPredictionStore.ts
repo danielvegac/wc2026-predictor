@@ -19,6 +19,8 @@ export interface ModelPrediction {
   homeWinProb: number;
   drawProb: number;
   awayWinProb: number;
+  expectedHomeGoals: number;
+  expectedAwayGoals: number;
 }
 
 interface ModelPredictionState {
@@ -73,6 +75,8 @@ export const useModelPredictionStore = create<ModelPredictionState>()(
               homeWinProb: result.homeWinProb,
               drawProb: result.drawProb,
               awayWinProb: result.awayWinProb,
+              expectedHomeGoals: result.expectedHomeGoals,
+              expectedAwayGoals: result.expectedAwayGoals,
             };
             continue;
           }
@@ -91,6 +95,8 @@ export const useModelPredictionStore = create<ModelPredictionState>()(
             homeWinProb: result.homeWinProb,
             drawProb: result.drawProb,
             awayWinProb: result.awayWinProb,
+            expectedHomeGoals: result.expectedHomeGoals,
+            expectedAwayGoals: result.expectedAwayGoals,
           };
         }
 

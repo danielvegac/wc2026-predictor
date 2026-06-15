@@ -39,9 +39,29 @@ export function calculateLambdas(
   lambdaHome *= eloAdjHome;
   lambdaAway *= eloAdjAway;
 
-  // Clamp lambdas to reasonable range (0.3 - 4.0 goals expected)
-  lambdaHome = Math.max(0.3, Math.min(4.0, lambdaHome));
-  lambdaAway = Math.max(0.3, Math.min(4.0, lambdaAway));
+  // Mismatch multiplier: when Elo gap ≥ 300, standard Poisson underestimates
+  // total goals. Historical WC data shows avg 3.4 goals at 300-500 gap,
+  // 4.2 goals at 500+ gap, vs 2.5 at <100 gap.
+  const eloGap = Math.abs(homeElo - awayElo);
+  const isFavorite = homeElo > awayElo;
+
+  if (eloGap >= 300) {
+    const gapFactor = Math.min((eloGap - 300) / 400, 1.0); // 0 to 1
+    const favMultiplier = 1.15 + gapFactor * 0.20;          // 1.15 to 1.35
+    const underdogMultiplier = 1.08 + gapFactor * 0.04;     // 1.08 to 1.12
+
+    if (isFavorite) {
+      lambdaHome *= favMultiplier;
+      lambdaAway *= underdogMultiplier;
+    } else {
+      lambdaAway *= favMultiplier;
+      lambdaHome *= underdogMultiplier;
+    }
+  }
+
+  // Clamp lambdas to reasonable range (0.3 - 6.0 goals expected)
+  lambdaHome = Math.max(0.3, Math.min(6.0, lambdaHome));
+  lambdaAway = Math.max(0.3, Math.min(6.0, lambdaAway));
 
   return { lambdaHome, lambdaAway };
 }

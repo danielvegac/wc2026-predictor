@@ -148,6 +148,16 @@ export function MatchCard({
         </div>
       </div>
 
+      {/* Expected goals row (unplayed matches only) */}
+      {!actualResult && modelPred && (
+        <div className="mt-1.5 flex items-center justify-center gap-1.5" style={{ fontSize: "0.7rem" }}>
+          <span className="text-text-muted font-medium">Exp. goals</span>
+          <span className="font-mono font-semibold text-blue-400">
+            {modelPred.expectedHomeGoals.toFixed(1)} – {modelPred.expectedAwayGoals.toFixed(1)}
+          </span>
+        </div>
+      )}
+
       {/* Market odds row (unplayed matches only) */}
       <MarketOddsRow matchId={match.id} hasResult={!!actualResult} />
 

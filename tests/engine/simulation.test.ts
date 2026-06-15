@@ -6,7 +6,7 @@ import { describe, it, expect } from "vitest";
 import { poissonPMF, scorelineProbability, matchOutcomeProbabilities, mostLikelyScore } from "../../src/engine/poisson";
 import { expectedScore, eloGoalAdjustment } from "../../src/engine/elo";
 import { calculateStrengthFromElo } from "../../src/engine/strengthCalculator";
-import { analyzeMatch } from "../../src/engine/matchSimulator";
+import { analyzeMatch, calculateLambdas } from "../../src/engine/matchSimulator";
 import { runMonteCarlo } from "../../src/engine/monteCarlo";
 import { teams, getTeamMap } from "../../src/data/teams";
 import { groups } from "../../src/data/groups";
@@ -100,6 +100,46 @@ describe("Match Analysis", () => {
     expect(result.homeWinProb).toBeGreaterThan(0.25);
     expect(result.awayWinProb).toBeGreaterThan(0.25);
     expect(result.drawProb).toBeGreaterThan(0.15);
+  });
+});
+
+describe("Mismatch Multiplier", () => {
+  const teamMap = getTeamMap();
+  const strengths = calculateStrengthFromElo(teams);
+  const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
+
+  it("Spain (2040) vs Cape Verde (1420): gap=620 → mismatch multiplier applied", () => {
+    const esp = teamMap.get("ESP")!;
+    const cpv = teamMap.get("CPV")!;
+    const { lambdaHome } = calculateLambdas(esp, cpv, strengthMap.get("ESP")!, strengthMap.get("CPV")!);
+    // With mismatch multiplier (gap=620, gapFactor=0.8, favMult≈1.31), lambda should be high
+    expect(lambdaHome).toBeGreaterThanOrEqual(2.8);
+  });
+
+  it("Argentina (2060) vs Jordan (1500): gap=560 → mismatch boost", () => {
+    const arg = teamMap.get("ARG")!;
+    const jor = teamMap.get("JOR")!;
+    const { lambdaHome } = calculateLambdas(arg, jor, strengthMap.get("ARG")!, strengthMap.get("JOR")!);
+    expect(lambdaHome).toBeGreaterThanOrEqual(2.8);
+  });
+
+  it("Brazil (1970) vs Morocco (1830): gap=140 → NO multiplier", () => {
+    const bra = teamMap.get("BRA")!;
+    const mar = teamMap.get("MAR")!;
+    const lambdasWith = calculateLambdas(bra, mar, strengthMap.get("BRA")!, strengthMap.get("MAR")!);
+    // Gap < 300 — no mismatch multiplier. Lambda should be moderate.
+    expect(lambdasWith.lambdaHome).toBeLessThan(2.5);
+  });
+
+  it("Spain vs Cape Verde prediction shows expectedHomeGoals >= 2.8", () => {
+    const result = analyzeMatch(
+      "test-mismatch",
+      teamMap.get("ESP")!,
+      teamMap.get("CPV")!,
+      strengthMap.get("ESP")!,
+      strengthMap.get("CPV")!
+    );
+    expect(result.expectedHomeGoals).toBeGreaterThanOrEqual(2.8);
   });
 });
 
