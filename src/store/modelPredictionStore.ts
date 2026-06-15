@@ -121,6 +121,7 @@ export function initModelPredictions() {
   // Ensure all matches with known results are locked before recomputing.
   // This protects against localStorage being cleared — matchInsights is
   // the source of truth for which matches have been played.
+  // Jun 14 matches (GS-E-1, GS-F-1, GS-E-2, GS-F-2) locked via this loop.
   for (const insight of matchInsights) {
     store.lockMatch(insight.matchId);
   }

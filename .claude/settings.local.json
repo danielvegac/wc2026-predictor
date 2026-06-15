@@ -8,7 +8,19 @@
       "Bash(npm run:*)",
       "Bash(mkdir -p C:/Users/jorge/projects/wc2026-predictor-app/src/components/dashboard)",
       "Bash(mkdir -p C:/Users/jorge/projects/wc2026-predictor-app/src/workers)",
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "WebFetch(domain:www.fotmob.com)",
+      "WebFetch(domain:api.football-data.org)",
+      "Bash(curl -s \"https://api.sofascore.com/api/v1/sport/football/scheduled-events/2026-06-11\" -H \"User-Agent: WC2026-Predictor/1.0\" -H \"Accept: application/json\")",
+      "Bash(python3 -c ':*)",
+      "Bash(curl:*)",
+      "Bash(node -e ':*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/GitHub CLI\")",
+      "Bash(git push:*)",
+      "WebFetch(domain:site.api.espn.com)",
+      "WebFetch(domain:www.espn.com)"
     ]
   }
 }

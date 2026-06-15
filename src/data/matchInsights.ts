@@ -114,6 +114,62 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.78,
     notes: "MAJOR UPSET. Australia won 2-0 with just 28.3% possession — their lowest ever in a World Cup (Opta). Counter-attacking masterclass. Irankunda youngest Australian WC scorer. Metcalfe added 2nd from outside box. Turkey dominated possession but toothless. Australia now tied with USA atop Group D.",
   },
+
+  // ==========================================
+  // JUNE 14 — GROUP STAGE DAY 4
+  // ==========================================
+
+  // GS-E-1: Germany 7-1 Curaçao
+  {
+    matchId: "GS-E-1",
+    date: "2026-06-14",
+    homeTeamId: "GER", awayTeamId: "CUW",
+    homeGoals: 7, awayGoals: 1,
+    homeAttackMultiplier: 1.40,
+    homeDefenseMultiplier: 0.95,  // Conceded 1 to Curaçao — slight vulnerability flagged
+    awayAttackMultiplier: 1.05,   // Comenencia scored — historic first WC goal, showed some spirit
+    awayDefenseMultiplier: 0.60,  // Conceded 7
+    notes: "Germany 7-1 in a statement win — now all-time WC top scorers (239 goals). Havertz brace, Musiala, Brown, Undav, Nmecha, Schlotterbeck. Wirtz/Musiala/Sane attacking trio elite. BUT: Curaçao equalized 1-1 at 21' — analysts flag defensive vulnerability that better teams will exploit. Attack is world class, defense not flawless.",
+  },
+
+  // GS-F-1: Netherlands 2-2 Japan
+  {
+    matchId: "GS-F-1",
+    date: "2026-06-14",
+    homeTeamId: "NED", awayTeamId: "JPN",
+    homeGoals: 2, awayGoals: 2,
+    homeAttackMultiplier: 1.00,   // Scored 2 but couldn't kill the game
+    homeDefenseMultiplier: 0.90,  // Conceded twice, including 88' equalizer — fragile late
+    awayAttackMultiplier: 1.18,   // Twice came back from behind — clinical counter
+    awayDefenseMultiplier: 1.05,
+    notes: "MAJOR SURPRISE — Japan confirmed dark horse. Twice came from behind (57', 88') to draw 2-2. Neither team conceded a full xG — very balanced per Opta. Netherlands dominant in possession (60%) but Japan lethal on counter. Kamada 88' header off corner sealed draw. Summerville curled a beautiful 2-1 that looked like winner. Japan: attack UP significantly. Netherlands: attack neutral, defense DOWN — conceded late twice.",
+  },
+
+  // GS-E-2: Ivory Coast 1-0 Ecuador
+  {
+    matchId: "GS-E-2",
+    date: "2026-06-14",
+    homeTeamId: "CIV", awayTeamId: "ECU",
+    homeGoals: 1, awayGoals: 0,
+    homeAttackMultiplier: 1.10,
+    homeDefenseMultiplier: 1.15,  // Clean sheet despite Ecuador hitting post 3 times — very resilient
+    awayAttackMultiplier: 1.08,   // Hit post THREE times — genuinely dangerous, unlucky
+    awayDefenseMultiplier: 0.88,  // Conceded 1 but controlled most of the game
+    notes: "UPSET — Amad Diallo 90th minute winner ends Ecuador's 19-game unbeaten run. Ecuador hit the post 3 times (only 3rd team since 1966 to do so without scoring). Yan Diomande was best player. Ecuador were arguably better team — their attack multiplier RISES despite losing. Ivory Coast: mentality boost and defensive solidity rewarded. ECU xG was higher than CIV. Note: Ecuador -25 attack form from pre-tournament (Paraguay level) but this performance shows more quality.",
+  },
+
+  // GS-F-2: Sweden 5-1 Tunisia
+  {
+    matchId: "GS-F-2",
+    date: "2026-06-14",
+    homeTeamId: "SWE", awayTeamId: "TUN",
+    homeGoals: 5, awayGoals: 1,
+    homeAttackMultiplier: 1.35,   // Ayari x2 longrangers, Isak, Gyokeres, Svanberg — elite attack
+    homeDefenseMultiplier: 1.05,
+    awayAttackMultiplier: 0.85,
+    awayDefenseMultiplier: 0.62,  // Conceded 5
+    notes: "Sweden historic 5-1 — only 2nd time in their WC history scoring 5+ (last was 8-0 vs Cuba in 1938). Yasin Ayari with two stunning long-range efforts. Alexander Isak and Viktor Gyokeres both on scoresheet — devastating strike partnership. Tunisia defensively abysmal. Group F now wide open: Sweden top with 1pt (draw with NED), NED 1pt, JPN 1pt, TUN 0pt.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
