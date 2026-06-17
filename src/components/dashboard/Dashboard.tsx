@@ -637,7 +637,7 @@ function ModelTrackRecord({
 
   function ptsIcon(isExact: boolean, isResult: boolean, hasPred: boolean) {
     if (!hasPred) return <span className="text-text-muted">—</span>;
-    if (isExact) return <span className="text-accent-gold">9</span>;
+    if (isExact) return <span className="text-accent-gold">⭐</span>;
     if (isResult) return <span className="text-accent-green">✓</span>;
     return <span className="text-accent-red">✗</span>;
   }
@@ -691,23 +691,27 @@ function ModelTrackRecord({
                   <td className="py-2 px-2 text-center">
                     <div className="flex items-center justify-center gap-1">
                       {ptsIcon(r.userIsExact, r.userIsResult, r.userHome !== null)}
-                      <span
-                        className="font-mono text-xs font-bold"
-                        title={r.userBreakdown || undefined}
-                      >
-                        {r.userHome !== null ? r.userPts : "—"}
-                      </span>
+                      {!(r.userHome !== null && r.userPts === 9) && (
+                        <span
+                          className="font-mono text-xs font-bold"
+                          title={r.userBreakdown || undefined}
+                        >
+                          {r.userHome !== null ? r.userPts : "—"}
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="py-2 pl-2 text-center">
                     <div className="flex items-center justify-center gap-1">
                       {ptsIcon(r.modelIsExact, r.modelIsResult, true)}
-                      <span
-                        className="font-mono text-xs text-blue-500 font-bold"
-                        title={r.modelBreakdown}
-                      >
-                        {r.modelPts}
-                      </span>
+                      {r.modelPts !== 9 && (
+                        <span
+                          className="font-mono text-xs text-blue-500 font-bold"
+                          title={r.modelBreakdown}
+                        >
+                          {r.modelPts}
+                        </span>
+                      )}
                     </div>
                   </td>
                 </tr>
