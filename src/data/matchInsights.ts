@@ -291,7 +291,11 @@ export function getTeamInsights(teamId: string): MatchInsight[] {
   );
 }
 
-/** Get composite form multipliers for a team (product of all tournament matches) */
+/**
+ * Get composite form multipliers for a team using recency-weighted average.
+ * Weights: most recent match 60%, previous 30%, all earlier matches share 10%.
+ * Clamped to [0.50, 1.50] as a safety net.
+ */
 export function getTeamFormMultipliers(teamId: string): {
   attackMultiplier: number;
   defenseMultiplier: number;
@@ -299,18 +303,52 @@ export function getTeamFormMultipliers(teamId: string): {
   const insights = getTeamInsights(teamId);
   if (insights.length === 0) return { attackMultiplier: 1.0, defenseMultiplier: 1.0 };
 
-  let attackMult = 1.0;
-  let defenseMult = 1.0;
+  // Extract per-match multipliers (chronological order — insights array is chronological)
+  const attackMults: number[] = [];
+  const defenseMults: number[] = [];
 
   for (const insight of insights) {
     if (insight.homeTeamId === teamId) {
-      attackMult *= insight.homeAttackMultiplier;
-      defenseMult *= insight.homeDefenseMultiplier;
+      attackMults.push(insight.homeAttackMultiplier);
+      defenseMults.push(insight.homeDefenseMultiplier);
     } else {
-      attackMult *= insight.awayAttackMultiplier;
-      defenseMult *= insight.awayDefenseMultiplier;
+      attackMults.push(insight.awayAttackMultiplier);
+      defenseMults.push(insight.awayDefenseMultiplier);
     }
   }
 
-  return { attackMultiplier: attackMult, defenseMultiplier: defenseMult };
+  const attackMult = recencyWeightedAverage(attackMults);
+  const defenseMult = recencyWeightedAverage(defenseMults);
+
+  return {
+    attackMultiplier: Math.max(0.50, Math.min(1.50, attackMult)),
+    defenseMultiplier: Math.max(0.50, Math.min(1.50, defenseMult)),
+  };
+}
+
+/**
+ * Weighted average favoring recent matches.
+ * 1 match:  100%
+ * 2 matches: 60% most recent, 40% previous
+ * 3+ matches: 60% most recent, 30% second most recent, 10% split among rest
+ */
+function recencyWeightedAverage(values: number[]): number {
+  const n = values.length;
+  if (n === 1) return values[0];
+  if (n === 2) return values[1] * 0.60 + values[0] * 0.40;
+
+  // 3+ matches: build weights array (chronological order, most recent is last)
+  const weights = new Array<number>(n);
+  const earlierWeight = 0.10 / (n - 2);
+  for (let i = 0; i < n - 2; i++) {
+    weights[i] = earlierWeight;
+  }
+  weights[n - 2] = 0.30;
+  weights[n - 1] = 0.60;
+
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    sum += values[i] * weights[i];
+  }
+  return sum;
 }
