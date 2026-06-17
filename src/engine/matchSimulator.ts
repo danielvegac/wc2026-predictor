@@ -47,8 +47,8 @@ export function calculateLambdas(
 
   if (eloGap >= 300) {
     const gapFactor = Math.min((eloGap - 300) / 400, 1.0); // 0 to 1
-    const favMultiplier = 1.15 + gapFactor * 0.20;          // 1.15 to 1.35
-    const underdogMultiplier = 1.08 + gapFactor * 0.04;     // 1.08 to 1.12
+    const favMultiplier = 1.10 + gapFactor * 0.12;          // 1.10 to 1.22
+    const underdogMultiplier = 1.05 + gapFactor * 0.03;     // 1.05 to 1.08
 
     if (isFavorite) {
       lambdaHome *= favMultiplier;
@@ -59,9 +59,9 @@ export function calculateLambdas(
     }
   }
 
-  // Clamp lambdas to reasonable range (0.3 - 6.0 goals expected)
-  lambdaHome = Math.max(0.3, Math.min(6.0, lambdaHome));
-  lambdaAway = Math.max(0.3, Math.min(6.0, lambdaAway));
+  // Clamp lambdas to reasonable range (0.3 - 4.0 goals expected)
+  lambdaHome = Math.max(0.3, Math.min(4.0, lambdaHome));
+  lambdaAway = Math.max(0.3, Math.min(4.0, lambdaAway));
 
   return { lambdaHome, lambdaAway };
 }

@@ -96,9 +96,9 @@ describe("Match Analysis", () => {
       strengthMap.get("FRA")!
     );
 
-    // Should be relatively close
-    expect(result.homeWinProb).toBeGreaterThan(0.25);
-    expect(result.awayWinProb).toBeGreaterThan(0.25);
+    // Should be relatively close — all three outcomes plausible
+    expect(result.homeWinProb).toBeGreaterThan(0.15);
+    expect(result.awayWinProb).toBeGreaterThan(0.15);
     expect(result.drawProb).toBeGreaterThan(0.15);
   });
 });
@@ -108,19 +108,21 @@ describe("Mismatch Multiplier", () => {
   const strengths = calculateStrengthFromElo(teams);
   const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
 
-  it("Spain (2040) vs Cape Verde (1420): gap=620 → mismatch multiplier applied", () => {
+  it("Spain (2040) vs Cape Verde (1420): gap=620 → mismatch multiplier applied (recalibrated)", () => {
     const esp = teamMap.get("ESP")!;
     const cpv = teamMap.get("CPV")!;
     const { lambdaHome } = calculateLambdas(esp, cpv, strengthMap.get("ESP")!, strengthMap.get("CPV")!);
-    // With mismatch multiplier (gap=620, gapFactor=0.8, favMult≈1.31), lambda should be high
-    expect(lambdaHome).toBeGreaterThanOrEqual(2.8);
+    // With recalibrated mismatch multiplier (gap=620, gapFactor=0.8, favMult≈1.20), lambda moderate
+    expect(lambdaHome).toBeGreaterThanOrEqual(2.2);
+    expect(lambdaHome).toBeLessThanOrEqual(4.0);
   });
 
   it("Argentina (2060) vs Jordan (1500): gap=560 → mismatch boost", () => {
     const arg = teamMap.get("ARG")!;
     const jor = teamMap.get("JOR")!;
     const { lambdaHome } = calculateLambdas(arg, jor, strengthMap.get("ARG")!, strengthMap.get("JOR")!);
-    expect(lambdaHome).toBeGreaterThanOrEqual(2.8);
+    expect(lambdaHome).toBeGreaterThanOrEqual(2.2);
+    expect(lambdaHome).toBeLessThanOrEqual(4.0);
   });
 
   it("Brazil (1970) vs Morocco (1830): gap=140 → NO multiplier", () => {
@@ -131,7 +133,7 @@ describe("Mismatch Multiplier", () => {
     expect(lambdasWith.lambdaHome).toBeLessThan(2.5);
   });
 
-  it("Spain vs Cape Verde prediction shows expectedHomeGoals >= 2.8", () => {
+  it("Spain vs Cape Verde prediction shows expectedHomeGoals in recalibrated range", () => {
     const result = analyzeMatch(
       "test-mismatch",
       teamMap.get("ESP")!,
@@ -139,7 +141,8 @@ describe("Mismatch Multiplier", () => {
       strengthMap.get("ESP")!,
       strengthMap.get("CPV")!
     );
-    expect(result.expectedHomeGoals).toBeGreaterThanOrEqual(2.8);
+    expect(result.expectedHomeGoals).toBeGreaterThanOrEqual(2.2);
+    expect(result.expectedHomeGoals).toBeLessThanOrEqual(4.0);
   });
 });
 

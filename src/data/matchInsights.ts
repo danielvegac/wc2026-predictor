@@ -170,6 +170,118 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.62,  // Conceded 5
     notes: "Sweden historic 5-1 — only 2nd time in their WC history scoring 5+ (last was 8-0 vs Cuba in 1938). Yasin Ayari with two stunning long-range efforts. Alexander Isak and Viktor Gyokeres both on scoresheet — devastating strike partnership. Tunisia defensively abysmal. Group F now wide open: Sweden top with 1pt (draw with NED), NED 1pt, JPN 1pt, TUN 0pt.",
   },
+
+  // ==========================================
+  // JUNE 15 — GROUP STAGE DAY 5
+  // ==========================================
+
+  // GS-H-1: Spain 0-0 Cape Verde
+  {
+    matchId: "GS-H-1",
+    date: "2026-06-15",
+    homeTeamId: "ESP", awayTeamId: "CPV",
+    homeGoals: 0, awayGoals: 0,
+    homeAttackMultiplier: 0.72,  // 27 shots, 2.29 xG but ZERO goals — clinical failure
+    homeDefenseMultiplier: 1.05, // Didn't concede, but was exposed late
+    awayAttackMultiplier: 1.25,  // Had a late chance to WIN — Diney header saved
+    awayDefenseMultiplier: 1.40, // Vozinha 7 saves, 40yo goalkeeper, historic clean sheet
+    notes: "BIGGEST SURPRISE OF TOURNAMENT. Spain 0-0 Cape Verde. 27 shots, 2.29 xG, 7 on target — could not breach Vozinha (40yo GK, 7 saves). Yamal only entered at 70'. Without Yamal+Williams at full fitness, Spain clinical edge collapses. Cape Verde nearly WON with late Diney header. Key lesson for mismatch multiplier: even 620 Elo gap, organized defense = ~2.3 xG not 6.0. Spain attack DOWN sharply. Spain defense neutral. Cape Verde defense UP massively.",
+  },
+
+  // GS-G-1: Belgium 1-1 Egypt
+  {
+    matchId: "GS-G-1",
+    date: "2026-06-15",
+    homeTeamId: "BEL", awayTeamId: "EGY",
+    homeGoals: 1, awayGoals: 1,
+    homeAttackMultiplier: 0.88,  // Lukaku needed 22 seconds to change game — creative play poor without him
+    homeDefenseMultiplier: 0.92, // Conceded to Ashour long ranger
+    awayAttackMultiplier: 1.15,  // Salah orchestrating in #10, Ashour dangerous direct runner
+    awayDefenseMultiplier: 1.10, // Held Belgium for most of game, Shobeir solid in goal
+    notes: "Egypt led through Ashour golazo (Salah assist) and held Belgium for long stretches. Lukaku introduced and forced own goal in 22 seconds. Belgium struggled to create without Lukaku starting. Salah in #10 role is dangerous — hard to pick up. Egypt better than expected. Belgium less fluid than Elo suggests.",
+  },
+
+  // GS-H-2: Saudi Arabia 1-1 Uruguay
+  {
+    matchId: "GS-H-2",
+    date: "2026-06-15",
+    homeTeamId: "KSA", awayTeamId: "URU",
+    homeGoals: 1, awayGoals: 1,
+    homeAttackMultiplier: 1.10,
+    homeDefenseMultiplier: 1.15,  // Al-Owais multiple brilliant saves, held until 80'
+    awayAttackMultiplier: 0.90,   // Uruguay underwhelming first half, only equalized late
+    awayDefenseMultiplier: 0.95,
+    notes: "Saudi Arabia opened scoring through Al Amri rebound, held until 80'. GK Al-Owais was outstanding — multiple smart saves. Uruguay equalized through Araújo. Bielsa's Uruguay organized but uninspired offensively. Saudi Arabia much better organized than expected — new coach installed just 56 days before tournament.",
+  },
+
+  // GS-G-2: Iran 2-2 New Zealand
+  {
+    matchId: "GS-G-2",
+    date: "2026-06-15",
+    homeTeamId: "IRN", awayTeamId: "NZL",
+    homeGoals: 2, awayGoals: 2,
+    homeAttackMultiplier: 1.12,   // Twice came from behind — resilient and clinical
+    homeDefenseMultiplier: 0.88,  // Let NZ go 2-0 up
+    awayAttackMultiplier: 1.20,   // Elijah Just brace — NZ had WC win in their grasp
+    awayDefenseMultiplier: 0.85,  // Conceded 2 after leading 2-0
+    notes: "New Zealand 2-0 up through Just brace — would have been historic first WC win. Iran twice equalized. Both teams showed more attacking quality than Elo suggested. NZ attack UP significantly — Just dangerous striker. Iran resilience UP. Both defenses DOWN — couldn't hold leads.",
+  },
+
+  // ==========================================
+  // JUNE 16 — GROUP STAGE DAY 6
+  // ==========================================
+
+  // GS-I-1: France 3-1 Senegal
+  {
+    matchId: "GS-I-1",
+    date: "2026-06-16",
+    homeTeamId: "FRA", awayTeamId: "SEN",
+    homeGoals: 3, awayGoals: 1,
+    homeAttackMultiplier: 1.22,   // Mbappe brace (all-time France scorer), Olise inspired 2nd half
+    homeDefenseMultiplier: 0.95,  // Conceded 1 to Senegal
+    awayAttackMultiplier: 0.92,   // Scored but couldn't maintain pressure
+    awayDefenseMultiplier: 0.85,  // Conceded 3 to France attack
+    notes: "France dominant in 2nd half — Mbappe brace makes him all-time France top scorer. Olise excellent. Senegal showed fight with 1 goal but France class told. Mane impact remains crucial for Senegal going forward. France looking like genuine contenders — fluid attack.",
+  },
+
+  // GS-I-2: Norway 4-1 Iraq
+  {
+    matchId: "GS-I-2",
+    date: "2026-06-16",
+    homeTeamId: "NOR", awayTeamId: "IRQ",
+    homeGoals: 4, awayGoals: 1,
+    homeAttackMultiplier: 1.30,   // Haaland brace — devastating when on song
+    homeDefenseMultiplier: 1.00,
+    awayAttackMultiplier: 0.88,
+    awayDefenseMultiplier: 0.72,  // Conceded 4
+    notes: "Norway 4-1 — Haaland doblete. Confirms Norway as genuine dark horse. Attack devastating with Haaland + supporting cast. Iraq back at WC after 40 years — outclassed. Group I now: France and Norway both on 3pts after MD1, looks like France vs Norway MD3 will decide group winner.",
+  },
+
+  // GS-J-1: Argentina 3-0 Algeria
+  {
+    matchId: "GS-J-1",
+    date: "2026-06-16",
+    homeTeamId: "ARG", awayTeamId: "ALG",
+    homeGoals: 3, awayGoals: 0,
+    homeAttackMultiplier: 1.28,   // MESSI HAT-TRICK — first ever in WC, 16 WC goals (all-time record tied)
+    homeDefenseMultiplier: 1.08,  // Clean sheet
+    awayAttackMultiplier: 0.80,
+    awayDefenseMultiplier: 0.78,  // Conceded 3 to Argentina
+    notes: "HISTORIC — Messi scores first World Cup hat-trick of his career, ties all-time WC goals record (16). Argentina dominant, Algeria outclassed. Di Maria + Messi + Lautaro combination lethal. Argentina looking ominous — not just Messi, whole team clicking. Algeria defensive weakness exposed.",
+  },
+
+  // GS-J-2: Austria 3-1 Jordan
+  {
+    matchId: "GS-J-2",
+    date: "2026-06-17",  // June 17 in COT timezone (early morning)
+    homeTeamId: "AUT", awayTeamId: "JOR",
+    homeGoals: 3, awayGoals: 1,
+    homeAttackMultiplier: 1.18,   // 3-1 win including 100th minute goal
+    homeDefenseMultiplier: 0.95,  // Conceded 1
+    awayAttackMultiplier: 0.92,
+    awayDefenseMultiplier: 0.80,  // Conceded 3
+    notes: "Austria back at WC for first time since 1998 — strong debut. 3rd goal in 100th minute of extra time. Strong midfield as expected. Jordan competitive but outclassed. Austria vs Argentina (MD2) now very interesting — Austria showed real quality.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
