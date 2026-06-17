@@ -128,10 +128,14 @@ export interface MonteCarloResults {
 
 export interface ComparisonScore {
   totalPoints: number;
-  maxPossible: number;
+  maxPossible: number;            // 678 = 72×9 + 15 + 10 + 5
   correctResults: number;
   correctScores: number;
   totalMatches: number;
+  // Points breakdown
+  totalExactScorePoints: number;
+  totalResultPoints: number;
+  totalGoalsPoints: number;       // home + away goals points combined
   championCorrect: boolean;
   runnerUpCorrect: boolean;
   thirdPlaceCorrect: boolean;
@@ -142,6 +146,29 @@ export interface MatchScore {
   matchId: string;
   userPrediction: Prediction;
   modelPrediction: Prediction;
-  points: number;
-  category: "exact" | "goal_diff" | "result" | "wrong";
+  actual: Prediction;
+  // Points breakdown
+  exactScorePoints: number;      // 3 or 0
+  resultPoints: number;          // 2 or 0
+  homeGoalsPoints: number;       // 2 or 0
+  awayGoalsPoints: number;       // 2 or 0
+  totalPoints: number;           // sum of above (max 9)
+  // Flags
+  isExactScore: boolean;
+  isCorrectResult: boolean;
+  homeGoalsCorrect: boolean;
+  awayGoalsCorrect: boolean;
+}
+
+/** Lightweight score result from scoreMatch() — no prediction refs */
+export interface ScoreBreakdown {
+  exactScorePoints: number;
+  resultPoints: number;
+  homeGoalsPoints: number;
+  awayGoalsPoints: number;
+  totalPoints: number;
+  isExactScore: boolean;
+  isCorrectResult: boolean;
+  homeGoalsCorrect: boolean;
+  awayGoalsCorrect: boolean;
 }

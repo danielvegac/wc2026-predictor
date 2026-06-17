@@ -1,19 +1,21 @@
 // ============================================================
-// Prediction Scoring System
+// Prediction Scoring System — Quiniela / Polla Style
 // ============================================================
-// Compares user predictions against model predictions or actual results.
+// Points per match (max 9):
+//   Exact score (both goals correct):  3 pts
+//   Correct result (W/D/L):            2 pts
+//   Correct home goals:                2 pts
+//   Correct away goals:                2 pts
+// These stack independently.
 //
-// Points:
-//   Exact score:              5 pts
-//   Correct result + GD:      4 pts
-//   Correct result only:      3 pts
-//   Wrong result:             0 pts
-//   Correct knockout advance: 2 pts (bonus)
-//   Correct champion:        10 pts (bonus)
-//   Correct runner-up:        7 pts (bonus)
-//   Correct third place:      5 pts (bonus)
+// Tournament bonuses:
+//   Correct champion:   15 pts
+//   Correct runner-up:  10 pts
+//   Correct third place: 5 pts
+//
+// Max possible: 72 matches × 9 = 648 + 30 bonus = 678 pts
 
-import type { Prediction, ComparisonScore, MatchScore } from "../types";
+import type { Prediction, ScoreBreakdown, ComparisonScore, MatchScore } from "../types";
 
 type Result = "home" | "draw" | "away";
 
@@ -24,39 +26,35 @@ function getResult(homeGoals: number, awayGoals: number): Result {
 }
 
 /**
- * Score a single match prediction
+ * Score a single prediction against an actual result.
  */
 export function scoreMatch(
-  user: Prediction,
+  pred: Prediction,
   actual: Prediction
-): MatchScore {
-  const userResult = getResult(user.homeGoals, user.awayGoals);
+): ScoreBreakdown {
+  const predResult = getResult(pred.homeGoals, pred.awayGoals);
   const actualResult = getResult(actual.homeGoals, actual.awayGoals);
 
-  let points = 0;
-  let category: MatchScore["category"] = "wrong";
+  const isCorrectResult = predResult === actualResult;
+  const homeGoalsCorrect = pred.homeGoals === actual.homeGoals;
+  const awayGoalsCorrect = pred.awayGoals === actual.awayGoals;
+  const isExactScore = homeGoalsCorrect && awayGoalsCorrect;
 
-  if (userResult === actualResult) {
-    if (user.homeGoals === actual.homeGoals && user.awayGoals === actual.awayGoals) {
-      points = 5;
-      category = "exact";
-    } else if (
-      user.homeGoals - user.awayGoals === actual.homeGoals - actual.awayGoals
-    ) {
-      points = 4;
-      category = "goal_diff";
-    } else {
-      points = 3;
-      category = "result";
-    }
-  }
+  const exactScorePoints = isExactScore ? 3 : 0;
+  const resultPoints = isCorrectResult ? 2 : 0;
+  const homeGoalsPoints = homeGoalsCorrect ? 2 : 0;
+  const awayGoalsPoints = awayGoalsCorrect ? 2 : 0;
 
   return {
-    matchId: user.matchId,
-    userPrediction: user,
-    modelPrediction: actual,
-    points,
-    category,
+    exactScorePoints,
+    resultPoints,
+    homeGoalsPoints,
+    awayGoalsPoints,
+    totalPoints: exactScorePoints + resultPoints + homeGoalsPoints + awayGoalsPoints,
+    isExactScore,
+    isCorrectResult,
+    homeGoalsCorrect,
+    awayGoalsCorrect,
   };
 }
 
@@ -79,17 +77,31 @@ export function scoreFullBracket(
   let totalPoints = 0;
   let correctResults = 0;
   let correctScores = 0;
+  let totalExactScorePoints = 0;
+  let totalResultPoints = 0;
+  let totalGoalsPoints = 0;
 
   for (const userPred of userPredictions) {
     const actualPred = actualMap.get(userPred.matchId);
     if (!actualPred) continue;
 
-    const score = scoreMatch(userPred, actualPred);
-    matchScores[userPred.matchId] = score;
-    totalPoints += score.points;
+    const breakdown = scoreMatch(userPred, actualPred);
 
-    if (score.category !== "wrong") correctResults++;
-    if (score.category === "exact") correctScores++;
+    matchScores[userPred.matchId] = {
+      matchId: userPred.matchId,
+      userPrediction: userPred,
+      modelPrediction: actualPred,
+      actual: actualPred,
+      ...breakdown,
+    };
+
+    totalPoints += breakdown.totalPoints;
+    totalExactScorePoints += breakdown.exactScorePoints;
+    totalResultPoints += breakdown.resultPoints;
+    totalGoalsPoints += breakdown.homeGoalsPoints + breakdown.awayGoalsPoints;
+
+    if (breakdown.isCorrectResult) correctResults++;
+    if (breakdown.isExactScore) correctScores++;
   }
 
   // Bonus points
@@ -97,16 +109,19 @@ export function scoreFullBracket(
   const runnerUpCorrect = userRunnerUp === actualRunnerUp;
   const thirdPlaceCorrect = userThirdPlace === actualThirdPlace;
 
-  if (championCorrect) totalPoints += 10;
-  if (runnerUpCorrect) totalPoints += 7;
+  if (championCorrect) totalPoints += 15;
+  if (runnerUpCorrect) totalPoints += 10;
   if (thirdPlaceCorrect) totalPoints += 5;
 
   return {
     totalPoints,
-    maxPossible: 586,
+    maxPossible: 678,
     correctResults,
     correctScores,
     totalMatches: userPredictions.length,
+    totalExactScorePoints,
+    totalResultPoints,
+    totalGoalsPoints,
     championCorrect,
     runnerUpCorrect,
     thirdPlaceCorrect,

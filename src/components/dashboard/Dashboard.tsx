@@ -16,6 +16,7 @@ import { analyzeMatch } from "../../engine/matchSimulator";
 import { groupStageSchedule } from "../../data/schedule";
 import { scoreMatch } from "../../utils/scoring";
 import { expertPicks, calculateExpertAccuracy } from "../../data/expertPicks";
+import { getProdeAIPicks } from "../../data/prodeai";
 import { matchInsights, getTeamFormMultipliers } from "../../data/matchInsights";
 import type { MonteCarloResults, Prediction } from "../../types";
 
@@ -195,62 +196,107 @@ function ExpertAccuracyTracker({
 
     if (Object.keys(actualMap).length === 0) return null;
 
-    // Expert accuracy
-    const expertRows = calculateExpertAccuracy(expertPicks, actualMap);
+    // Expert accuracy (includes ProdeAI baseline picks)
+    const allPicks = [...expertPicks, ...getProdeAIPicks()];
+    const expertRows = calculateExpertAccuracy(allPicks, actualMap);
 
-    // Model accuracy
-    let modelCorrect = 0;
-    let modelExact = 0;
-    let modelTotal = 0;
+    // Model accuracy (using new scoring)
+    let modelPicks = 0;
+    let modelCorrectResults = 0;
+    let modelExactScores = 0;
+    let modelTotalPts = 0;
+    let modelExactPts = 0;
+    let modelResultPts = 0;
+    let modelGoalsPts = 0;
     for (const [matchId, actual] of Object.entries(actualMap)) {
       const model = modelPredictions[matchId];
       if (!model) continue;
-      modelTotal++;
-      const mResult = model.homeGoals > model.awayGoals ? "home" : model.homeGoals < model.awayGoals ? "away" : "draw";
-      const aResult = actual.homeGoals > actual.awayGoals ? "home" : actual.homeGoals < actual.awayGoals ? "away" : "draw";
-      if (mResult === aResult) modelCorrect++;
-      if (model.homeGoals === actual.homeGoals && model.awayGoals === actual.awayGoals) modelExact++;
+      modelPicks++;
+      const b = scoreMatch(
+        { matchId, homeGoals: model.homeGoals, awayGoals: model.awayGoals, source: "model" },
+        { matchId, homeGoals: actual.homeGoals, awayGoals: actual.awayGoals, source: "model" }
+      );
+      if (b.isCorrectResult) modelCorrectResults++;
+      if (b.isExactScore) modelExactScores++;
+      modelTotalPts += b.totalPoints;
+      modelExactPts += b.exactScorePoints;
+      modelResultPts += b.resultPoints;
+      modelGoalsPts += b.homeGoalsPoints + b.awayGoalsPoints;
     }
 
     // User accuracy
-    let userCorrect = 0;
-    let userExact = 0;
-    let userTotal = 0;
+    let userPicks = 0;
+    let userCorrectResults = 0;
+    let userExactScores = 0;
+    let userTotalPts = 0;
+    let userExactPts = 0;
+    let userResultPts = 0;
+    let userGoalsPts = 0;
     for (const [matchId, actual] of Object.entries(actualMap)) {
       const userPred = predictions[matchId];
       if (!userPred) continue;
-      userTotal++;
-      const uResult = userPred.homeGoals > userPred.awayGoals ? "home" : userPred.homeGoals < userPred.awayGoals ? "away" : "draw";
-      const aResult = actual.homeGoals > actual.awayGoals ? "home" : actual.homeGoals < actual.awayGoals ? "away" : "draw";
-      if (uResult === aResult) userCorrect++;
-      if (userPred.homeGoals === actual.homeGoals && userPred.awayGoals === actual.awayGoals) userExact++;
+      userPicks++;
+      const b = scoreMatch(
+        userPred,
+        { matchId, homeGoals: actual.homeGoals, awayGoals: actual.awayGoals, source: "model" }
+      );
+      if (b.isCorrectResult) userCorrectResults++;
+      if (b.isExactScore) userExactScores++;
+      userTotalPts += b.totalPoints;
+      userExactPts += b.exactScorePoints;
+      userResultPts += b.resultPoints;
+      userGoalsPts += b.homeGoalsPoints + b.awayGoalsPoints;
     }
 
     // Combine all rows
-    const all: Array<{ source: string; totalPicks: number; correctResults: number; exactScores: number; isSpecial?: string }> = [
-      ...expertRows,
-    ];
+    type Row = {
+      source: string;
+      totalPicks: number;
+      correctResults: number;
+      exactScores: number;
+      totalPts: number;
+      exactScorePts: number;
+      resultPts: number;
+      goalsPts: number;
+      isSpecial?: string;
+    };
+    const all: Row[] = [...expertRows];
 
-    if (modelTotal > 0) {
-      all.push({ source: "Our Model", totalPicks: modelTotal, correctResults: modelCorrect, exactScores: modelExact, isSpecial: "model" });
+    if (userPicks > 0) {
+      all.push({
+        source: "You",
+        totalPicks: userPicks,
+        correctResults: userCorrectResults,
+        exactScores: userExactScores,
+        totalPts: userTotalPts,
+        exactScorePts: userExactPts,
+        resultPts: userResultPts,
+        goalsPts: userGoalsPts,
+        isSpecial: "user",
+      });
     }
-    if (userTotal > 0) {
-      all.push({ source: "You", totalPicks: userTotal, correctResults: userCorrect, exactScores: userExact, isSpecial: "user" });
+    if (modelPicks > 0) {
+      all.push({
+        source: "Our Model",
+        totalPicks: modelPicks,
+        correctResults: modelCorrectResults,
+        exactScores: modelExactScores,
+        totalPts: modelTotalPts,
+        exactScorePts: modelExactPts,
+        resultPts: modelResultPts,
+        goalsPts: modelGoalsPts,
+        isSpecial: "model",
+      });
     }
 
-    // Sort by accuracy % descending
-    all.sort((a, b) => {
-      const pctA = a.totalPicks > 0 ? a.correctResults / a.totalPicks : 0;
-      const pctB = b.totalPicks > 0 ? b.correctResults / b.totalPicks : 0;
-      return pctB - pctA;
-    });
+    // Sort by Total Pts descending
+    all.sort((a, b) => b.totalPts - a.totalPts);
 
     return all;
   }, [results, getResult, modelPredictions, predictions]);
 
   if (!rows || rows.length === 0) return null;
 
-  // Check if any expert pick has a corresponding result
   const hasExpertWithResult = rows.some((r) => !r.isSpecial && r.totalPicks > 0);
   if (!hasExpertWithResult) return null;
 
@@ -260,7 +306,7 @@ function ExpertAccuracyTracker({
         Expert Accuracy Tracker
       </h2>
       <p className="text-sm text-text-muted mb-5">
-        How expert predictions compare against actual results — including our model and your picks.
+        How expert predictions compare against actual results — scored with quiniela system (max 9 pts/match).
       </p>
 
       <div className="overflow-x-auto">
@@ -269,16 +315,18 @@ function ExpertAccuracyTracker({
             <tr className="border-b border-border text-left text-text-secondary">
               <th className="py-2 pr-2 font-medium">Source</th>
               <th className="py-2 px-2 font-medium text-center">Picks</th>
-              <th className="py-2 px-2 font-medium text-center">Correct Results</th>
-              <th className="py-2 px-2 font-medium text-center">Exact Scores</th>
+              <th className="py-2 px-2 font-medium text-center">Results</th>
+              <th className="py-2 px-2 font-medium text-center">Exact</th>
+              <th className="py-2 px-2 font-medium text-center">Total Pts</th>
               <th className="py-2 pl-2 font-medium text-center">Accuracy</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => {
-              const pct = r.totalPicks > 0 ? ((r.correctResults / r.totalPicks) * 100).toFixed(0) : "—";
-              const isModel = (r as { isSpecial?: string }).isSpecial === "model";
-              const isUser = (r as { isSpecial?: string }).isSpecial === "user";
+              const maxPts = r.totalPicks * 9;
+              const pct = maxPts > 0 ? ((r.totalPts / maxPts) * 100).toFixed(0) : "—";
+              const isModel = r.isSpecial === "model";
+              const isUser = r.isSpecial === "user";
 
               return (
                 <tr
@@ -303,6 +351,20 @@ function ExpertAccuracyTracker({
                   <td className="py-2 px-2 text-center font-mono text-xs">{r.totalPicks}</td>
                   <td className="py-2 px-2 text-center font-mono text-xs">{r.correctResults}</td>
                   <td className="py-2 px-2 text-center font-mono text-xs">{r.exactScores}</td>
+                  <td className="py-2 px-2 text-center">
+                    <span
+                      className={`font-mono text-xs font-bold ${
+                        isModel
+                          ? "text-blue-500"
+                          : isUser
+                          ? "text-accent-gold"
+                          : "text-text-primary"
+                      }`}
+                      title={`Exact: ${r.exactScorePts}  Result: ${r.resultPts}  Goals: ${r.goalsPts}`}
+                    >
+                      {r.totalPts}
+                    </span>
+                  </td>
                   <td className="py-2 pl-2 text-center">
                     <span
                       className={`font-mono text-xs font-bold ${
@@ -482,8 +544,12 @@ function ModelTrackRecord({
       actualAway: number;
       userPts: number;
       modelPts: number;
-      userCat: string;
-      modelCat: string;
+      userBreakdown: string;
+      modelBreakdown: string;
+      userIsExact: boolean;
+      userIsResult: boolean;
+      modelIsExact: boolean;
+      modelIsResult: boolean;
     }> = [];
 
     for (const match of groupStageSchedule) {
@@ -494,24 +560,37 @@ function ModelTrackRecord({
       if (!model) continue;
 
       const userPred = predictions[match.id];
+      const actualPred = { matchId: match.id, homeGoals: actual.homeScore, awayGoals: actual.awayScore, source: "model" as const };
 
       // Score model vs actual
-      const modelScore = scoreMatch(
+      const mb = scoreMatch(
         { matchId: match.id, homeGoals: model.homeGoals, awayGoals: model.awayGoals, source: "model" },
-        { matchId: match.id, homeGoals: actual.homeScore, awayGoals: actual.awayScore, source: "model" }
+        actualPred
       );
 
       // Score user vs actual
       let userPts = 0;
-      let userCat = "none";
+      let userBreakdown = "";
+      let userIsExact = false;
+      let userIsResult = false;
       if (userPred) {
-        const userScore = scoreMatch(
-          userPred,
-          { matchId: match.id, homeGoals: actual.homeScore, awayGoals: actual.awayScore, source: "model" }
-        );
-        userPts = userScore.points;
-        userCat = userScore.category;
+        const ub = scoreMatch(userPred, actualPred);
+        userPts = ub.totalPoints;
+        userIsExact = ub.isExactScore;
+        userIsResult = ub.isCorrectResult;
+        const parts: string[] = [];
+        if (ub.exactScorePoints) parts.push(`${ub.exactScorePoints} exact`);
+        if (ub.resultPoints) parts.push(`${ub.resultPoints} result`);
+        if (ub.homeGoalsPoints || ub.awayGoalsPoints)
+          parts.push(`${ub.homeGoalsPoints + ub.awayGoalsPoints} goals`);
+        userBreakdown = parts.join(" + ");
       }
+
+      const mParts: string[] = [];
+      if (mb.exactScorePoints) mParts.push(`${mb.exactScorePoints} exact`);
+      if (mb.resultPoints) mParts.push(`${mb.resultPoints} result`);
+      if (mb.homeGoalsPoints || mb.awayGoalsPoints)
+        mParts.push(`${mb.homeGoalsPoints + mb.awayGoalsPoints} goals`);
 
       out.push({
         matchId: match.id,
@@ -524,9 +603,13 @@ function ModelTrackRecord({
         actualHome: actual.homeScore,
         actualAway: actual.awayScore,
         userPts,
-        modelPts: modelScore.points,
-        userCat,
-        modelCat: modelScore.category,
+        modelPts: mb.totalPoints,
+        userBreakdown,
+        modelBreakdown: mParts.join(" + "),
+        userIsExact,
+        userIsResult,
+        modelIsExact: mb.isExactScore,
+        modelIsResult: mb.isCorrectResult,
       });
     }
 
@@ -537,25 +620,26 @@ function ModelTrackRecord({
 
   const userTotal = rows.reduce((s, r) => s + r.userPts, 0);
   const modelTotal = rows.reduce((s, r) => s + r.modelPts, 0);
-  const userCorrect = rows.filter((r) => r.userCat !== "wrong" && r.userCat !== "none").length;
-  const userExact = rows.filter((r) => r.userCat === "exact").length;
-  const modelCorrect = rows.filter((r) => r.modelCat !== "wrong").length;
-  const modelExact = rows.filter((r) => r.modelCat === "exact").length;
+  const userCorrect = rows.filter((r) => r.userIsResult).length;
+  const userExact = rows.filter((r) => r.userIsExact).length;
+  const modelCorrect = rows.filter((r) => r.modelIsResult).length;
+  const modelExact = rows.filter((r) => r.modelIsExact).length;
   const userPredicted = rows.filter((r) => r.userHome !== null).length;
+  const maxPts = 648;
 
   const diff = userTotal - modelTotal;
   const verdict =
     diff > 0
-      ? `You're ahead by ${diff} point${diff !== 1 ? "s" : ""} 🎉`
+      ? `You're ahead by ${diff} point${diff !== 1 ? "s" : ""}`
       : diff < 0
       ? `The model is ahead by ${Math.abs(diff)} point${Math.abs(diff) !== 1 ? "s" : ""}`
       : "It's a tie";
 
-  function catIcon(cat: string) {
-    if (cat === "exact") return <span className="text-accent-gold">⭐</span>;
-    if (cat === "goal_diff" || cat === "result") return <span className="text-accent-green">✓</span>;
-    if (cat === "wrong") return <span className="text-accent-red">✗</span>;
-    return <span className="text-text-muted">—</span>;
+  function ptsIcon(isExact: boolean, isResult: boolean, hasPred: boolean) {
+    if (!hasPred) return <span className="text-text-muted">—</span>;
+    if (isExact) return <span className="text-accent-gold">9</span>;
+    if (isResult) return <span className="text-accent-green">✓</span>;
+    return <span className="text-accent-red">✗</span>;
   }
 
   return (
@@ -564,7 +648,7 @@ function ModelTrackRecord({
         Model Track Record
       </h2>
       <p className="text-sm text-text-muted mb-5">
-        Your predictions vs. the model's predictions, scored against actual results.
+        Your predictions vs. the model — quiniela scoring (max 9 pts/match).
       </p>
 
       {/* Match rows */}
@@ -576,8 +660,8 @@ function ModelTrackRecord({
               <th className="py-2 px-2 font-medium text-center">Your Guess</th>
               <th className="py-2 px-2 font-medium text-center text-blue-500">Model</th>
               <th className="py-2 px-2 font-medium text-center">Actual</th>
-              <th className="py-2 px-2 font-medium text-center">You</th>
-              <th className="py-2 pl-2 font-medium text-center text-blue-500">Model</th>
+              <th className="py-2 px-2 font-medium text-center">Your pts</th>
+              <th className="py-2 pl-2 font-medium text-center text-blue-500">Model pts</th>
             </tr>
           </thead>
           <tbody>
@@ -606,14 +690,24 @@ function ModelTrackRecord({
                   </td>
                   <td className="py-2 px-2 text-center">
                     <div className="flex items-center justify-center gap-1">
-                      {catIcon(r.userCat)}
-                      <span className="font-mono text-xs">{r.userHome !== null ? r.userPts : "—"}</span>
+                      {ptsIcon(r.userIsExact, r.userIsResult, r.userHome !== null)}
+                      <span
+                        className="font-mono text-xs font-bold"
+                        title={r.userBreakdown || undefined}
+                      >
+                        {r.userHome !== null ? r.userPts : "—"}
+                      </span>
                     </div>
                   </td>
                   <td className="py-2 pl-2 text-center">
                     <div className="flex items-center justify-center gap-1">
-                      {catIcon(r.modelCat)}
-                      <span className="font-mono text-xs text-blue-500">{r.modelPts}</span>
+                      {ptsIcon(r.modelIsExact, r.modelIsResult, true)}
+                      <span
+                        className="font-mono text-xs text-blue-500 font-bold"
+                        title={r.modelBreakdown}
+                      >
+                        {r.modelPts}
+                      </span>
                     </div>
                   </td>
                 </tr>
@@ -626,14 +720,22 @@ function ModelTrackRecord({
       {/* Running totals */}
       <div className="mt-5 pt-4 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="text-sm text-text-secondary">
-          <span className="font-medium">Your accuracy:</span>{" "}
-          {userCorrect}/{userPredicted} correct results, {userExact} exact score{userExact !== 1 ? "s" : ""}
-          {" "}— <span className="font-mono font-bold text-accent-gold">{userTotal} pts</span>
+          <span className="font-medium">Your total:</span>{" "}
+          <span className="font-mono font-bold text-accent-gold">{userTotal} / {maxPts} pts</span>
+          <span className="text-text-muted"> ({((userTotal / maxPts) * 100).toFixed(1)}%)</span>
+          <br />
+          <span className="text-xs text-text-muted">
+            Correct results: {userCorrect}/{userPredicted}, Exact scores: {userExact}/{userPredicted}
+          </span>
         </div>
         <div className="text-sm text-text-secondary">
-          <span className="font-medium text-blue-500">Model accuracy:</span>{" "}
-          {modelCorrect}/{rows.length} correct results, {modelExact} exact score{modelExact !== 1 ? "s" : ""}
-          {" "}— <span className="font-mono font-bold text-blue-500">{modelTotal} pts</span>
+          <span className="font-medium text-blue-500">Model total:</span>{" "}
+          <span className="font-mono font-bold text-blue-500">{modelTotal} / {maxPts} pts</span>
+          <span className="text-text-muted"> ({((modelTotal / maxPts) * 100).toFixed(1)}%)</span>
+          <br />
+          <span className="text-xs text-text-muted">
+            Correct results: {modelCorrect}/{rows.length}, Exact scores: {modelExact}/{rows.length}
+          </span>
         </div>
       </div>
 
@@ -1209,10 +1311,10 @@ function useModelScoring(predictions: Record<string, Prediction>): ScoringResult
         source: "model",
       };
 
-      const score = scoreMatch(userPred, modelPred);
-      totalPoints += score.points;
-      if (score.category !== "wrong") correctResults++;
-      if (score.category === "exact") correctScores++;
+      const b = scoreMatch(userPred, modelPred);
+      totalPoints += b.totalPoints;
+      if (b.isCorrectResult) correctResults++;
+      if (b.isExactScore) correctScores++;
       matchesScored++;
     }
 
@@ -1241,10 +1343,10 @@ function useActualScoring(predictions: Record<string, Prediction>): ScoringResul
         source: "model",
       };
 
-      const score = scoreMatch(userPred, actualPred);
-      totalPoints += score.points;
-      if (score.category !== "wrong") correctResults++;
-      if (score.category === "exact") correctScores++;
+      const b = scoreMatch(userPred, actualPred);
+      totalPoints += b.totalPoints;
+      if (b.isCorrectResult) correctResults++;
+      if (b.isExactScore) correctScores++;
       matchesScored++;
     }
 
@@ -1271,7 +1373,7 @@ function ScoreAccuracy({
 
   if (scoring.matchesScored === 0) return null;
 
-  const maxPoints = 586;
+  const maxPoints = 678;
   const pct = (scoring.totalPoints / maxPoints) * 100;
 
   let message: string;
