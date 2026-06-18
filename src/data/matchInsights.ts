@@ -282,6 +282,64 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.80,  // Conceded 3
     notes: "Austria back at WC for first time since 1998 — strong debut. 3rd goal in 100th minute of extra time. Strong midfield as expected. Jordan competitive but outclassed. Austria vs Argentina (MD2) now very interesting — Austria showed real quality.",
   },
+  // ==========================================
+  // JUNE 17 — GROUP STAGE DAY 7
+  // ==========================================
+
+  // GS-K-2: Portugal 1-1 DR Congo
+  // AUTO-XG: Portugal 1.07 xG, DR Congo 0.85 xG
+  {
+    matchId: "GS-K-2",
+    date: "2026-06-17",
+    homeTeamId: "POR", awayTeamId: "COD",
+    homeGoals: 1, awayGoals: 1,
+    homeAttackMultiplier: 0.79,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 1.26,
+    notes: "AUTO-XG. Portugal 1.07 xG — deeply disappointing. DR Congo 0.85 xG — actually the BETTER team per xG. Wissa header equalizer. Ronaldo invisible, sterile possession. Portugal have a Ronaldo problem. DR Congo defense UP significantly — held a tournament favorite. Key for Group K: Portugal now must win vs Uzbekistan (MD2) after shock draw. Colombia now sole leaders of Group K with 3pts.",
+  },
+
+  // GS-L-1: England 4-2 Croatia
+  // AUTO-XG: England 2.82 xG, Croatia 0.53 xG
+  {
+    matchId: "GS-L-1",
+    date: "2026-06-17",
+    homeTeamId: "ENG", awayTeamId: "CRO",
+    homeGoals: 4, awayGoals: 2,
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 0.65,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.65,
+    notes: "AUTO-XG. England dominant: 2.82 xG, 36 box touches, Kane brace, Bellingham solo goal, Rashford off bench. Croatia only 0.53 xG but scored 2 — Baturina screamer + Perisic clever play, both massive xG overperformance. England defense DOWN: despite dominating xG, allowed 2 goals from 0.53 xG. Croatia attack overperformed but aging squad showing limits. England are genuine contenders when firing.",
+  },
+
+  // GS-L-2: Ghana 1-0 Panama
+  // ESTIMATED xG (no verified data): Ghana ~0.65, Panama ~0.80
+  {
+    matchId: "GS-L-2",
+    date: "2026-06-17",
+    homeTeamId: "GHA", awayTeamId: "PAN",
+    homeGoals: 1, awayGoals: 0,
+    homeAttackMultiplier: 0.92,
+    homeDefenseMultiplier: 1.10,
+    awayAttackMultiplier: 1.02,
+    awayDefenseMultiplier: 0.92,
+    notes: "ESTIMATED xG. Ghana zero shots on target first 45min. Panama controlled early. Yirenkyi stoppage-time winner from counter. Ghana without Partey (visa denied). Panama created more in 1st half but couldn't finish. Group L: England 3pts, Ghana 3pts, Croatia 0, Panama 0.",
+  },
+
+  // GS-K-1: Colombia 3-1 Uzbekistan — QUALITATIVE ANALYSIS
+  {
+    matchId: "GS-K-1",
+    date: "2026-06-17",
+    homeTeamId: "COL", awayTeamId: "UZB",
+    homeGoals: 3, awayGoals: 1,
+    homeAttackMultiplier: 1.25,
+    homeDefenseMultiplier: 0.92,
+    awayAttackMultiplier: 1.08,
+    awayDefenseMultiplier: 0.78,
+    notes: "QUALITATIVE ANALYSIS — Colombia. Muñoz 1-0 (Díaz assist, 40'). Uzbekistan equalized with historic first WC goal (Fayzullaev, 57'). Díaz immediately restored 2-1 five minutes later — killer instinct. Campaz sealed 3-1 in 90+9'. KEY QUALITATIVE INSIGHTS: (1) Díaz was the best player on pitch — gol+asistencia, pace, pressing. (2) James Rodríguez creative and controlling in 10 role. (3) Colombia 1st half was cautious vs Uzbekistan 5-4-1 block — not dominant. (4) Defense conceded despite having quality advantage — not impenetrable. (5) Uzbekistan showed real fight under Cannavaro. IMPLICATION: Colombia now sole leaders of Group K. Portugal 1-1 with DR Congo means Jun 27 COL vs POR is now a genuine battle — Portugal not the juggernaut expected, Colombia in form with Díaz firing. Opportunity.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

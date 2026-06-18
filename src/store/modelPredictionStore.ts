@@ -4,6 +4,9 @@
 // Pre-computes analyzeMatch() for all 72 group stage matches
 // and stores the most likely score as the "model prediction".
 // Supports recalculation with live Elo ratings.
+// Tracks TWO prediction sets:
+//   - baseline: pre-tournament (no form insights), frozen forever
+//   - current (predictions): form-adjusted, updates after each matchday
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -25,6 +28,7 @@ export interface ModelPrediction {
 
 interface ModelPredictionState {
   predictions: Record<string, ModelPrediction>;
+  baselinePredictions: Record<string, ModelPrediction>;
   computedAt: number | null;
   /** Match IDs whose predictions are locked (actual result exists) */
   lockedMatchIds: string[];
@@ -33,10 +37,26 @@ interface ModelPredictionState {
   lockMatch: (matchId: string) => void;
 }
 
+/** Separate localStorage key for baseline — never overwritten after initial computation */
+const BASELINE_STORAGE_KEY = "wc2026-model-baseline";
+
+function loadBaseline(): Record<string, ModelPrediction> {
+  try {
+    const raw = localStorage.getItem(BASELINE_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch { /* ignore */ }
+  return {};
+}
+
+function saveBaseline(baseline: Record<string, ModelPrediction>) {
+  localStorage.setItem(BASELINE_STORAGE_KEY, JSON.stringify(baseline));
+}
+
 export const useModelPredictionStore = create<ModelPredictionState>()(
   persist(
     (set, get) => ({
       predictions: {},
+      baselinePredictions: {},
       computedAt: null,
       lockedMatchIds: [],
 
@@ -53,6 +73,32 @@ export const useModelPredictionStore = create<ModelPredictionState>()(
         const locked = new Set(get().lockedMatchIds);
         const predictions: Record<string, ModelPrediction> = {};
 
+        // --- Baseline: compute once, freeze forever ---
+        let baseline = loadBaseline();
+        const baselineEmpty = Object.keys(baseline).length === 0;
+        if (baselineEmpty) {
+          for (const match of groupStageSchedule) {
+            const home = teamMap.get(match.homeTeamId);
+            const away = teamMap.get(match.awayTeamId);
+            const homeStr = baseStrengthMap.get(match.homeTeamId);
+            const awayStr = baseStrengthMap.get(match.awayTeamId);
+            if (!home || !away || !homeStr || !awayStr) continue;
+
+            const result = analyzeMatch(match.id, home, away, homeStr, awayStr);
+            baseline[match.id] = {
+              homeGoals: result.mostLikelyScore[0],
+              awayGoals: result.mostLikelyScore[1],
+              homeWinProb: result.homeWinProb,
+              drawProb: result.drawProb,
+              awayWinProb: result.awayWinProb,
+              expectedHomeGoals: result.expectedHomeGoals,
+              expectedAwayGoals: result.expectedAwayGoals,
+            };
+          }
+          saveBaseline(baseline);
+        }
+
+        // --- Current (form-adjusted) predictions ---
         for (const match of groupStageSchedule) {
           // Keep locked predictions (matches already played)
           if (locked.has(match.id)) {
@@ -100,7 +146,7 @@ export const useModelPredictionStore = create<ModelPredictionState>()(
           };
         }
 
-        set({ predictions, computedAt: Date.now() });
+        set({ predictions, baselinePredictions: baseline, computedAt: Date.now() });
       },
 
       lockMatch: (matchId: string) => {
@@ -115,6 +161,18 @@ export const useModelPredictionStore = create<ModelPredictionState>()(
     }
   )
 );
+
+// --- Selectors ---
+
+/** Get the frozen pre-tournament baseline prediction for a match */
+export function useBaselinePrediction(matchId: string): ModelPrediction | undefined {
+  return useModelPredictionStore((s) => s.baselinePredictions[matchId]);
+}
+
+/** Get the current form-adjusted prediction for a match */
+export function useCurrentPrediction(matchId: string): ModelPrediction | undefined {
+  return useModelPredictionStore((s) => s.predictions[matchId]);
+}
 
 /**
  * Initialize model predictions on first load.
@@ -136,7 +194,6 @@ export function initModelPredictions() {
   // Ensure all matches with known results are locked before recomputing.
   // This protects against localStorage being cleared — matchInsights is
   // the source of truth for which matches have been played.
-  // Jun 14 matches (GS-E-1, GS-F-1, GS-E-2, GS-F-2) locked via this loop.
   for (const insight of matchInsights) {
     store.lockMatch(insight.matchId);
   }

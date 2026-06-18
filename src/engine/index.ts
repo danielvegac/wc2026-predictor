@@ -8,3 +8,5 @@ export { runMonteCarlo, DEFAULT_SIMULATIONS } from "./monteCarlo";
 export type { GroupConfig } from "./monteCarlo";
 export { tau, DEFAULT_RHO, dixonColesDistribution, dixonColesOutcomeProbabilities } from "./dixonColes";
 export { updateEloFromResult, processNewResults } from "./eloUpdater";
+export { calculateXGMultipliers } from "./xgMultiplierCalculator";
+export type { XGMatchData } from "./xgMultiplierCalculator";

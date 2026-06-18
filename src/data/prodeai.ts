@@ -16,6 +16,7 @@ const playedMatchIds = new Set([
   "GS-D-1", "GS-D-2", "GS-E-1", "GS-E-2", "GS-F-1", "GS-F-2",
   "GS-G-1", "GS-G-2", "GS-H-1", "GS-H-2", "GS-I-1", "GS-I-2",
   "GS-J-1", "GS-J-2",
+  "GS-K-1", "GS-K-2", "GS-L-1", "GS-L-2",
 ]);
 
 let _cached: ExpertPick[] | null = null;
@@ -43,7 +44,7 @@ export function getProdeAIPicks(): ExpertPick[] {
 
     picks.push({
       matchId: match.id,
-      source: "ProdeAI (baseline)",
+      source: "Our Model (Pre-Tournament)",
       homeGoals: result.mostLikelyScore[0],
       awayGoals: result.mostLikelyScore[1],
       note: `${home.shortName} vs ${away.shortName} — pre-tournament Poisson baseline`,

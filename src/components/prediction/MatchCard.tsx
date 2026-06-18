@@ -2,8 +2,9 @@ import type { Match, Team, Prediction } from "../../types";
 import { getFlagClass } from "../../data/flags";
 import { formatMatchDate } from "../../data/schedule";
 import { useResultsStore } from "../../store/resultsStore";
-import { useModelPredictionStore } from "../../store/modelPredictionStore";
+import { useModelPredictionStore, useBaselinePrediction } from "../../store/modelPredictionStore";
 import { getExpertPicksForMatch } from "../../data/expertPicks";
+import { getTeamInsights } from "../../data/matchInsights";
 import { getOddsForMatch, noVigProbs } from "../../data/matchOdds";
 import { ScoreInput } from "./ScoreInput";
 
@@ -45,6 +46,12 @@ export function MatchCard({
   const awayGoals = prediction?.awayGoals ?? null;
   const actualResult = useResultsStore((s) => s.getResultForMatch)(match.id);
   const modelPred = useModelPredictionStore((s) => s.predictions[match.id]);
+  const baselinePred = useBaselinePrediction(match.id);
+
+  // MD2+ check: does either team already have a matchInsight from a previous match?
+  const homeHasForm = getTeamInsights(match.homeTeamId).length > 0;
+  const awayHasForm = getTeamInsights(match.awayTeamId).length > 0;
+  const isMD2Plus = homeHasForm || awayHasForm;
 
   const handleHomeChange = (goals: number) => {
     onScoreChange(match.id, goals, awayGoals ?? 0);
@@ -148,14 +155,31 @@ export function MatchCard({
         </div>
       </div>
 
-      {/* Expected goals row (unplayed matches only) */}
+      {/* Expected goals rows (unplayed matches only) */}
       {!actualResult && modelPred && modelPred.expectedHomeGoals != null && (
-        <div className="mt-1.5 flex items-center justify-center gap-1.5" style={{ fontSize: "0.7rem" }}>
-          <span className="text-text-muted font-medium">Exp. goals</span>
-          <span className="font-mono font-semibold text-blue-400">
-            {modelPred.expectedHomeGoals.toFixed(1)} – {modelPred.expectedAwayGoals.toFixed(1)}
-          </span>
-        </div>
+        isMD2Plus && baselinePred && baselinePred.expectedHomeGoals != null ? (
+          <div className="mt-1.5 space-y-0.5">
+            <div className="flex items-center justify-center gap-1.5" style={{ fontSize: "0.72rem" }}>
+              <span className="text-text-muted font-medium">⚽ Pre-tournament:</span>
+              <span className="font-mono font-semibold text-gray-400">
+                {baselinePred.expectedHomeGoals.toFixed(1)} – {baselinePred.expectedAwayGoals.toFixed(1)}
+              </span>
+            </div>
+            <div className="flex items-center justify-center gap-1.5" style={{ fontSize: "0.72rem" }}>
+              <span className="text-blue-500 font-medium">⚽ Current form:</span>
+              <span className="font-mono font-semibold text-blue-400">
+                {modelPred.expectedHomeGoals.toFixed(1)} – {modelPred.expectedAwayGoals.toFixed(1)}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-1.5 flex items-center justify-center gap-1.5" style={{ fontSize: "0.7rem" }}>
+            <span className="text-text-muted font-medium">Exp. goals</span>
+            <span className="font-mono font-semibold text-blue-400">
+              {modelPred.expectedHomeGoals.toFixed(1)} – {modelPred.expectedAwayGoals.toFixed(1)}
+            </span>
+          </div>
+        )
       )}
 
       {/* Market odds row (unplayed matches only) */}
