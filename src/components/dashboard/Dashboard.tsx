@@ -698,15 +698,24 @@ function ModelTrackRecord({
       modelIsResult: boolean;
     }> = [];
 
+    // Build a lookup of matchInsights by matchId for fallback actual scores
+    const insightsByMatch = new Map(
+      matchInsights.map((mi) => [mi.matchId, mi])
+    );
+
     for (const match of groupStageSchedule) {
-      const actual = getResult(match.id);
-      if (!actual) continue;
+      // Use ESPN result if available, otherwise fall back to matchInsights
+      const espnResult = getResult(match.id);
+      const insight = insightsByMatch.get(match.id);
+      const actualHome = espnResult?.homeScore ?? insight?.homeGoals;
+      const actualAway = espnResult?.awayScore ?? insight?.awayGoals;
+      if (actualHome == null || actualAway == null) continue;
 
       const model = modelPredictions[match.id];
       if (!model) continue;
 
       const userPred = predictions[match.id];
-      const actualPred = { matchId: match.id, homeGoals: actual.homeScore, awayGoals: actual.awayScore, source: "model" as const };
+      const actualPred = { matchId: match.id, homeGoals: actualHome, awayGoals: actualAway, source: "model" as const };
 
       // Score model vs actual
       const mb = scoreMatch(
@@ -746,8 +755,8 @@ function ModelTrackRecord({
         userAway: userPred?.awayGoals ?? null,
         modelHome: model.homeGoals,
         modelAway: model.awayGoals,
-        actualHome: actual.homeScore,
-        actualAway: actual.awayScore,
+        actualHome,
+        actualAway,
         userPts,
         modelPts: mb.totalPoints,
         userBreakdown,

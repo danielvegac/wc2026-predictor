@@ -345,10 +345,10 @@ export const matchInsights: MatchInsight[] = [
   // JUNE 18 — GROUP STAGE DAY 8
   // ==========================================
 
-  // GS-A-3: Czechia 1-1 South Africa
+  // GS-A-4: Czechia 1-1 South Africa
   // AUTO-XG: CZE 1.04, RSA 1.40
   {
-    matchId: "GS-A-3",
+    matchId: "GS-A-4",
     date: "2026-06-18",
     homeTeamId: "CZE", awayTeamId: "RSA",
     homeGoals: 1, awayGoals: 1,

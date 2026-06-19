@@ -66,7 +66,9 @@ export function useLiveData() {
         if (data.source === "live") anyLive = true;
 
         // Sync live Elo ratings from completed matches
-        const completedMatches = data.matches
+        // Use store's mapped results (which have matchIds), not raw API data
+        const mappedResults = useResultsStore.getState().results;
+        const completedMatches = mappedResults
           .filter((m) => m.completed && m.matchId)
           .map((m) => ({
             matchId: m.matchId!,
