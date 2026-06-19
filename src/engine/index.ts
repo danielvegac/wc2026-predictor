@@ -10,3 +10,5 @@ export { tau, DEFAULT_RHO, dixonColesDistribution, dixonColesOutcomeProbabilitie
 export { updateEloFromResult, processNewResults } from "./eloUpdater";
 export { calculateXGMultipliers } from "./xgMultiplierCalculator";
 export type { XGMatchData } from "./xgMultiplierCalculator";
+export { calculateFormRankings } from "./formRankingEngine";
+export type { TeamFormScore } from "./formRankingEngine";

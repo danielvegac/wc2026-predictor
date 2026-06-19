@@ -18,6 +18,8 @@ import { scoreMatch } from "../../utils/scoring";
 import { expertPicks, calculateExpertAccuracy } from "../../data/expertPicks";
 import { getProdeAIPicks } from "../../data/prodeai";
 import { matchInsights, getTeamFormMultipliers } from "../../data/matchInsights";
+import { calculateFormRankings } from "../../engine/formRankingEngine";
+import { formOverrides } from "../../data/formOverrides";
 import type { MonteCarloResults, Prediction } from "../../types";
 
 const NUM_SIMS = 10_000;
@@ -45,6 +47,7 @@ export function Dashboard() {
       <ModelTrackRecord predictions={predictions} />
       <ExpertAccuracyTracker predictions={predictions} />
       <FormInsights />
+      <TournamentFormRankings />
       <ChampionshipComparison
         results={results}
         getGroupStandings={getGroupStandings}
@@ -389,6 +392,149 @@ function ExpertAccuracyTracker({
 }
 
 // ─── Form Insights ────────────────────────────────────────
+
+// ─── Tournament Form Power Rankings ──────────────────────────
+
+function TournamentFormRankings() {
+  const teamMap = getTeamMap();
+  const liveEloStore = useLiveEloStore();
+  const [showAll, setShowAll] = useState(false);
+
+  const rankings = useMemo(() => {
+    const baselineElo: Record<string, number> = {};
+    for (const t of teams) {
+      baselineElo[t.id] = t.eloRating;
+    }
+
+    return calculateFormRankings(
+      teams,
+      matchInsights,
+      liveEloStore.ratings,
+      baselineElo,
+      formOverrides
+    );
+  }, [liveEloStore.ratings]);
+
+  const displayedRankings = showAll ? rankings : rankings.slice(0, 20);
+
+  function getScoreColor(score: number) {
+    if (score > 65) return "bg-accent-green/20 text-accent-green";
+    if (score >= 40) return "bg-yellow-100 text-yellow-700";
+    return "bg-red-100 text-red-600";
+  }
+
+  function getScoreBarWidth(score: number) {
+    return `${Math.max(4, score)}%`;
+  }
+
+  function getScoreBarColor(score: number) {
+    if (score > 65) return "bg-accent-green";
+    if (score >= 40) return "bg-yellow-500";
+    return "bg-red-500";
+  }
+
+  function getTrend(teamId: string) {
+    const baseline = teams.find((t) => t.id === teamId)?.eloRating ?? 1500;
+    const live = liveEloStore.ratings[teamId] ?? baseline;
+    const delta = live - baseline;
+    if (delta > 10) return <span className="text-accent-green font-bold">↑</span>;
+    if (delta < -10) return <span className="text-accent-red font-bold">↓</span>;
+    return <span className="text-text-muted">→</span>;
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+      <h2 className="text-lg font-bold text-text-primary mb-1">
+        Tournament Form Power Rankings
+      </h2>
+      <p className="text-sm text-text-muted mb-5">
+        Based on xG performance, results, and Elo change. All 48 teams ranked by current World Cup form.
+      </p>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-text-secondary">
+              <th className="py-2 pr-1 font-medium w-8 text-center">#</th>
+              <th className="py-2 px-2 font-medium">Team</th>
+              <th className="py-2 px-2 font-medium text-center w-36">Score</th>
+              <th className="py-2 px-2 font-medium text-center w-16">MP</th>
+              <th className="py-2 px-2 font-medium text-center w-12">Trend</th>
+              <th className="py-2 pl-2 font-medium">Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {displayedRankings.map((r, idx) => {
+              const team = teamMap.get(r.teamId);
+              const note = r.manualNote
+                ? r.manualNote.length > 60 ? r.manualNote.slice(0, 57) + "..." : r.manualNote
+                : "";
+
+              return (
+                <tr key={r.teamId} className="border-b border-border/30 hover:bg-bg-secondary/50">
+                  <td className="py-2 pr-1 text-center font-mono text-xs text-text-muted">
+                    {idx + 1}
+                  </td>
+                  <td className="py-2 px-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`${getFlagClass(r.teamId)} text-sm`} />
+                      <span className="font-medium text-text-primary text-xs">
+                        {team?.name ?? r.teamId}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-2 px-2">
+                    {r.matchesPlayed === 0 ? (
+                      <span className="text-xs text-text-muted">--</span>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-3 bg-bg-secondary rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${getScoreBarColor(r.finalScore)}`}
+                            style={{ width: getScoreBarWidth(r.finalScore) }}
+                          />
+                        </div>
+                        <span className={`font-mono text-xs font-bold px-1.5 py-0.5 rounded ${getScoreColor(r.finalScore)}`}>
+                          {r.finalScore.toFixed(0)}
+                        </span>
+                      </div>
+                    )}
+                  </td>
+                  <td className="py-2 px-2 text-center font-mono text-xs">
+                    {r.matchesPlayed || "--"}
+                  </td>
+                  <td className="py-2 px-2 text-center">
+                    {r.matchesPlayed > 0 ? getTrend(r.teamId) : <span className="text-text-muted">--</span>}
+                  </td>
+                  <td className="py-2 pl-2 text-xs text-text-muted max-w-xs truncate">
+                    {r.matchesPlayed === 0 ? "Not yet played" : note}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {!showAll && rankings.length > 20 && (
+        <button
+          onClick={() => setShowAll(true)}
+          className="mt-4 w-full py-2 text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-secondary/80 rounded-lg transition-colors"
+        >
+          Show all {rankings.length} teams
+        </button>
+      )}
+      {showAll && (
+        <button
+          onClick={() => setShowAll(false)}
+          className="mt-4 w-full py-2 text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-secondary/80 rounded-lg transition-colors"
+        >
+          Show top 20 only
+        </button>
+      )}
+    </div>
+  );
+}
 
 function FormInsights() {
   const teamMap = getTeamMap();

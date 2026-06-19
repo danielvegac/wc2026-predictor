@@ -340,6 +340,52 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.78,
     notes: "QUALITATIVE ANALYSIS — Colombia. Muñoz 1-0 (Díaz assist, 40'). Uzbekistan equalized with historic first WC goal (Fayzullaev, 57'). Díaz immediately restored 2-1 five minutes later — killer instinct. Campaz sealed 3-1 in 90+9'. KEY QUALITATIVE INSIGHTS: (1) Díaz was the best player on pitch — gol+asistencia, pace, pressing. (2) James Rodríguez creative and controlling in 10 role. (3) Colombia 1st half was cautious vs Uzbekistan 5-4-1 block — not dominant. (4) Defense conceded despite having quality advantage — not impenetrable. (5) Uzbekistan showed real fight under Cannavaro. IMPLICATION: Colombia now sole leaders of Group K. Portugal 1-1 with DR Congo means Jun 27 COL vs POR is now a genuine battle — Portugal not the juggernaut expected, Colombia in form with Díaz firing. Opportunity.",
   },
+
+  // ==========================================
+  // JUNE 18 — GROUP STAGE DAY 8
+  // ==========================================
+
+  // GS-A-3: Czechia 1-1 South Africa
+  // AUTO-XG: CZE 1.04, RSA 1.40
+  {
+    matchId: "GS-A-3",
+    date: "2026-06-18",
+    homeTeamId: "CZE", awayTeamId: "RSA",
+    homeGoals: 1, awayGoals: 1,
+    homeAttackMultiplier: 0.77,  // 1.04/1.35 = 0.77
+    homeDefenseMultiplier: 0.96, // 1.35/1.40 = 0.96
+    awayAttackMultiplier: 1.04,  // 1.40/1.35 = 1.04
+    awayDefenseMultiplier: 1.30, // 1.35/1.04 = 1.30 (capped)
+    notes: "AUTO-XG. COUNTER-INTUITIVE RESULT: Czechia 1.04 xG, South Africa 1.40 xG — South Africa were actually the better team by xG despite drawing! Sadilek scored early (6'), but Schick missed two great headers. South Africa equalized via Mokoena penalty (83') after handball. Czechia underperformed badly offensively — Schick not clinical. South Africa defense UP, Czechia attack DOWN. Both teams in trouble in Group A: Mexico 3pts, South Korea 3pts, CZE 1pt, RSA 1pt.",
+  },
+
+  // GS-B-4: Switzerland 4-1 Bosnia (Bosnia red card ~60')
+  // AUTO-XG with red card deflation: SUI 2.00, BIH 0.32
+  {
+    matchId: "GS-B-4",
+    date: "2026-06-18",
+    homeTeamId: "SUI", awayTeamId: "BIH",
+    homeGoals: 4, awayGoals: 1,
+    homeAttackMultiplier: 1.21,  // 2.00/1.35=1.48, deflated by 0.12 for opp red card → 1.48*0.88=1.30, set conservatively
+    homeDefenseMultiplier: 1.10,
+    awayAttackMultiplier: 0.65,  // 0.32/1.35=0.24, floored to 0.65, then deflated further
+    awayDefenseMultiplier: 0.65,
+    notes: "RED CARD CONTEXT. Switzerland 4-1 — looked like statement but Bosnia had red card ~60'. Manzambi (sub) brace in 2nd half, Vargas, Xhaka pen. Switzerland 2.00 xG but 3 of 4 goals came after Bosnia went 10-men. Attack multiplier deflated because numerical advantage inflated stats. Bosnia: genuinely poor — 0.32 xG with 11 men, then reduced. Both teams now fight for 2nd in Group B behind Canada (6pts). Switzerland must beat Canada (Group B MD3) to advance — massive match.",
+  },
+
+  // GS-B-3: Canada 6-0 Qatar (Qatar 2 red cards: ~31' and ~62')
+  // AUTO-XG with heavy red card deflation: CAN 4.46 xG, QAT ~0.30 xG
+  {
+    matchId: "GS-B-3",
+    date: "2026-06-18",
+    homeTeamId: "CAN", awayTeamId: "QAT",
+    homeGoals: 6, awayGoals: 0,
+    homeAttackMultiplier: 1.25,  // 4.46/1.35=3.30, massively deflated: 2 red cards, conservative read: 6 goals vs 9 men, set to 1.25
+    homeDefenseMultiplier: 1.10, // Clean sheet but vs 9-men Qatar — deflated
+    awayAttackMultiplier: 0.65,  // Qatar already poor, 2 red cards
+    awayDefenseMultiplier: 0.65, // Conceded 6 with 9 men
+    notes: "RED CARD CONTEXT — HEAVY DEFLATION. Canada 6-0 but Qatar had 2 red cards (Homam Ahmed straight red ~31' for denying goalscoring opportunity, Madibo red ~62' for brutal foul on Koné — likely broken leg). Qatar were 9 men for 28+ minutes. David hat-trick (goals at 28', 45', 90+). Saliba stunning free kick after Koné injury. Own goal at 75'. CRITICAL: Canada's attack multiplier set conservatively at 1.25 NOT the xG-derived 3.30+ — the 6 goals vs 9-men Qatar should NOT inflate Canada's attacking form for 11v11 matches. Jonathan David IS genuinely elite. Davies likely available for SUI match (MD3). KEY: Canada's real test is vs Switzerland MD3 — that will reveal true level.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
