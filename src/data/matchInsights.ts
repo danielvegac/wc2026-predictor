@@ -386,6 +386,20 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.65, // Conceded 6 with 9 men
     notes: "RED CARD CONTEXT — HEAVY DEFLATION. Canada 6-0 but Qatar had 2 red cards (Homam Ahmed straight red ~31' for denying goalscoring opportunity, Madibo red ~62' for brutal foul on Koné — likely broken leg). Qatar were 9 men for 28+ minutes. David hat-trick (goals at 28', 45', 90+). Saliba stunning free kick after Koné injury. Own goal at 75'. CRITICAL: Canada's attack multiplier set conservatively at 1.25 NOT the xG-derived 3.30+ — the 6 goals vs 9-men Qatar should NOT inflate Canada's attacking form for 11v11 matches. Jonathan David IS genuinely elite. Davies likely available for SUI match (MD3). KEY: Canada's real test is vs Switzerland MD3 — that will reveal true level.",
   },
+
+  // GS-A-3: Mexico 1-0 South Korea
+  // xG: Mexico ~0.85 xG, South Korea ~1.10 xG (KOR actually had more quality chances but goalkeeper errors cost them)
+  {
+    matchId: "GS-A-3",
+    date: "2026-06-18",
+    homeTeamId: "MEX", awayTeamId: "KOR",
+    homeGoals: 1, awayGoals: 0,
+    homeAttackMultiplier: 0.95,   // 0.85/1.35 — goal came from GK error not quality
+    homeDefenseMultiplier: 1.18,  // Rangel double miracle save in 2nd half — excellent GK
+    awayAttackMultiplier: 1.05,   // KOR had better chances (1.10 xG), Kim Seung-gyu error decided match
+    awayDefenseMultiplier: 0.88,  // Conceded from GK error, defensive structure ok
+    notes: "AUTO-XG + context. Mexico 1-0 but South Korea were arguably the better team by xG (~1.10 KOR vs ~0.85 MEX). Goal from Kim Seung-gyu GK error (dropped ball, Romo tap-in). Mexico GK Rangel made miraculous double save late. Neither team clinical — tight tactical battle. Mexico now top of Group A with 6pts, assured of R32. South Korea 3pts, need result vs South Africa MD3. KEY: Mexico attack NOT inflated — goal was a gift. South Korea attack slightly UP despite loss — they created more. Group A: MEX 6pts, KOR 3pts, CZE 1pt, RSA 1pt.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

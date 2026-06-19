@@ -703,10 +703,17 @@ function ModelTrackRecord({
       matchInsights.map((mi) => [mi.matchId, mi])
     );
 
-    // Sort matches chronologically so the track record reads June 11 → onward
-    const sortedSchedule = [...groupStageSchedule].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+    // Sort matches chronologically by date, then by kickoff time within each day
+    const parseTime = (t: string) => {
+      const [time, period] = t.split(" ");
+      const [h, m] = time.split(":").map(Number);
+      return (period === "PM" && h !== 12 ? h + 12 : period === "AM" && h === 12 ? 0 : h) * 60 + m;
+    };
+    const sortedSchedule = [...groupStageSchedule].sort((a, b) => {
+      const dateDiff = new Date(a.date).getTime() - new Date(b.date).getTime();
+      if (dateDiff !== 0) return dateDiff;
+      return parseTime(a.kickoffCOT ?? "23:59 PM") - parseTime(b.kickoffCOT ?? "23:59 PM");
+    });
 
     for (const match of sortedSchedule) {
       // Use ESPN result if available, otherwise fall back to matchInsights
