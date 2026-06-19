@@ -703,7 +703,12 @@ function ModelTrackRecord({
       matchInsights.map((mi) => [mi.matchId, mi])
     );
 
-    for (const match of groupStageSchedule) {
+    // Sort matches chronologically so the track record reads June 11 → onward
+    const sortedSchedule = [...groupStageSchedule].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    for (const match of sortedSchedule) {
       // Use ESPN result if available, otherwise fall back to matchInsights
       const espnResult = getResult(match.id);
       const insight = insightsByMatch.get(match.id);
