@@ -20,6 +20,10 @@ import { getProdeAIPicks } from "../../data/prodeai";
 import { matchInsights, getTeamFormMultipliers } from "../../data/matchInsights";
 import { calculateFormRankings } from "../../engine/formRankingEngine";
 import { formOverrides } from "../../data/formOverrides";
+import {
+  Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, ComposedChart, Line,
+} from "recharts";
 import type { MonteCarloResults, Prediction } from "../../types";
 
 const NUM_SIMS = 10_000;
@@ -912,6 +916,183 @@ function ModelTrackRecord({
 
       <div className="mt-3 text-center">
         <span className="text-sm font-bold text-text-primary">{verdict}</span>
+      </div>
+
+      {/* ─── Points by Matchday ─────────────────────────── */}
+      <PointsByMatchday rows={rows} />
+    </div>
+  );
+}
+
+function PointsByMatchday({
+  rows,
+}: {
+  rows: Array<{
+    matchId: string;
+    userPts: number;
+    modelPts: number;
+    userHome: number | null;
+  }>;
+}) {
+  // Build a schedule lookup: matchId → date
+  const scheduleMap = useMemo(
+    () => new Map(groupStageSchedule.map((m) => [m.id, m.date])),
+    []
+  );
+
+  const { chartData, tableRows, userGrandTotal, modelGrandTotal } = useMemo(() => {
+    // Group rows by date
+    const byDate = new Map<string, typeof rows>();
+    for (const r of rows) {
+      const date = scheduleMap.get(r.matchId) ?? "unknown";
+      if (!byDate.has(date)) byDate.set(date, []);
+      byDate.get(date)!.push(r);
+    }
+
+    // Sort dates chronologically
+    const sortedDates = [...byDate.keys()].sort();
+
+    let cumUser = 0;
+    let cumModel = 0;
+    const chartData: Array<{
+      label: string;
+      date: string;
+      userPts: number;
+      modelPts: number;
+      cumUser: number;
+      cumModel: number;
+    }> = [];
+
+    const tableRows: Array<{
+      label: string;
+      matches: number;
+      userPts: number;
+      modelPts: number;
+      leader: string;
+    }> = [];
+
+    for (const date of sortedDates) {
+      const dayRows = byDate.get(date)!;
+      const dayUser = dayRows.reduce((s, r) => s + r.userPts, 0);
+      const dayModel = dayRows.reduce((s, r) => s + r.modelPts, 0);
+      cumUser += dayUser;
+      cumModel += dayModel;
+
+      // Format label as "Jun 11"
+      const d = new Date(date + "T12:00:00");
+      const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+      chartData.push({ label, date, userPts: dayUser, modelPts: dayModel, cumUser, cumModel });
+      tableRows.push({
+        label,
+        matches: dayRows.length,
+        userPts: dayUser,
+        modelPts: dayModel,
+        leader:
+          dayUser > dayModel
+            ? "You"
+            : dayModel > dayUser
+            ? "Model"
+            : "Tie",
+      });
+    }
+
+    return { chartData, tableRows, userGrandTotal: cumUser, modelGrandTotal: cumModel };
+  }, [rows, scheduleMap]);
+
+  if (chartData.length === 0) return null;
+
+  const diff = userGrandTotal - modelGrandTotal;
+  const totalMatches = rows.length;
+
+  return (
+    <div className="mt-6 pt-5 border-t border-border">
+      <h3 className="text-sm font-bold text-text-primary mb-1">
+        Points by Matchday
+      </h3>
+      <p className="text-xs text-text-muted mb-4">
+        Daily scoring breakdown — bars show points earned, lines show cumulative totals.
+      </p>
+
+      {/* Chart */}
+      <div className="w-full" style={{ height: 300 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+            <YAxis yAxisId="bars" tick={{ fontSize: 11 }} allowDecimals={false} />
+            <YAxis yAxisId="line" orientation="right" tick={{ fontSize: 11 }} allowDecimals={false} hide />
+            <Tooltip
+              contentStyle={{ fontSize: 12, borderRadius: 8 }}
+              formatter={(value, name) => {
+                const labels: Record<string, string> = {
+                  userPts: "Your pts",
+                  modelPts: "Model pts",
+                  cumUser: "Your cumulative",
+                  cumModel: "Model cumulative",
+                };
+                return [String(value), labels[String(name)] ?? name];
+              }}
+            />
+            <Legend
+              formatter={(value: string) => {
+                const labels: Record<string, string> = {
+                  userPts: "You",
+                  modelPts: "Model",
+                  cumUser: "You (cumulative)",
+                  cumModel: "Model (cumulative)",
+                };
+                return <span className="text-xs">{labels[value] ?? value}</span>;
+              }}
+            />
+            <Bar yAxisId="bars" dataKey="userPts" fill="#3b82f6" radius={[3, 3, 0, 0]} barSize={20} />
+            <Bar yAxisId="bars" dataKey="modelPts" fill="#d97706" radius={[3, 3, 0, 0]} barSize={20} />
+            <Line yAxisId="line" type="monotone" dataKey="cumUser" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="5 3" />
+            <Line yAxisId="line" type="monotone" dataKey="cumModel" stroke="#d97706" strokeWidth={2} dot={{ r: 3 }} strokeDasharray="5 3" />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Summary table */}
+      <div className="overflow-x-auto mt-4">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left text-text-secondary">
+              <th className="py-2 pr-2 font-medium">Matchday</th>
+              <th className="py-2 px-2 font-medium text-center">Matches</th>
+              <th className="py-2 px-2 font-medium text-center">Your pts</th>
+              <th className="py-2 px-2 font-medium text-center text-amber-600">Model pts</th>
+              <th className="py-2 pl-2 font-medium text-center">Leader</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tableRows.map((r) => (
+              <tr key={r.label} className="border-b border-border/30 hover:bg-bg-secondary/50">
+                <td className="py-1.5 pr-2 font-medium text-xs">{r.label}</td>
+                <td className="py-1.5 px-2 text-center font-mono text-xs">{r.matches}</td>
+                <td className="py-1.5 px-2 text-center font-mono text-xs font-bold">{r.userPts}</td>
+                <td className="py-1.5 px-2 text-center font-mono text-xs font-bold text-amber-600">{r.modelPts}</td>
+                <td className="py-1.5 pl-2 text-center text-xs">
+                  {r.leader === "You" && <span className="text-blue-500 font-medium">You</span>}
+                  {r.leader === "Model" && <span className="text-amber-600 font-medium">Model</span>}
+                  {r.leader === "Tie" && <span className="text-text-muted">Tie</span>}
+                </td>
+              </tr>
+            ))}
+            {/* Total row */}
+            <tr className="border-t-2 border-border font-bold">
+              <td className="py-2 pr-2 text-xs">TOTAL</td>
+              <td className="py-2 px-2 text-center font-mono text-xs">{totalMatches}</td>
+              <td className="py-2 px-2 text-center font-mono text-xs">{userGrandTotal}</td>
+              <td className="py-2 px-2 text-center font-mono text-xs text-amber-600">{modelGrandTotal}</td>
+              <td className="py-2 pl-2 text-center text-xs">
+                {diff > 0 && <span className="text-blue-500">You +{diff}</span>}
+                {diff < 0 && <span className="text-amber-600">Model +{Math.abs(diff)}</span>}
+                {diff === 0 && <span className="text-text-muted">Tied</span>}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );
