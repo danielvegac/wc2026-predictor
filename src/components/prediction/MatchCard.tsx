@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Match, Team, Prediction } from "../../types";
 import { getFlagClass } from "../../data/flags";
 import { formatMatchDate } from "../../data/schedule";
@@ -6,6 +7,7 @@ import { useModelPredictionStore, useBaselinePrediction } from "../../store/mode
 import { getExpertPicksForMatch } from "../../data/expertPicks";
 import { getTeamInsights } from "../../data/matchInsights";
 import { getOddsForMatch, noVigProbs } from "../../data/matchOdds";
+import { getAlphaData } from "../../data/alphametrico";
 import { ScoreInput } from "./ScoreInput";
 
 interface MatchCardProps {
@@ -200,6 +202,9 @@ export function MatchCard({
       {/* Expert picks row */}
       <ExpertPicksRow matchId={match.id} />
 
+      {/* alphametrico signal — upcoming matches only */}
+      {!actualResult && <AlphaSignalRow matchId={match.id} />}
+
       {/* Actual result row (when available) */}
       {actualResult && (
         <div className="mt-1.5 pt-1.5 border-t border-border/50 flex items-center justify-center gap-2">
@@ -260,6 +265,114 @@ function ExpertPicksRow({ matchId }: { matchId: string }) {
           </span>
         </span>
       ))}
+    </div>
+  );
+}
+
+function AlphaSignalRow({ matchId }: { matchId: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const alpha = getAlphaData(matchId);
+
+  if (!alpha) return null;
+
+  // Badge color based on divergence
+  const badgeStyles = {
+    confirmed: "bg-green-100 text-green-700 border border-green-200",
+    warning:   "bg-yellow-100 text-yellow-700 border border-yellow-200",
+    neutral:   "bg-gray-100 text-gray-500 border border-gray-200",
+  } as const;
+
+  const badgeLabels = {
+    confirmed: "\u2713 Confirmed",
+    warning:   "\u26A0 Divergence",
+    neutral:   "~ Neutral",
+  } as const;
+
+  // Signal confidence dot color
+  const dotColor = {
+    high:   "bg-green-500",
+    medium: "bg-yellow-400",
+    low:    "bg-gray-400",
+  } as const;
+
+  return (
+    <div className="mt-2 border-t border-border/40 pt-2">
+
+      {/* Collapsed row — always visible */}
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center justify-between gap-2 hover:opacity-80 transition-opacity"
+      >
+        {/* Left: source label + match score */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] uppercase tracking-wider font-semibold text-text-muted">
+            \u03B1
+          </span>
+          <span className="text-[10px] font-mono font-bold text-text-secondary">
+            {alpha.matchScore}
+          </span>
+        </div>
+
+        {/* Center: radar summary (truncated) */}
+        <span className="flex-1 text-[10px] text-text-muted text-center truncate px-1">
+          {alpha.radarSummary}
+        </span>
+
+        {/* Right: divergence badge */}
+        <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${badgeStyles[alpha.divergence]}`}>
+          {badgeLabels[alpha.divergence]}
+        </span>
+      </button>
+
+      {/* Expanded panel */}
+      {expanded && (
+        <div className="mt-2 rounded-lg bg-bg-secondary border border-border/60 p-3 flex flex-col gap-2.5 text-left">
+
+          {/* Divergence detail */}
+          <div>
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-text-muted block mb-0.5">
+              Model vs Market
+            </span>
+            <p className="text-xs text-text-secondary leading-snug">
+              {alpha.divergenceNote}
+            </p>
+          </div>
+
+          {/* Top signals */}
+          <div>
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-text-muted block mb-1">
+              Key Signals
+            </span>
+            <div className="flex flex-col gap-1">
+              {alpha.topSignals.map((sig, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor[sig.confidence]}`} />
+                  <span className="text-xs text-text-primary flex-1">{sig.label}</span>
+                  <span className="text-[10px] font-mono text-green-600 font-semibold whitespace-nowrap">
+                    {sig.ev}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Alpha pick */}
+          <div className="border-t border-border/50 pt-2">
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-text-muted block mb-0.5">
+              Alpha Pick
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="font-mono text-sm font-bold text-text-primary">
+                {alpha.alphaPickExact}
+              </span>
+              <span className="text-xs text-text-muted leading-snug">
+                {alpha.alphaPickNote}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      )}
     </div>
   );
 }
