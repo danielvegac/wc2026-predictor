@@ -400,6 +400,80 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.88,  // Conceded from GK error, defensive structure ok
     notes: "AUTO-XG + context. Mexico 1-0 but South Korea were arguably the better team by xG (~1.10 KOR vs ~0.85 MEX). Goal from Kim Seung-gyu GK error (dropped ball, Romo tap-in). Mexico GK Rangel made miraculous double save late. Neither team clinical — tight tactical battle. Mexico now top of Group A with 6pts, assured of R32. South Korea 3pts, need result vs South Africa MD3. KEY: Mexico attack NOT inflated — goal was a gift. South Korea attack slightly UP despite loss — they created more. Group A: MEX 6pts, KOR 3pts, CZE 1pt, RSA 1pt.",
   },
+
+  // ─── Jun 19 ─────────────────────────────────────────────────
+
+  // GS-D-3: USA 2-0 Australia
+  // xG: USA 1.08, AUS 0.35
+  {
+    matchId: "GS-D-3",
+    date: "2026-06-19",
+    homeTeamId: "USA", awayTeamId: "AUS",
+    homeGoals: 2, awayGoals: 0,
+    homeAttackMultiplier: 0.92,   // 1.08 xG — solid but not dominant. 2 goals from limited xG = finishing, not attack quality
+    homeDefenseMultiplier: 1.45,  // capped — near-shutout, Australia created almost nothing (0.35 xG)
+    awayAttackMultiplier: 0.65,   // floored — 0.35 xG across a full match is alarming
+    awayDefenseMultiplier: 1.25,  // conceded 2 but held USA to 1.08 xG — not terrible
+    notes: "USA controlled match but overperformed finishing (2 goals from 1.08 xG). Balogun and Reyna scored. Australia barely created anything (0.35 xG) — their MD1 win over Turkey looks increasingly like a GK heroics fluke. USA defense excellent — clean sheet, solid structure. Australia attack deeply concerning across two matches (0.77+0.35=1.12 xG total). USA clinch R32 with 6pts. Group D: USA 6pts, AUS 3pts, PAR 3pts, TUR 0pts. KEY: Australia overrated by MD1 scoreline.",
+  },
+
+  // GS-C-3: Scotland 0-1 Morocco
+  // xG: SCO 0.51, MAR 0.99
+  {
+    matchId: "GS-C-3",
+    date: "2026-06-19",
+    homeTeamId: "SCO", awayTeamId: "MAR",
+    homeGoals: 0, awayGoals: 1,
+    homeAttackMultiplier: 0.65,   // floored — 0.51 xG, 0 goals across 2 games now
+    homeDefenseMultiplier: 1.36,  // held Morocco to 0.99 xG — defense not terrible, just attack nonexistent
+    awayAttackMultiplier: 0.73,   // 0.99 xG — consistent but not explosive
+    awayDefenseMultiplier: 1.45,  // capped — held Scotland to 0.51 xG, clean sheet
+    notes: "Saibari scored in 72 SECONDS — fastest goal in 2026 WC so far. Morocco controlled after early opener. Scotland barely threatened (0.51 xG) — Steve Clarke's system very limited offensively. Morocco consistent across 2 matches: 1.53 xG vs Brazil, 0.99 vs Scotland — genuinely solid defensive team. GK Bounou played despite arm injury concern — performed fine. Scotland need a miracle vs Brazil MD3. Morocco top Group C with 4pts, Scotland eliminated effectively.",
+  },
+
+  // GS-C-4: Brazil 3-0 Haiti
+  // xG: BRA 1.56, HAI 0.23
+  {
+    matchId: "GS-C-4",
+    date: "2026-06-19",
+    homeTeamId: "BRA", awayTeamId: "HAI",
+    homeGoals: 3, awayGoals: 0,
+    homeAttackMultiplier: 1.16,   // 1.56/1.35 — solid but not elite. 3 goals slight overperformance of xG
+    homeDefenseMultiplier: 1.45,  // capped — Haiti had 0.23 xG, dominant clean sheet
+    awayAttackMultiplier: 0.65,   // floored — 0.23 xG, completely outclassed
+    awayDefenseMultiplier: 0.87,  // conceded 3, allowed 1.56 xG — not great
+    notes: "Matheus Cunha brace (23', 31'), Vinícius Júnior goal+assist. Brazil efficient but NOT dominant by xG (1.56 for 3 goals — overperformed finishing). KEY CONCERN: Raphinha substituted off 40' with suspected hamstring injury — could miss MD3 vs Morocco. Cunha excellent as starter over Igor Thiago. Haiti 0.23 xG — completely outclassed, eliminated. Brazil move to top of Group C (4pts). Ancelotti's system looks better with Cunha as focal point. Morocco vs Brazil MD3 now a genuine top-of-group clash.",
+  },
+
+  // GS-D-4: Turkey 0-1 Paraguay
+  // xG: TUR 2.17, PAR 0.32
+  {
+    matchId: "GS-D-4",
+    date: "2026-06-19",
+    homeTeamId: "TUR", awayTeamId: "PAR",
+    homeGoals: 0, awayGoals: 1,
+    homeAttackMultiplier: 1.45,   // capped — 2.17 xG is dominant. Goals don't reflect attack quality at all
+    homeDefenseMultiplier: 1.45,  // capped — only allowed 0.32 xG. Historic bad luck
+    awayAttackMultiplier: 0.65,   // floored — 0.32 xG counter-attack sucker punch
+    awayDefenseMultiplier: 0.65,  // floored — allowed 2.17 xG. Survived on luck
+    notes: "MASSIVE UPSET / xG DISTORTION. Turkey dominated completely — 2.17 xG vs Paraguay 0.32 xG — and LOST 0-1. Two matches now: Turkey 1.33 xG vs AUS (lost 0-2), 2.17 xG vs PAR (lost 0-1). Turkey have generated 3.50 xG across 2 matches and scored ZERO goals. Clinical failure of historic proportions. Arda Güler had 7 shots vs Australia, strong showing vs Paraguay too. Paraguay goal was a counter-attack sucker punch. Turkey effectively ELIMINATED (0pts). Paraguay survival: need win or draw vs Australia MD3. CRITICAL FOR MODEL: Turkey attack multiplier HIGH (1.45 cap) despite 0 goals — their xG is excellent. Scoreline is a historic outlier.",
+  },
+
+  // ─── Jun 20 ─────────────────────────────────────────────────
+
+  // GS-F-3: Netherlands 5-1 Sweden
+  // xG: NED 2.47, SWE 0.98
+  {
+    matchId: "GS-F-3",
+    date: "2026-06-20",
+    homeTeamId: "NED", awayTeamId: "SWE",
+    homeGoals: 5, awayGoals: 1,
+    homeAttackMultiplier: 1.45,   // capped — 2.47 xG genuinely dominant
+    homeDefenseMultiplier: 1.38,  // 1.35/0.98 — solid but Sweden not elite
+    awayAttackMultiplier: 0.73,   // 0.98 xG — some threat but not enough
+    awayDefenseMultiplier: 0.65,  // floored — 2.47 xG conceded, 5 goals against
+    notes: "Netherlands dominant and clinical — 2.47 xG AND converted 5 goals (massive overperformance). Brobbey 2 goals (5', 17'), Gakpo 2 goals (47', 50'), Summerville goal (89'). Sweden replied through Elanga (59'). Koeman's Oranje look genuinely dangerous — combining xG dominance with clinical finishing. After 1-1 draw vs Japan (MD1, 0.78 xG), this is a statement. BUT: 5 goals from 2.47 xG is significant overperformance. Sweden: Gyökeres shot-shy after yellow-card concern? Defense exposed badly. Group F: NED top, SWE must beat Tunisia MD3 to have any hope.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

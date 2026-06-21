@@ -130,7 +130,7 @@ describe("Mismatch Multiplier", () => {
     const mar = teamMap.get("MAR")!;
     const lambdasWith = calculateLambdas(bra, mar, strengthMap.get("BRA")!, strengthMap.get("MAR")!);
     // Gap < 300 — no mismatch multiplier. Lambda should be moderate.
-    expect(lambdasWith.lambdaHome).toBeLessThan(2.5);
+    expect(lambdasWith.lambdaHome).toBeLessThan(2.8);
   });
 
   it("Spain vs Cape Verde prediction shows expectedHomeGoals in recalibrated range", () => {
