@@ -474,6 +474,45 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.65,  // floored — 2.47 xG conceded, 5 goals against
     notes: "Netherlands dominant and clinical — 2.47 xG AND converted 5 goals (massive overperformance). Brobbey 2 goals (5', 17'), Gakpo 2 goals (47', 50'), Summerville goal (89'). Sweden replied through Elanga (59'). Koeman's Oranje look genuinely dangerous — combining xG dominance with clinical finishing. After 1-1 draw vs Japan (MD1, 0.78 xG), this is a statement. BUT: 5 goals from 2.47 xG is significant overperformance. Sweden: Gyökeres shot-shy after yellow-card concern? Defense exposed badly. Group F: NED top, SWE must beat Tunisia MD3 to have any hope.",
   },
+
+  // GS-E-3: Germany 2-1 Ivory Coast
+  {
+    matchId: "GS-E-3",
+    date: "2026-06-20",
+    homeTeamId: "GER", awayTeamId: "CIV",
+    homeGoals: 2, awayGoals: 1,
+    homeAttackMultiplier: 1.36,
+    homeDefenseMultiplier: 1.10,
+    awayAttackMultiplier: 0.91,
+    awayDefenseMultiplier: 0.74,
+    notes: "Germany won via dramatic late comeback — Undav scored twice as sub (68', 94'). Ivory Coast led from 30' and were full value. Germany xG 1.83 vs CIV 1.23. Undav now has 5 sub contributions this tournament (Roger Milla-level). Triple sub at 60' turned game. CIV defense vulnerable late.",
+  },
+
+  // GS-E-4: Ecuador 0-0 Curaçao
+  {
+    matchId: "GS-E-4",
+    date: "2026-06-20",
+    homeTeamId: "ECU", awayTeamId: "CUW",
+    homeGoals: 0, awayGoals: 0,
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.65,
+    notes: "ECU generated 3.05 xG from 27 shots — CONMEBOL record since 1966. GK Room made 15 saves (WC record for 90min). Ecuador 0 goals from 15 shots on target — catastrophic clinical failure, not lack of quality. Both multipliers hit ceiling/floor. Ecuador finishing crisis continues (0-1 loss vs CIV MD1). Must beat Germany MD3 to advance.",
+  },
+
+  // GS-F-4: Tunisia 0-4 Japan
+  {
+    matchId: "GS-F-4",
+    date: "2026-06-20",
+    homeTeamId: "TUN", awayTeamId: "JPN",
+    homeGoals: 0, awayGoals: 4,
+    homeAttackMultiplier: 0.65,
+    homeDefenseMultiplier: 0.65,
+    awayAttackMultiplier: 1.45,
+    awayDefenseMultiplier: 1.45,
+    notes: "Tunisia xG 0.05 (2 shots total) — tournament-worst absolute floor. Japan xG 2.07, dominant from 4'. Kamada (4'), Ueda brace (26', 83'), Ito (69'). Japan now 4-match WC unbeaten streak. Tunisia eliminated — 0.33 xG across 2 games. Herve Renard appointment after coach sack had no impact. Japan emerging as genuine Group F force.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

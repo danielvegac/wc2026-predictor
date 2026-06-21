@@ -21,4 +21,10 @@ export const formOverrides: Record<string, { score: number; note: string }> = {
   "MAR": { score: 68, note: "Consistent across 2 matches: 1.53 xG vs BRA, 0.99 vs SCO. Saibari clinical. Defense excellent (held both BRA and SCO). 4pts, Group C leaders. Genuine dark horse." },
   "SCO": { score: 18, note: "0.51 xG vs Morocco, 1.05 vs Haiti. Near-zero attack output. Clarke's system too passive. Eliminated effectively after 2 matches." },
   "HAI": { score: 8, note: "0.23 xG vs Brazil, eliminated. Showed spirit vs Scotland (1.21 xG) but quality gap too large at this level." },
+  "GER": { score: 72, note: "9 goals in 2 games, elite sub bench (Undav 5 contributions). xG: 4.22 + 1.83. Showed character vs CIV — came back from 0-1 deficit. Best squad depth in tournament." },
+  "CIV": { score: 45, note: "Beat Ecuador (MD1), lost 1-2 to Germany (MD2). Kessie goal showed clinical edge. BUT conceded to late sub — defensive fragility under pressure. Amad Diallo/Diomande dangerous on counter. Need MD3 result vs ECU." },
+  "ECU": { score: 28, note: "CLINICAL CRISIS. 3.05 xG vs Curaçao, 0 goals. 0 goals from 2 matches despite generating chances (also lost 0-1 to CIV). Must beat Germany to advance — nearly impossible after this form. Attack multipliers at ceiling but conversion rate tournament-worst." },
+  "CUW": { score: 18, note: "0-4 vs Germany (MD1), 0-0 vs Ecuador (MD2). Room GK heroics stole WC point — 15 saves, not systemic defense. Attack: scored 1 historic goal (0.41 xG vs GER). Effectively eliminated. Slight upward revision from worst-tier due to MD2 survival." },
+  "JPN": { score: 68, note: "2-2 NED (MD1), 4-0 TUN (MD2). Tournament-best defensive xG conceded in MD2 (0.05). Kamada/Ueda clinical. 4-match WC unbeaten streak. Strongest Asian team in tournament. Contending for Group F top spot vs NED MD3." },
+  "TUN": { score: 2, note: "Eliminated. 0.33 xG across 2 games — worst in tournament. Fired manager after MD1, 0-4 vs Japan MD2. 0.05 xG vs Japan is tournament absolute floor. 9 goals conceded in 2 matches. No attacking threat whatsoever." },
 };
