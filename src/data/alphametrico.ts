@@ -65,6 +65,38 @@ export const alphaMatchData: AlphaMatchData[] = [
     alphaPickNote: "Tight Belgium win zone. 2-0 and 3-0 strongly disfavored. Iran competitive — BTTS essentially neutral.",
   },
 
+  {
+    matchId: "GS-H-4",
+    matchScore: 92,
+    radarSummary: "Very low scoring expected — market wildly overprices goals, Cape Verde far more competitive than odds suggest",
+    divergence: "warning",
+    divergenceNote: "Market prices Uruguay to win comfortably with 2-3 goals; alpha strongly disagrees — Under 2 total goals has +48% EV, all high-scoring markets have deeply negative EV. Cape Verde defensive blueprint from Spain draw still intact.",
+    topSignals: [
+      { label: "Under 3 total goals (Score 87)", ev: "+18.6%", confidence: "high" },
+      { label: "Under 2.5 total goals (Score 82)", ev: "+26.2%", confidence: "high" },
+      { label: "Under 2 total goals (Score 69)", ev: "+48.2%", confidence: "high" },
+      { label: "Cape Verde +2 Asian Handicap (Score 87)", ev: "+17.6%", confidence: "high" },
+    ],
+    alphaPickExact: "1-0 Uruguay",
+    alphaPickNote: "Tight Uruguay win, Cape Verde competitive. BTTS No has +8.5% EV — one goal may decide this. Over 2.5 has -37.7% EV, the sharpest anti-signal in Group H.",
+  },
+
+  {
+    matchId: "GS-G-4",
+    matchScore: 92,
+    radarSummary: "Egypt strong favourites — BTTS No dominant signal, market underprices Egypt result",
+    divergence: "warning",
+    divergenceNote: "Alpha strongly favours Egypt to win AND keep New Zealand from scoring. BTTS No scores 83 — highest confidence signal. All Egypt result markets show 25-50% positive EV at efficient odds.",
+    topSignals: [
+      { label: "BTTS No — New Zealand unlikely to score (Score 83)", ev: "+32.5%", confidence: "high" },
+      { label: "Egypt win (1X2 Egypt, Score 83)", ev: "+25.5%", confidence: "high" },
+      { label: "Egypt -0.75 handicap (Score 82)", ev: "+32.8%", confidence: "high" },
+      { label: "Egypt -1 handicap (Score 76)", ev: "+42.3%", confidence: "high" },
+    ],
+    alphaPickExact: "0-2 Egypt",
+    alphaPickNote: "Egypt win with New Zealand unlikely to score — BTTS No at Score 83 is the anchor signal. Egypt -1 handicap has +42% EV at 2.14 odds.",
+  },
+
 ];
 
 /** Get alphametrico data for a specific match. Returns undefined if not available. */
