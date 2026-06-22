@@ -97,6 +97,24 @@ export const alphaMatchData: AlphaMatchData[] = [
     alphaPickNote: "Egypt win with New Zealand unlikely to score — BTTS No at Score 83 is the anchor signal. Egypt -1 handicap has +42% EV at 2.14 odds.",
   },
 
+  // ── June 22 ──────────────────────────────────────────────
+
+  {
+    matchId: "GS-J-2",
+    matchScore: 80,
+    radarSummary: "Low-scoring grind — market overpricing goal volume after Messi hat-trick",
+    divergence: "warning",
+    divergenceNote: "Market expects Argentina to run riot after 3-0 vs Algeria; alpha strongly disagrees — all high-EV signals point to under 3 goals, BTTS No, and Austria staying competitive. Magnitude mismatch: Argentina win is not in question, the goal count is.",
+    topSignals: [
+      { label: "Under 3 total goals", ev: "+23%", confidence: "high" },
+      { label: "Under 2.5 total goals", ev: "+28.8%", confidence: "high" },
+      { label: "BTTS No (clean sheet likely)", ev: "+14.4%", confidence: "high" },
+      { label: "Austria +1 handicap has value", ev: "+4.2%", confidence: "medium" },
+    ],
+    alphaPickExact: "1-0 Argentina",
+    alphaPickNote: "Tight Argentina win zone. Market over-pricing open game after Messi hat-trick. Austria (Rangnick press) will suppress volume. 1-0 is the highest-EV correct score in the entire read.",
+  },
+
 ];
 
 /** Get alphametrico data for a specific match. Returns undefined if not available. */

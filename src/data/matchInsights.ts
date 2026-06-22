@@ -514,34 +514,61 @@ export const matchInsights: MatchInsight[] = [
     notes: "Tunisia xG 0.05 (2 shots total) — tournament-worst absolute floor. Japan xG 2.07, dominant from 4'. Kamada (4'), Ueda brace (26', 83'), Ito (69'). Japan now 4-match WC unbeaten streak. Tunisia eliminated — 0.33 xG across 2 games. Herve Renard appointment after coach sack had no impact. Japan emerging as genuine Group F force.",
   },
 
-  // ─── Jun 21 ─────────────────────────────────────────────────
+  // ==========================================
+  // JUNE 21 — GROUP STAGE DAY 11
+  // ==========================================
+
+  // GS-H-3: Spain 4-0 Saudi Arabia
+  {
+    matchId: "GS-H-3",
+    date: "2026-06-21",
+    homeTeamId: "ESP", awayTeamId: "KSA",
+    homeGoals: 4, awayGoals: 0,
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.65,
+    notes: "Yamal first WC start — 10' goal. Oyarzabal brace (21', 24'). Al-Tambakti OG 49'. Spain 2.85 xG, KSA 0.04 xG — total domination. Both Yamal and Oyarzabal withdrawn at HT. Alphametrico predicted 2-goal margin but Spain went 4-0 — magnitude underestimation confirmed again. KSA effectively eliminated. ESP attack and defense both at max after response to Cape Verde shock. Lamine Yamal unlocked the tournament.",
+  },
+
+  // GS-G-3: Belgium 0-0 Iran
+  // NOTE: Belgium had red card (Ngoy, 66') — BEL attack deflated accordingly
+  {
+    matchId: "GS-G-3",
+    date: "2026-06-21",
+    homeTeamId: "BEL", awayTeamId: "IRN",
+    homeGoals: 0, awayGoals: 0,
+    homeAttackMultiplier: 1.19,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.74,
+    notes: "Alphametrico SIGNAL CORRECT — predicted tight, low-scoring game, Iran competitive. Belgium 1.82 xG but 0 goals, 23 shots. Doku absent (illness), Lukaku off-form. Ngoy red card 66' for denying Taremi breakaway — Iran had 0.63 xG but multiple danger moments. Beiranvand 7 saves (again). Belgium now 53 consecutive WC shots without an open-play goal. BEL attack multiplier deflated for red card context. IRN defense was genuine masterclass — not just luck. Belgium clinical crisis is structural, not just Doku absence.",
+  },
 
   // GS-H-4: Uruguay 2-2 Cape Verde
-  // xG: URU 2.34, CPV 0.86
   {
     matchId: "GS-H-4",
     date: "2026-06-21",
     homeTeamId: "URU", awayTeamId: "CPV",
     homeGoals: 2, awayGoals: 2,
-    homeAttackMultiplier: 1.33,  // 2.34/1.35=1.73 → capped at 1.45; but 2-2 draw not dominance → set 1.33: real attacking output confirmed
-    homeDefenseMultiplier: 0.72, // Conceded 2 — one a 32m freekick, one a defensive error (Olivera). Pattern: defensive mistakes, not systemic
-    awayAttackMultiplier: 0.64,  // 0.86/1.35=0.64 → floored at 0.65. Goals were set piece + error, not open play quality
-    awayDefenseMultiplier: 1.20, // Vozinha again excellent. Held Uruguay's 2.34 xG to just 2 goals. Real defensive quality confirmed
-    notes: "HIGH VARIANCE RESULT. Uruguay 2-2 Cape Verde — model was correct on xG profile (2.34 vs 0.86) but 4 goals scored. Sequence: Kevin Pina 32m freekick (21', CPV first-ever WC goal), Araújo header rebound (44'), Canobbio close range (45+6'). Then Hélio Varela (sub, on 2 min) scored after Olivera's catastrophic lateral pass (61'). Both CPV goals were outliers: one extraordinary set piece, one defensive howler — NOT reflective of open play quality. Uruguay had 17 shots. Late Araújo goal disallowed (offside). Group H: CPV 2pts, URU 2pts, ESP 3pts (4-0 vs KSA), KSA 1pt. Cape Verde still alive — face KSA in MD3. Uruguay must beat Spain in MD3.",
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 0.80,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.65,
+    notes: "Uruguay 2.34 xG (17 shots, only 2 on target) — came back from 0-1 to lead 2-1 (Araujo 44', Canobbio 45+6'). Olivera horror pass gifted Helio Varela empty net equalizer in 61'. Uruguay had disallowed goal (Araujo offside). CPV 0.86 xG but 4 shots on target — Pina historic free kick from 32m (Cape Verde's first ever WC goal). Mozumba 40yo GK Vozinha another heroic display. URU missing Gimenez, R.Araujo, De Arrascaeta, Suarez not picked — structural problems beyond squad issues. Group H: ESP 4pts, CPV 2pts, URU 2pts, KSA 1pt. URU need result vs Spain MD3 to survive. URU defense multiplier DOWN sharply — Olivera error catastrophic.",
   },
 
   // GS-G-4: New Zealand 1-3 Egypt
-  // xG: EGY 1.96, NZL 1.47
   {
     matchId: "GS-G-4",
     date: "2026-06-21",
     homeTeamId: "NZL", awayTeamId: "EGY",
     homeGoals: 1, awayGoals: 3,
-    homeAttackMultiplier: 1.09,  // 1.47/1.35=1.09. Surman header was genuine quality (set piece). Just not on scoresheet this time
-    homeDefenseMultiplier: 0.72, // Conceded 3 goals — couldn't hold their 1-0 lead. Defensive shape collapses in second half
-    awayAttackMultiplier: 1.45,  // 1.96/1.35=1.45 → capped. Salah scored+assisted, Ziko + Trezeguet both contributed. Real clinical depth
-    awayDefenseMultiplier: 1.10, // Conceded 1 via set piece (Surman header, 15') but recovered well
-    notes: "EGYPT HISTORIC FIRST WC WIN. NZL 1-3 EGY. Egypt came from behind after Surman header (15', NZL set piece). Egypt dominated: 1.96 xG (19 shots), NZL 1.47 xG (12 shots). Egypt goals: Ziko header (58'), Salah left-foot (67', first WC goal as 34yo), Trezeguet header off Salah corner (82'). Salah involved in 60%+ of Egypt's WC goals — architect. EGYPT NOW LEADS Group G: 4pts. Belgium: 2pts. Iran: 2pts. NZL: 1pt. Egypt needs draw vs Iran MD3 to advance. NZL needs win vs Belgium AND other results. Trezeguet key impact sub. Egypt clinical in second half — real tournament team emerging.",
+    homeAttackMultiplier: 0.90,
+    homeDefenseMultiplier: 0.69,
+    awayAttackMultiplier: 1.45,
+    awayDefenseMultiplier: 1.12,
+    notes: "Egypt's first ever World Cup win — came from behind (Surman header 15'). Zico equalizer 58', Salah (67', assist+goal), Trezeguet diving header 82'. Egypt 1.96 xG, NZL 1.21 xG. Salah in #10 role devastating as creator and finisher — 68th international goal. Shobeir solid in goal. Group G now: EGY 4pts (first!), BEL 1pt, IRN 1pt, NZL 1pt. Egypt vs Iran MD3 is group decider — winner likely tops group. NZL defense multiplier DOWN significantly — now 0 wins in 8 WC games all time.",
   },
 ];
 
