@@ -513,6 +513,36 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 1.45,
     notes: "Tunisia xG 0.05 (2 shots total) — tournament-worst absolute floor. Japan xG 2.07, dominant from 4'. Kamada (4'), Ueda brace (26', 83'), Ito (69'). Japan now 4-match WC unbeaten streak. Tunisia eliminated — 0.33 xG across 2 games. Herve Renard appointment after coach sack had no impact. Japan emerging as genuine Group F force.",
   },
+
+  // ─── Jun 21 ─────────────────────────────────────────────────
+
+  // GS-H-4: Uruguay 2-2 Cape Verde
+  // xG: URU 2.34, CPV 0.86
+  {
+    matchId: "GS-H-4",
+    date: "2026-06-21",
+    homeTeamId: "URU", awayTeamId: "CPV",
+    homeGoals: 2, awayGoals: 2,
+    homeAttackMultiplier: 1.33,  // 2.34/1.35=1.73 → capped at 1.45; but 2-2 draw not dominance → set 1.33: real attacking output confirmed
+    homeDefenseMultiplier: 0.72, // Conceded 2 — one a 32m freekick, one a defensive error (Olivera). Pattern: defensive mistakes, not systemic
+    awayAttackMultiplier: 0.64,  // 0.86/1.35=0.64 → floored at 0.65. Goals were set piece + error, not open play quality
+    awayDefenseMultiplier: 1.20, // Vozinha again excellent. Held Uruguay's 2.34 xG to just 2 goals. Real defensive quality confirmed
+    notes: "HIGH VARIANCE RESULT. Uruguay 2-2 Cape Verde — model was correct on xG profile (2.34 vs 0.86) but 4 goals scored. Sequence: Kevin Pina 32m freekick (21', CPV first-ever WC goal), Araújo header rebound (44'), Canobbio close range (45+6'). Then Hélio Varela (sub, on 2 min) scored after Olivera's catastrophic lateral pass (61'). Both CPV goals were outliers: one extraordinary set piece, one defensive howler — NOT reflective of open play quality. Uruguay had 17 shots. Late Araújo goal disallowed (offside). Group H: CPV 2pts, URU 2pts, ESP 3pts (4-0 vs KSA), KSA 1pt. Cape Verde still alive — face KSA in MD3. Uruguay must beat Spain in MD3.",
+  },
+
+  // GS-G-4: New Zealand 1-3 Egypt
+  // xG: EGY 1.96, NZL 1.47
+  {
+    matchId: "GS-G-4",
+    date: "2026-06-21",
+    homeTeamId: "NZL", awayTeamId: "EGY",
+    homeGoals: 1, awayGoals: 3,
+    homeAttackMultiplier: 1.09,  // 1.47/1.35=1.09. Surman header was genuine quality (set piece). Just not on scoresheet this time
+    homeDefenseMultiplier: 0.72, // Conceded 3 goals — couldn't hold their 1-0 lead. Defensive shape collapses in second half
+    awayAttackMultiplier: 1.45,  // 1.96/1.35=1.45 → capped. Salah scored+assisted, Ziko + Trezeguet both contributed. Real clinical depth
+    awayDefenseMultiplier: 1.10, // Conceded 1 via set piece (Surman header, 15') but recovered well
+    notes: "EGYPT HISTORIC FIRST WC WIN. NZL 1-3 EGY. Egypt came from behind after Surman header (15', NZL set piece). Egypt dominated: 1.96 xG (19 shots), NZL 1.47 xG (12 shots). Egypt goals: Ziko header (58'), Salah left-foot (67', first WC goal as 34yo), Trezeguet header off Salah corner (82'). Salah involved in 60%+ of Egypt's WC goals — architect. EGYPT NOW LEADS Group G: 4pts. Belgium: 2pts. Iran: 2pts. NZL: 1pt. Egypt needs draw vs Iran MD3 to advance. NZL needs win vs Belgium AND other results. Trezeguet key impact sub. Egypt clinical in second half — real tournament team emerging.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
