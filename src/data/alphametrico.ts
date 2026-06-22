@@ -100,7 +100,7 @@ export const alphaMatchData: AlphaMatchData[] = [
   // ── June 22 ──────────────────────────────────────────────
 
   {
-    matchId: "GS-J-2",
+    matchId: "GS-J-3",
     matchScore: 80,
     radarSummary: "Low-scoring grind — market overpricing goal volume after Messi hat-trick",
     divergence: "warning",
