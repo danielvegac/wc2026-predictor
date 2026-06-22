@@ -3,7 +3,7 @@
 // ============================================================
 // Manually populated before each match day from alphametrico's
 // dashboard (anchored on Pinnacle sharp odds).
-// Only shown for upcoming matches — hidden after kickoff.
+// Shown for all matches — pre-match as signal, post-match as outcome tracker.
 //
 // divergence values:
 //   "confirmed"  — market and our model agree on direction + margin

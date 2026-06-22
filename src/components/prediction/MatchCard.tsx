@@ -202,8 +202,8 @@ export function MatchCard({
       {/* Expert picks row */}
       <ExpertPicksRow matchId={match.id} />
 
-      {/* alphametrico signal — upcoming matches only */}
-      {!actualResult && <AlphaSignalRow matchId={match.id} />}
+      {/* alphametrico signal — always visible */}
+      <AlphaSignalRow matchId={match.id} actualResult={actualResult ?? undefined} />
 
       {/* Actual result row (when available) */}
       {actualResult && (
@@ -269,11 +269,65 @@ function ExpertPicksRow({ matchId }: { matchId: string }) {
   );
 }
 
-function AlphaSignalRow({ matchId }: { matchId: string }) {
+function AlphaSignalRow({
+  matchId,
+  actualResult,
+}: {
+  matchId: string;
+  actualResult?: { homeScore: number; awayScore: number };
+}) {
   const [expanded, setExpanded] = useState(false);
   const alpha = getAlphaData(matchId);
-
   if (!alpha) return null;
+
+  const isPostMatch = !!actualResult;
+
+  // ── Outcome evaluation (post-match only) ──────────────────
+  let alphaOutcome: "hit" | "partial" | "miss" | null = null;
+  let alphaOutcomeLabel = "";
+  let alphaOutcomeColor = "";
+
+  if (isPostMatch && actualResult) {
+    const [pickHome, pickAway] = alpha.alphaPickExact
+      .split(/[-–]/)
+      .map((s) => parseInt(s.trim(), 10));
+    const totalGoals = actualResult.homeScore + actualResult.awayScore;
+    const exactHit =
+      pickHome === actualResult.homeScore && pickAway === actualResult.awayScore;
+
+    // Check if the primary high-confidence signal was directionally correct.
+    // We evaluate two things:
+    //   1. Was the exact pick right? → "hit"
+    //   2. Were the top signals directionally right (e.g., low-scoring market)? → "partial"
+    //   3. Neither → "miss"
+    const primarySignal = alpha.topSignals[0];
+    const primaryLabel = primarySignal?.label?.toLowerCase() ?? "";
+    let primaryCorrect = false;
+
+    if (primaryLabel.includes("under 3") && totalGoals < 3) primaryCorrect = true;
+    else if (primaryLabel.includes("under 2.5") && totalGoals < 3) primaryCorrect = true;
+    else if (primaryLabel.includes("under 2") && totalGoals < 2) primaryCorrect = true;
+    else if (primaryLabel.includes("btts no") && !(actualResult.homeScore > 0 && actualResult.awayScore > 0)) primaryCorrect = true;
+    else if (primaryLabel.includes("btts yes") && actualResult.homeScore > 0 && actualResult.awayScore > 0) primaryCorrect = true;
+    else if (primaryLabel.includes("over 2.5") && totalGoals > 2) primaryCorrect = true;
+    else if (primaryLabel.includes("over 3") && totalGoals > 3) primaryCorrect = true;
+    else if (primaryLabel.includes("clean sheet") && (actualResult.awayScore === 0 || actualResult.homeScore === 0)) primaryCorrect = true;
+    else if (primaryLabel.includes("win by 2") && Math.abs(actualResult.homeScore - actualResult.awayScore) >= 2) primaryCorrect = true;
+
+    if (exactHit) {
+      alphaOutcome = "hit";
+      alphaOutcomeLabel = "⭐ Exact hit";
+      alphaOutcomeColor = "bg-accent-gold/10 text-accent-gold border-accent-gold/30";
+    } else if (primaryCorrect) {
+      alphaOutcome = "partial";
+      alphaOutcomeLabel = "✓ Signal correct";
+      alphaOutcomeColor = "bg-green-50 text-green-700 border-green-200";
+    } else {
+      alphaOutcome = "miss";
+      alphaOutcomeLabel = "✗ Signal missed";
+      alphaOutcomeColor = "bg-red-50 text-red-600 border-red-200";
+    }
+  }
 
   // Badge color based on divergence
   const badgeStyles = {
@@ -283,12 +337,11 @@ function AlphaSignalRow({ matchId }: { matchId: string }) {
   } as const;
 
   const badgeLabels = {
-    confirmed: "\u2713 Confirmed",
-    warning:   "\u26A0 Divergence",
+    confirmed: "✓ Confirmed",
+    warning:   "⚠ Divergence",
     neutral:   "~ Neutral",
   } as const;
 
-  // Signal confidence dot color
   const dotColor = {
     high:   "bg-green-500",
     medium: "bg-yellow-400",
@@ -296,46 +349,62 @@ function AlphaSignalRow({ matchId }: { matchId: string }) {
   } as const;
 
   return (
-    <div className="mt-2 border-t border-border/40 pt-2">
+    <div className={`mt-2 border-t pt-2 ${isPostMatch ? "border-border/30 opacity-90" : "border-border/40"}`}>
 
       {/* Collapsed row — always visible */}
       <button
         onClick={() => setExpanded((v) => !v)}
         className="w-full flex items-center justify-between gap-2 hover:opacity-80 transition-opacity"
       >
-        {/* Left: source label + match score */}
+        {/* Left: α label + match score */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] uppercase tracking-wider font-semibold text-text-muted">
-            \u03B1
-          </span>
-          <span className="text-[10px] font-mono font-bold text-text-secondary">
-            {alpha.matchScore}
-          </span>
+          <span className="text-[10px] uppercase tracking-wider font-semibold text-text-muted">α</span>
+          <span className="text-[10px] font-mono font-bold text-text-secondary">{alpha.matchScore}</span>
         </div>
 
-        {/* Center: radar summary (truncated) */}
+        {/* Center: radar summary */}
         <span className="flex-1 text-[10px] text-text-muted text-center truncate px-1">
           {alpha.radarSummary}
         </span>
 
-        {/* Right: divergence badge */}
-        <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${badgeStyles[alpha.divergence]}`}>
-          {badgeLabels[alpha.divergence]}
-        </span>
+        {/* Right: outcome badge (post-match) or divergence badge (pre-match) */}
+        {isPostMatch && alphaOutcome ? (
+          <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full border whitespace-nowrap ${alphaOutcomeColor}`}>
+            {alphaOutcomeLabel}
+          </span>
+        ) : (
+          <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${badgeStyles[alpha.divergence]}`}>
+            {badgeLabels[alpha.divergence]}
+          </span>
+        )}
       </button>
 
       {/* Expanded panel */}
       {expanded && (
         <div className="mt-2 rounded-lg bg-bg-secondary border border-border/60 p-3 flex flex-col gap-2.5 text-left">
 
+          {/* Post-match outcome summary */}
+          {isPostMatch && alphaOutcome && (
+            <div className={`rounded px-2 py-1.5 border text-xs ${alphaOutcomeColor}`}>
+              <span className="font-semibold">Alpha pick: {alpha.alphaPickExact}</span>
+              <span className="mx-1.5 text-text-muted">→</span>
+              <span className="font-semibold">Actual: {actualResult?.homeScore}–{actualResult?.awayScore}</span>
+              <span className="block mt-0.5 text-[10px] opacity-80">
+                {alphaOutcome === "hit"
+                  ? "Perfect — exact score matched."
+                  : alphaOutcome === "partial"
+                  ? "Primary market signal was directionally correct."
+                  : "Pick and primary signal did not land."}
+              </span>
+            </div>
+          )}
+
           {/* Divergence detail */}
           <div>
             <span className="text-[10px] uppercase tracking-wider font-semibold text-text-muted block mb-0.5">
-              Model vs Market
+              {isPostMatch ? "Pre-match read" : "Model vs Market"}
             </span>
-            <p className="text-xs text-text-secondary leading-snug">
-              {alpha.divergenceNote}
-            </p>
+            <p className="text-xs text-text-secondary leading-snug">{alpha.divergenceNote}</p>
           </div>
 
           {/* Top signals */}
@@ -348,9 +417,7 @@ function AlphaSignalRow({ matchId }: { matchId: string }) {
                 <div key={i} className="flex items-center gap-2">
                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor[sig.confidence]}`} />
                   <span className="text-xs text-text-primary flex-1">{sig.label}</span>
-                  <span className="text-[10px] font-mono text-green-600 font-semibold whitespace-nowrap">
-                    {sig.ev}
-                  </span>
+                  <span className="text-[10px] font-mono text-green-600 font-semibold whitespace-nowrap">{sig.ev}</span>
                 </div>
               ))}
             </div>
@@ -362,12 +429,8 @@ function AlphaSignalRow({ matchId }: { matchId: string }) {
               Alpha Pick
             </span>
             <div className="flex items-baseline gap-2">
-              <span className="font-mono text-sm font-bold text-text-primary">
-                {alpha.alphaPickExact}
-              </span>
-              <span className="text-xs text-text-muted leading-snug">
-                {alpha.alphaPickNote}
-              </span>
+              <span className="font-mono text-sm font-bold text-text-primary">{alpha.alphaPickExact}</span>
+              <span className="text-xs text-text-muted leading-snug">{alpha.alphaPickNote}</span>
             </div>
           </div>
 
