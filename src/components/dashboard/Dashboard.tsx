@@ -24,6 +24,7 @@ import {
   Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, ComposedChart, Line,
 } from "recharts";
+import { getAlphaData } from "../../data/alphametrico";
 import type { MonteCarloResults, Prediction } from "../../types";
 
 const NUM_SIMS = 10_000;
@@ -694,6 +695,10 @@ function ModelTrackRecord({
       actualAway: number;
       userPts: number;
       modelPts: number;
+      alphaPick: string | null;
+      alphaPts: number | null;
+      alphaIsExact: boolean;
+      alphaIsResult: boolean;
       userBreakdown: string;
       modelBreakdown: string;
       userIsExact: boolean;
@@ -763,6 +768,30 @@ function ModelTrackRecord({
       if (mb.homeGoalsPoints || mb.awayGoalsPoints)
         mParts.push(`${mb.homeGoalsPoints + mb.awayGoalsPoints} goals`);
 
+      // Alpha pick scoring
+      let alphaPick: string | null = null;
+      let alphaPts: number | null = null;
+      let alphaIsExact = false;
+      let alphaIsResult = false;
+      const alphaData = getAlphaData(match.id);
+      if (alphaData?.alphaPickExact) {
+        alphaPick = alphaData.alphaPickExact;
+        // Parse "1-0 Argentina" style: extract the two numbers
+        const nums = alphaData.alphaPickExact.match(/(\d+)\s*[-–]\s*(\d+)/);
+        if (nums) {
+          // The score in alphaPickExact is written as "homeGoals-awayGoals teamName"
+          // but sometimes it's "awayGoals-homeGoals awayTeam" — we just score it
+          // as the two numbers in order against actual home-away
+          const ab = scoreMatch(
+            { matchId: match.id, homeGoals: parseInt(nums[1]), awayGoals: parseInt(nums[2]), source: "model" },
+            actualPred
+          );
+          alphaPts = ab.totalPoints;
+          alphaIsExact = ab.isExactScore;
+          alphaIsResult = ab.isCorrectResult;
+        }
+      }
+
       out.push({
         matchId: match.id,
         homeTeamId: match.homeTeamId,
@@ -775,6 +804,10 @@ function ModelTrackRecord({
         actualAway,
         userPts,
         modelPts: mb.totalPoints,
+        alphaPick,
+        alphaPts,
+        alphaIsExact,
+        alphaIsResult,
         userBreakdown,
         modelBreakdown: mParts.join(" + "),
         userIsExact,
@@ -830,9 +863,11 @@ function ModelTrackRecord({
               <th className="py-2 pr-2 font-medium">Match</th>
               <th className="py-2 px-2 font-medium text-center">Your Guess</th>
               <th className="py-2 px-2 font-medium text-center text-blue-500">Model</th>
+              <th className="py-2 px-2 font-medium text-center text-violet-500">α Pick</th>
               <th className="py-2 px-2 font-medium text-center">Actual</th>
               <th className="py-2 px-2 font-medium text-center">Your pts</th>
-              <th className="py-2 pl-2 font-medium text-center text-blue-500">Model pts</th>
+              <th className="py-2 px-2 font-medium text-center text-blue-500">Model pts</th>
+              <th className="py-2 pl-2 font-medium text-center text-violet-500">α Pts</th>
             </tr>
           </thead>
           <tbody>
@@ -856,6 +891,9 @@ function ModelTrackRecord({
                   <td className="py-2 px-2 text-center font-mono text-xs text-blue-500">
                     {r.modelHome}–{r.modelAway}
                   </td>
+                  <td className="py-2 px-2 text-center font-mono text-xs text-violet-500">
+                    {r.alphaPick ?? "—"}
+                  </td>
                   <td className="py-2 px-2 text-center font-mono text-xs font-bold">
                     {r.actualHome}–{r.actualAway}
                   </td>
@@ -872,7 +910,7 @@ function ModelTrackRecord({
                       )}
                     </div>
                   </td>
-                  <td className="py-2 pl-2 text-center">
+                  <td className="py-2 px-2 text-center">
                     <div className="flex items-center justify-center gap-1">
                       {ptsIcon(r.modelIsExact, r.modelIsResult, true)}
                       {r.modelPts !== 9 && (
@@ -884,6 +922,20 @@ function ModelTrackRecord({
                         </span>
                       )}
                     </div>
+                  </td>
+                  <td className="py-2 pl-2 text-center">
+                    {r.alphaPts !== null ? (
+                      <div className="flex items-center justify-center gap-1">
+                        {ptsIcon(r.alphaIsExact, r.alphaIsResult, true)}
+                        {r.alphaPts !== 9 && (
+                          <span className="font-mono text-xs text-violet-500 font-bold">
+                            {r.alphaPts}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-text-muted text-xs">—</span>
+                    )}
                   </td>
                 </tr>
               );

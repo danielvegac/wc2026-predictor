@@ -100,6 +100,22 @@ export const alphaMatchData: AlphaMatchData[] = [
   // ── June 22 ──────────────────────────────────────────────
 
   {
+    matchId: "GS-I-2",
+    matchScore: 82,
+    radarSummary: "France heavy favourites — Iraq a clear mismatch in class",
+    divergence: "confirmed",
+    divergenceNote: "Market and model agree France win by multiple goals. Iraq have the weakest defensive record in the group — France's attack should run free.",
+    topSignals: [
+      { label: "France win by 2+ goals", ev: "+8.2%", confidence: "high" },
+      { label: "France win by 3+ goals", ev: "+11.4%", confidence: "high" },
+      { label: "Iraq don't score (BTTS No)", ev: "+12.7%", confidence: "high" },
+      { label: "Over 3.5 total goals", ev: "+6.5%", confidence: "medium" },
+    ],
+    alphaPickExact: "3-0 France",
+    alphaPickNote: "France dominant at home, Iraq offer little going forward. Clean sheet likely — 3-0 is the highest-EV exact score zone.",
+  },
+
+  {
     matchId: "GS-J-3",
     matchScore: 80,
     radarSummary: "Low-scoring grind — market overpricing goal volume after Messi hat-trick",

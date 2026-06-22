@@ -199,6 +199,21 @@ export function MatchCard({
         </div>
       )}
 
+      {/* Alpha exact pick (pre-match only, when alpha data exists) */}
+      {!actualResult && (() => {
+        const alpha = getAlphaData(match.id);
+        return alpha?.alphaPickExact ? (
+          <div className="mt-0.5 flex items-center justify-center gap-2">
+            <span className="text-[10px] uppercase tracking-wider text-violet-400 font-medium">
+              α Pick
+            </span>
+            <span className="font-mono text-xs font-semibold text-violet-500">
+              {alpha.alphaPickExact}
+            </span>
+          </div>
+        ) : null;
+      })()}
+
       {/* Expert picks row */}
       <ExpertPicksRow matchId={match.id} />
 
