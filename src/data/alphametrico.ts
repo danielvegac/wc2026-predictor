@@ -100,7 +100,7 @@ export const alphaMatchData: AlphaMatchData[] = [
   // ── June 22 ──────────────────────────────────────────────
 
   {
-    matchId: "GS-I-2",
+    matchId: "GS-I-3",
     matchScore: 82,
     radarSummary: "France heavy favourites — Iraq a clear mismatch in class",
     divergence: "confirmed",
@@ -116,7 +116,7 @@ export const alphaMatchData: AlphaMatchData[] = [
   },
 
   {
-    matchId: "GS-I-3",
+    matchId: "GS-I-4",
     matchScore: 87,
     radarSummary: "Norway significantly undervalued — market systematically mispricing Norwegian dominance",
     divergence: "warning",

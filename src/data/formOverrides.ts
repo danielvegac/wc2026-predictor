@@ -5,6 +5,12 @@
 // the full qualitative picture from the tournament.
 
 export const formOverrides: Record<string, { score: number; note: string }> = {
+  "ARG": { score: 96, note: "MD2: 2-0 AUT. Alphametrico predicted grind — correct. Messi scored 90+5 to seal it. Clinical when needed. 2.38 xG → 2 goals. Austria held firm (Rangnick press) until late. ARG attack efficient not dominant. Clean sheet maintained. Best team in tournament alongside France." },
+  "AUT": { score: 55, note: "MD2: 0-2 ARG. Competed well defensively per Alphametrico prediction — suppressed volume. Rangnick press made Argentina work hard. Conceded 2 but xG differential not catastrophic. MD3 vs Algeria still alive for qualification." },
+  "FRA": { score: 97, note: "MD2: 3-0 IRQ. 2.38 xG. Mbappé 100th cap brace (16 WC goals all-time, 2nd). Dembélé first WC goal. Olise 3 assists in 2 games. 2hr weather delay no impact. France 6pts, R32 secured. Rotated but still dominant. MD3 vs Norway — genuine group decider for top spot." },
+  "IRQ": { score: 8, note: "MD2: 0-3 FRA. 0.6 xG. 5 WC matches, 5 losses — first Asian nation in WC history to lose first 5. Keeper error gifted Mbappé second. No path to qualification. Tournament over." },
+  "NOR": { score: 88, note: "MD2: 3-2 SEN. 2.1 xG. Haaland brace (goals 58-59 for Norway in 52 games — WC all-time Norway top scorer). Pedersen goal. Won despite conceding 2 — defensive vulnerabilities exposed (Koulibaly/Mendy errors helped). Attack elite. MD3 vs France — top spot decider. R32 secured." },
+  "SEN": { score: 62, note: "MD2: 2-3 NOR. 1.7 xG. Sarr brace (53', 90+3'). Mané assist showing form. Competed hard but defensive errors cost them early. Must beat Iraq by large margin MD3 to reach R32. Still alive but need help." },
   "BRA": { score: 58, note: "3-0 vs Haiti after 1-1 Morocco draw. Cunha excellent starter. Raphinha injury concern (hamstring, 40'). 1.56+1.23=2.79 xG across 2 — functional not dominant. Ancelotti finding shape." },
   "POR": { score: 38, note: "Ronaldo invisible vs DR Congo, 0.79 xG, sterile possession, Ronaldo fitness concern" },
   "ESP": { score: 95, note: "MD2: 4-0 KSA. Lamine Yamal first start — instant impact (goal). Oyarzabal brace. 2.85 xG. Magnitude underestimation by models confirmed (alphametrico said 2-goal margin, actual was 4-0). Both withdrawn at HT. Full attack + defense confidence restored after Cape Verde shock." },

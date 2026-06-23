@@ -558,6 +558,49 @@ export const matchInsights: MatchInsight[] = [
     notes: "Uruguay 2.34 xG (17 shots, only 2 on target) — came back from 0-1 to lead 2-1 (Araujo 44', Canobbio 45+6'). Olivera horror pass gifted Helio Varela empty net equalizer in 61'. Uruguay had disallowed goal (Araujo offside). CPV 0.86 xG but 4 shots on target — Pina historic free kick from 32m (Cape Verde's first ever WC goal). Mozumba 40yo GK Vozinha another heroic display. URU missing Gimenez, R.Araujo, De Arrascaeta, Suarez not picked — structural problems beyond squad issues. Group H: ESP 4pts, CPV 2pts, URU 2pts, KSA 1pt. URU need result vs Spain MD3 to survive. URU defense multiplier DOWN sharply — Olivera error catastrophic.",
   },
 
+  // ==========================================
+  // JUNE 22 — GROUP STAGE DAY 12
+  // ==========================================
+
+  // ARG 2-0 AUT
+  {
+    matchId: "GS-J-3",
+    date: "2026-06-22",
+    homeTeamId: "ARG", awayTeamId: "AUT",
+    homeGoals: 2, awayGoals: 0,
+    homeAttackMultiplier: 1.22,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.90,
+    notes: "Alphametrico Score 80 CORRECT — predicted low-scoring grind. Market expected 3-4 goal show after Messi hat-trick vs Algeria. Argentina 1.23 xG (estimated), clean sheet. Messi scored match-winner in 90+5 to make it 2-0 — match nearly ended 1-0. Austria (Rangnick press) competed well and suppressed volume as predicted. Alpha pick 1-0, model pick 2-0 — both directionally correct, model exact. ARG attack multiplier conservative (efficient not dominant). AUT defense multiplier moderate — they competed.",
+  },
+
+  // FRA 3-0 IRQ
+  {
+    matchId: "GS-I-3",
+    date: "2026-06-22",
+    homeTeamId: "FRA", awayTeamId: "IRQ",
+    homeGoals: 3, awayGoals: 0,
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.65,
+    notes: "France 2.38 xG, Iraq 0.6 xG. Mbappé brace (14', 54') on his 100th cap — now 16 WC goals, joint 2nd all time with Klose, 2 behind Messi. Dembélé first WC goal (66'). 2hr10min weather delay (thunderstorm) didn't disrupt France rhythm. Olise 3 assists in 2 WC games. Model pick 3-0 CORRECT. Alpha pick was 4-0 — overextended the large-margin signal. Key calibration note: when model and alpha agree on direction (France dominant), use MODEL scoreline. Alpha pick 4-0 cost Daniel points vs majority of quiniela who got 3-0 exact. France qualify for R32 with 6pts.",
+  },
+
+  // NOR 3-2 SEN
+  {
+    matchId: "GS-I-4",
+    date: "2026-06-22",
+    homeTeamId: "NOR", awayTeamId: "SEN",
+    homeGoals: 3, awayGoals: 2,
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 0.79,
+    awayAttackMultiplier: 1.26,
+    awayDefenseMultiplier: 0.65,
+    notes: "Norway 2.1 xG, Senegal 1.7 xG — high-intensity thriller. Pedersen 43' (Koulibaly/Mendy errors), Haaland 48' (roof of net, Norway WC all-time top scorer), Sarr 53' (Mané assist), Haaland 58' (close range), Sarr 90+3' (Jackson assist). Alpha pick 2-0 (clean sheet) WRONG — BTTS No signal Score was only 25, too weak to trust. Calibration rule confirmed: BTTS/Under signals with Score <30 should not override the scoreline. Norway alpha had strongest RESULT signal of day (Norway -1 at +50% EV) — that part was correct. Senegal Mané in deep role created danger. Haaland now 59 Norway goals in 52 games. Both teams qualify race still open — Senegal needs big win vs Iraq MD3 to reach R32.",
+  },
+
   // GS-G-4: New Zealand 1-3 Egypt
   {
     matchId: "GS-G-4",
