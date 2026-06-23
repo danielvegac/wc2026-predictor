@@ -315,7 +315,7 @@ function AlphaSignalRow({
     //   1. Was the exact pick right? → "hit"
     //   2. Were the top signals directionally right (e.g., low-scoring market)? → "partial"
     //   3. Neither → "miss"
-    const primarySignal = alpha.topSignals[0];
+    const primarySignal = alpha.topSignals?.[0];
     const primaryLabel = primarySignal?.label?.toLowerCase() ?? "";
     let primaryCorrect = false;
 
@@ -388,8 +388,8 @@ function AlphaSignalRow({
             {alphaOutcomeLabel}
           </span>
         ) : (
-          <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${badgeStyles[alpha.divergence]}`}>
-            {badgeLabels[alpha.divergence]}
+          <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${alpha.divergence ? badgeStyles[alpha.divergence] : ""}`}>
+            {alpha.divergence ? badgeLabels[alpha.divergence] : ""}
           </span>
         )}
       </button>
@@ -428,7 +428,7 @@ function AlphaSignalRow({
               Key Signals
             </span>
             <div className="flex flex-col gap-1">
-              {alpha.topSignals.map((sig, i) => (
+              {(alpha.topSignals ?? []).map((sig, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor[sig.confidence]}`} />
                   <span className="text-xs text-text-primary flex-1">{sig.label}</span>
