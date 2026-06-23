@@ -116,6 +116,23 @@ export const alphaMatchData: AlphaMatchData[] = [
   },
 
   {
+    matchId: "GS-I-3",
+    matchScore: 87,
+    radarSummary: "Norway significantly undervalued — market systematically mispricing Norwegian dominance",
+    divergence: "warning",
+    divergenceNote: "Model sees 50/50 but alpha disagrees strongly. Norway 1X2 has +29.3% EV, Norway -1 handicap has +50.6% EV — one of the strongest result signals of the tournament. Senegal has zero positive EV markets. Market overrating Senegal, underrating Haaland's Norway.",
+    topSignals: [
+      { label: "Norway win (1X2)", ev: "+29.3%", confidence: "high" },
+      { label: "Norway -0.75 Asian Handicap", ev: "+37.2%", confidence: "high" },
+      { label: "Norway -1 Asian Handicap", ev: "+50.6%", confidence: "medium" },
+      { label: "Norway 0 (draw no bet)", ev: "+22.2%", confidence: "high" },
+      { label: "Correct Score 2-0 Norway", ev: "+21.6%", confidence: "medium" },
+    ],
+    alphaPickExact: "2-0 Norway",
+    alphaPickNote: "Strongest result signal of the day. Market mispricing Norwegian superiority — all handicap markets from 0 to -1.25 show 22-50% positive EV. Senegal zero value markets. BTTS No positive EV confirms clean sheet likely. Haaland vs Senegal defense = 2-0.",
+  },
+
+  {
     matchId: "GS-J-3",
     matchScore: 80,
     radarSummary: "Low-scoring grind — market overpricing goal volume after Messi hat-trick",
