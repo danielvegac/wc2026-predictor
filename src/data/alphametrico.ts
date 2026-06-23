@@ -176,6 +176,18 @@ export const alphaMatchData: AlphaMatchData[] = [
     overallScore: 82,
     alphaPickExact: "3-0 Portugal",
     alphaPickNote: "Portugal win signals strong: AH -0.5 Score 82, AH -0.75 Score 81, AH -1 Score 75. Multi-goal margin supported: AH -2 Score 69, AH -1.75 Score 65. BTTS No Score 72 — above Rule 2 threshold (>60), clean sheet signal trusted. Over 4.5 Score 17 and Over 2 Score 37 — both below threshold, high-scoring signals ignored. Alpha confirms Portugal win + clean sheet. Model pick was 2-0 (deflated by Portugal 0.79 xG vs DR Congo, form override 38/100). Alpha adds one goal per Rule 3 (max ±1 from model). Alpha pick: 3-0 Portugal.",
+    signalOutcome: "hit",
+    signalNote: "Direction correct ✅ (Portugal win). Clean sheet ✅ (BTTS No Score 72 landed). Portugal won 5-0 — both model (2-0) and alpha pick (3-0) severely underpredicted the margin. AH -2 Score 69 and AH -2.5 Score 55 were pointing at blowout territory that we capped at ±1 from model. Key calibration: when form depression is traceable to a single outlier match AND Elo gap >400 AND motivation spike exists, model underestimates — alpha cascade depth to AH -2.5+ should override Rule 3 cap. New Rule 6 established.",
+  },
+
+  {
+    matchId: "GS-L-3",
+    matchDate: "2026-06-23",
+    homeTeamId: "ENG",
+    awayTeamId: "GHA",
+    overallScore: 83,
+    alphaPickExact: "2-0 England",
+    alphaPickNote: "Two reads taken 16 min apart — Score 82→83, structure identical. England win signals strong: AH -0.5 Score 80, AH -0.75 Score 75, AH -2 Score 64, 1X2 England Score 63, AH -1 Score 61. Cascade drops sharply after -2 (Score 53 at -2.25, 43 at -2.5) — market does not price a 3-goal margin efficiently. BTTS No Score 72 (strengthened from 68 in first read) — above Rule 2 threshold, Ghana clean sheet trusted. No high-scoring EV signals — every Over market negative EV. Alpha reads controlled England win, not a blowout. Model pick (app + chat): 3-0. Alpha pick: 2-0 England — 1 goal below model, supported by shallow cascade depth and BTTS No 72.",
   },
 
 ];
