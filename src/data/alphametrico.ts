@@ -111,8 +111,8 @@ export const alphaMatchData: AlphaMatchData[] = [
       { label: "Iraq don't score (BTTS No)", ev: "+12.7%", confidence: "high" },
       { label: "Over 3.5 total goals", ev: "+6.5%", confidence: "medium" },
     ],
-    alphaPickExact: "3-0 France",
-    alphaPickNote: "France dominant at home, Iraq offer little going forward. Clean sheet likely — 3-0 is the highest-EV exact score zone.",
+    alphaPickExact: "4-0 France",
+    alphaPickNote: "Highest match score (90) of the tournament at time of read. All large handicap markets show 24-34% EV — market underestimates French margin. Iraq 0 goals confirmed by BTTS No Score 79. Mbappé motivated to break all-time WC scoring record. Model said 3-0, alpha said 4-0 — model was correct. Key calibration: when model and alpha agree on direction, use model scoreline. Alpha pick overextended the large-margin signal by 1 goal.",
   },
 
   {
