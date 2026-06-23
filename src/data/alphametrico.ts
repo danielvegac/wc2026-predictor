@@ -21,13 +21,19 @@ export interface AlphaSignal {
 
 export interface AlphaMatchData {
   matchId: string;
-  matchScore: number;           // alphametrico's overall match confidence (0–100)
-  radarSummary: string;         // one-line plain-language radar read
-  divergence: "confirmed" | "warning" | "neutral";
-  divergenceNote: string;       // specific explanation of where model and market agree/differ
-  topSignals: AlphaSignal[];    // 2–4 key EV signals, translated to plain language
+  matchDate?: string;           // ISO date string, e.g. "2026-06-22"
+  homeTeamId?: string;          // FIFA team code
+  awayTeamId?: string;          // FIFA team code
+  matchScore?: number;          // alphametrico's overall match confidence (0–100) — legacy field
+  overallScore?: number;        // alphametrico's overall match confidence (0–100)
+  radarSummary?: string;        // one-line plain-language radar read
+  divergence?: "confirmed" | "warning" | "neutral";
+  divergenceNote?: string;      // specific explanation of where model and market agree/differ
+  topSignals?: AlphaSignal[];   // 2–4 key EV signals, translated to plain language
   alphaPickExact: string;       // e.g. "2-1 Belgium" — alpha's implied exact score zone
   alphaPickNote: string;        // one sentence rationale for the pick
+  signalOutcome?: "hit" | "partial" | "miss"; // post-match outcome assessment
+  signalNote?: string;          // post-match calibration note
 }
 
 export const alphaMatchData: AlphaMatchData[] = [
@@ -133,6 +139,18 @@ export const alphaMatchData: AlphaMatchData[] = [
   },
 
   {
+    matchId: "GS-J-4",
+    matchDate: "2026-06-22",
+    homeTeamId: "JOR",
+    awayTeamId: "DZA",
+    overallScore: 95,
+    alphaPickExact: "3-0 Algeria",
+    alphaPickNote: "Highest score read of the tournament at time of read (95). Algeria win signals overwhelming — 1X2 Score 90, AH -0.5 Score 90, AH -1 Score 83 cascading down to AH -1.5 Score 68. High-scoring signal also strong: Over 2 Score 91, Over 2.5 Score 80, Over 3 Score 62 — market massively underpriced total goals. BTTS No Score 11 — not trusted (Rule 2, below threshold). Alpha pick: 3-0 Algeria. Result: 1-2 Algeria — direction correct, both scorelines wrong. Jordan led 1-0 at HT before two Algeria set-piece corners in 69' and 82'. Total goals = 3 ✅ (Over 2 Score 91 landed). Algeria win ✅. Model pick was 2-0 Algeria — also correct direction. Key calibration: extreme high-scoring signals (Over 3 Score 62) were directionally right (3 total goals) but scoreline distribution was inverted — Jordan scored first against the run of play.",
+    signalOutcome: "partial",
+    signalNote: "Direction hit (Algeria win ✅). Over 2 goals hit ✅ (3 total). Exact scoreline miss — Jordan scored, Algeria only got 2 not 3. High EV goal signals correct in aggregate, wrong in distribution.",
+  },
+
+  {
     matchId: "GS-J-3",
     matchScore: 80,
     radarSummary: "Low-scoring grind — market overpricing goal volume after Messi hat-trick",
@@ -146,6 +164,18 @@ export const alphaMatchData: AlphaMatchData[] = [
     ],
     alphaPickExact: "1-0 Argentina",
     alphaPickNote: "Tight Argentina win zone. Market over-pricing open game after Messi hat-trick. Austria (Rangnick press) will suppress volume. 1-0 is the highest-EV correct score in the entire read.",
+  },
+
+  // ── June 23 ──────────────────────────────────────────────
+
+  {
+    matchId: "GS-K-2",
+    matchDate: "2026-06-23",
+    homeTeamId: "POR",
+    awayTeamId: "UZB",
+    overallScore: 82,
+    alphaPickExact: "3-0 Portugal",
+    alphaPickNote: "Portugal win signals strong: AH -0.5 Score 82, AH -0.75 Score 81, AH -1 Score 75. Multi-goal margin supported: AH -2 Score 69, AH -1.75 Score 65. BTTS No Score 72 — above Rule 2 threshold (>60), clean sheet signal trusted. Over 4.5 Score 17 and Over 2 Score 37 — both below threshold, high-scoring signals ignored. Alpha confirms Portugal win + clean sheet. Model pick was 2-0 (deflated by Portugal 0.79 xG vs DR Congo, form override 38/100). Alpha adds one goal per Rule 3 (max ±1 from model). Alpha pick: 3-0 Portugal.",
   },
 
 ];
