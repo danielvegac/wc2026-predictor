@@ -181,6 +181,30 @@ export const alphaMatchData: AlphaMatchData[] = [
   },
 
   {
+    matchId: "GS-L-4",
+    matchDate: "2026-06-23",
+    homeTeamId: "PAN",
+    awayTeamId: "CRO",
+    overallScore: 92,
+    alphaPickExact: "2-1 Croatia",
+    alphaPickNote: "Strongest high-scoring read of the day: Over 2 Score 84, Over 2.5 Score 79, Over 3 Score 74, Over 1.5 Score 81 — market massively underpriced total goals. Croatia win cascade deep: AH -1 Score 82, AH -1.25 Score 78, AH -1.5 Score 72, AH -1.75 Score 61. BTTS No negative EV — both teams expected to score. Double Chance PAN/CRO Score 74 — Panama scoring underpriced. Alphametrico X post warning: AH -2 shows 86% EV but Score 43 (low Score = blowout lottery, not trusted signal). Alpha pick: 2-1 Croatia — BTTS, 3 total goals, 1-goal Croatia margin. Model chat: 2-1 Croatia. Model app: 0-1 Croatia.",
+    signalOutcome: "partial",
+    signalNote: "Croatia won 1-0 ✅ direction correct. BTTS No occurred (Panama 0 goals) — alpha predicted BTTS Yes (both score), which missed ❌. Total goals = 1, not 3 — high-scoring signals all missed badly ❌. Key miss: despite massive EV on Over 2.5 (Score 79), Panama produced 0 goals. Livakovic heroics (triple save) and Panama 5-4-1 block suppressed total goals to 1. Alpha direction hit, scoreline completely wrong. Model app (0-1) was exact. Calibration: high-scoring signals can be nullified by elite GK + defensive organization even when EV is strong.",
+  },
+
+  {
+    matchId: "GS-K-4",
+    matchDate: "2026-06-23",
+    homeTeamId: "COL",
+    awayTeamId: "COD",
+    overallScore: 89,
+    alphaPickExact: "1-0 Colombia",
+    alphaPickNote: "Strongest low-scoring read of the day: Under 3 Score 87, Under 2.5 Score 82, BTTS No Score 78, Under 2 Score 69. Every high-scoring signal deeply negative EV. Congo DR handicap cascade: +1 Score 64, +1.5 Score 67, +1.75 Score 71, +2 Score 75 — market underpriced Congo staying close. 1X2 Colombia negative EV (-8.8%) — Colombia odds too short. Correct Score 1-0 had +33% EV despite Score 11. Model chat: 2-0 Colombia. Model app: 2-0 Colombia. Alpha diverged: 1-0 Colombia.",
+    signalOutcome: "hit",
+    signalNote: "Colombia 1-0 DR Congo ✅ — alpha pick exact ✅. BTTS No ✅ (Congo DR 0 goals). Under 2 total goals ✅. Congo DR staying within 1 goal ✅. Model (2-0) and model chat (2-0) both missed exact score — predicted one extra Colombia goal. Alpha correctly read Congo DR defensive resilience (Mpasi 8 saves, 5-3-2 block) and low total goals. Best alpha hit of the tournament so far — exact score, clean sheet, and total goals all correct.",
+  },
+
+  {
     matchId: "GS-L-3",
     matchDate: "2026-06-23",
     homeTeamId: "ENG",

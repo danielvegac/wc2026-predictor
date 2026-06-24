@@ -833,7 +833,7 @@ function ModelTrackRecord({
   const alphaExact = rows.filter((r) => r.alphaIsExact).length;
   const alphaPicked = rows.filter((r) => r.alphaPts !== null).length;
   const userPredicted = rows.filter((r) => r.userHome !== null).length;
-  const maxPts = 648;
+  const maxPts = rows.length * 9;
 
   const diff = userTotal - modelTotal;
   const verdict =
@@ -971,8 +971,8 @@ function ModelTrackRecord({
         {alphaPicked > 0 && (
           <div className="text-sm text-text-secondary">
             <span className="font-medium text-purple-500">Alpha total:</span>{" "}
-            <span className="font-mono font-bold text-purple-500">{alphaTotal} / {maxPts} pts</span>
-            <span className="text-text-muted"> ({((alphaTotal / maxPts) * 100).toFixed(1)}%)</span>
+            <span className="font-mono font-bold text-purple-500">{alphaTotal} / {alphaPicked * 9} pts</span>
+            <span className="text-text-muted"> ({(alphaPicked > 0 ? (alphaTotal / (alphaPicked * 9)) * 100 : 0).toFixed(1)}%)</span>
             <br />
             <span className="text-xs text-text-muted">
               Correct results: {alphaCorrect}/{alphaPicked}, Exact scores: {alphaExact}/{alphaPicked}

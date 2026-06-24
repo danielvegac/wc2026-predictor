@@ -601,6 +601,40 @@ export const matchInsights: MatchInsight[] = [
     notes: "Norway 2.1 xG, Senegal 1.7 xG — high-intensity thriller. Pedersen 43' (Koulibaly/Mendy errors), Haaland 48' (roof of net, Norway WC all-time top scorer), Sarr 53' (Mané assist), Haaland 58' (close range), Sarr 90+3' (Jackson assist). Alpha pick 2-0 (clean sheet) WRONG — BTTS No signal Score was only 25, too weak to trust. Calibration rule confirmed: BTTS/Under signals with Score <30 should not override the scoreline. Norway alpha had strongest RESULT signal of day (Norway -1 at +50% EV) — that part was correct. Senegal Mané in deep role created danger. Haaland now 59 Norway goals in 52 games. Both teams qualify race still open — Senegal needs big win vs Iraq MD3 to reach R32.",
   },
 
+  // ==========================================
+  // JUNE 23 — GROUP STAGE DAY 13
+  // ==========================================
+
+  // GS-L-4: Panama 0-1 Croatia
+  {
+    matchId: "GS-L-4",
+    date: "2026-06-23",
+    homeTeamId: "PAN",
+    awayTeamId: "CRO",
+    homeGoals: 0,
+    awayGoals: 1,
+    homeAttackMultiplier: 0.65,
+    homeDefenseMultiplier: 1.10,
+    awayAttackMultiplier: 0.85,
+    awayDefenseMultiplier: 1.15,
+    notes: "QUALITATIVE ANALYSIS. Croatia 1-0 Panama — Budimir sub scored 54' after Musa replaced at HT. Croatia xG: estimated ~0.8 (Baturina post HT1, Pasalic one-on-one saved, Budimir goal). Panama xG: estimated ~0.6 (Rodriguez header onto post 23', Livakovic triple save late). Panama actually competitive — held possession, troubled Croatia defensively, Livakovic was MOM with extraordinary late saves. Croatia attack DOWN: struggled vs Panama 5-4-1 block for 45+ minutes, needed sub to unlock. Panama defense UP: resolute, organized, best performance of their WC campaign. Croatia defense UP: Livakovic heroics preserved 1-0. Key: Panama eliminated. Group L final day: England 4pts (drew Ghana 0-0), Croatia 4pts, Ghana 3pts, Panama 0pts — England vs Croatia and Ghana vs Panama decide who advances.",
+  },
+
+  // GS-K-4: Colombia 1-0 DR Congo
+  {
+    matchId: "GS-K-4",
+    date: "2026-06-23",
+    homeTeamId: "COL",
+    awayTeamId: "COD",
+    homeGoals: 1,
+    awayGoals: 0,
+    homeAttackMultiplier: 0.76,
+    homeDefenseMultiplier: 1.26,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 1.35,
+    notes: "AUTO-XG. Colombia 1.03 xG / 20 shots — dominant in volume, frustrated by Mpasi (8 saves, standout GK). DR Congo 0.39 xG / 8 shots — deep 5-3-2 block, barely threatened. Muñoz 76' winner (Quintero assist after replacing James). Díaz 5 shots, James 5 chances created (first Colombia player to create 5 WC chances since Valderrama 1998). Colombia xG/1.35 = 0.76 — attack DOWN from MD1 (1.25) due to GK performance, not quality drop. DR Congo xG/1.35 = 0.29, floored to 0.65 — attack capped. DR Congo defense UP significantly: only 2 goals conceded in 2 WC matches (vs 11 as Zaire in 1974). IMPLICATION: Colombia top Group K (6pts), qualify for R32. Jun 27 COL vs POR decides group winner — Colombia can advance as group winners with a draw. DR Congo must beat Uzbekistan to survive.",
+  },
+
   // GS-G-4: New Zealand 1-3 Egypt
   {
     matchId: "GS-G-4",
