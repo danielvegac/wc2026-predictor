@@ -169,7 +169,7 @@ export const alphaMatchData: AlphaMatchData[] = [
   // ── June 23 ──────────────────────────────────────────────
 
   {
-    matchId: "GS-K-3",
+    matchId: "GS-K-4",
     matchDate: "2026-06-23",
     homeTeamId: "POR",
     awayTeamId: "UZB",
@@ -193,7 +193,7 @@ export const alphaMatchData: AlphaMatchData[] = [
   },
 
   {
-    matchId: "GS-K-4",
+    matchId: "GS-K-3",
     matchDate: "2026-06-23",
     homeTeamId: "COL",
     awayTeamId: "COD",
