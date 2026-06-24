@@ -824,10 +824,14 @@ function ModelTrackRecord({
 
   const userTotal = rows.reduce((s, r) => s + r.userPts, 0);
   const modelTotal = rows.reduce((s, r) => s + r.modelPts, 0);
+  const alphaTotal = rows.reduce((s, r) => s + (r.alphaPts ?? 0), 0);
   const userCorrect = rows.filter((r) => r.userIsResult).length;
   const userExact = rows.filter((r) => r.userIsExact).length;
   const modelCorrect = rows.filter((r) => r.modelIsResult).length;
   const modelExact = rows.filter((r) => r.modelIsExact).length;
+  const alphaCorrect = rows.filter((r) => r.alphaIsResult).length;
+  const alphaExact = rows.filter((r) => r.alphaIsExact).length;
+  const alphaPicked = rows.filter((r) => r.alphaPts !== null).length;
   const userPredicted = rows.filter((r) => r.userHome !== null).length;
   const maxPts = 648;
 
@@ -945,7 +949,7 @@ function ModelTrackRecord({
       </div>
 
       {/* Running totals */}
-      <div className="mt-5 pt-4 border-t border-border grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="mt-5 pt-4 border-t border-border grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="text-sm text-text-secondary">
           <span className="font-medium">Your total:</span>{" "}
           <span className="font-mono font-bold text-accent-gold">{userTotal} / {maxPts} pts</span>
@@ -964,6 +968,17 @@ function ModelTrackRecord({
             Correct results: {modelCorrect}/{rows.length}, Exact scores: {modelExact}/{rows.length}
           </span>
         </div>
+        {alphaPicked > 0 && (
+          <div className="text-sm text-text-secondary">
+            <span className="font-medium text-purple-500">Alpha total:</span>{" "}
+            <span className="font-mono font-bold text-purple-500">{alphaTotal} / {maxPts} pts</span>
+            <span className="text-text-muted"> ({((alphaTotal / maxPts) * 100).toFixed(1)}%)</span>
+            <br />
+            <span className="text-xs text-text-muted">
+              Correct results: {alphaCorrect}/{alphaPicked}, Exact scores: {alphaExact}/{alphaPicked}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="mt-3 text-center">

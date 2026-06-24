@@ -199,10 +199,26 @@ export function MatchCard({
         </div>
       )}
 
-      {/* Alpha exact pick (pre-match only, when alpha data exists) */}
-      {!actualResult && (() => {
+      {/* Alpha exact pick — visible pre-match and post-match as calibration */}
+      {(() => {
         const alpha = getAlphaData(match.id);
-        return alpha?.alphaPickExact ? (
+        if (!alpha?.alphaPickExact) return null;
+        const outcome = actualResult ? alpha.signalOutcome : null;
+        const outcomeBadge =
+          outcome === "hit" ? (
+            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200 whitespace-nowrap">
+              ✓ Hit
+            </span>
+          ) : outcome === "partial" ? (
+            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200 whitespace-nowrap">
+              ~ Partial
+            </span>
+          ) : outcome === "miss" ? (
+            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 border border-red-200 whitespace-nowrap">
+              ✗ Miss
+            </span>
+          ) : null;
+        return (
           <div className="mt-0.5 flex items-center justify-center gap-2">
             <span className="text-[10px] uppercase tracking-wider text-violet-400 font-medium">
               α Pick
@@ -210,8 +226,9 @@ export function MatchCard({
             <span className="font-mono text-xs font-semibold text-violet-500">
               {alpha.alphaPickExact}
             </span>
+            {outcomeBadge}
           </div>
-        ) : null;
+        );
       })()}
 
       {/* Expert picks row */}
@@ -298,49 +315,61 @@ function AlphaSignalRow({
   const isPostMatch = !!actualResult;
 
   // ── Outcome evaluation (post-match only) ──────────────────
+  // Prefer manually curated signalOutcome from data; fall back to dynamic computation.
   let alphaOutcome: "hit" | "partial" | "miss" | null = null;
   let alphaOutcomeLabel = "";
   let alphaOutcomeColor = "";
 
   if (isPostMatch && actualResult) {
-    const [pickHome, pickAway] = alpha.alphaPickExact
-      .split(/[-–]/)
-      .map((s) => parseInt(s.trim(), 10));
-    const totalGoals = actualResult.homeScore + actualResult.awayScore;
-    const exactHit =
-      pickHome === actualResult.homeScore && pickAway === actualResult.awayScore;
-
-    // Check if the primary high-confidence signal was directionally correct.
-    // We evaluate two things:
-    //   1. Was the exact pick right? → "hit"
-    //   2. Were the top signals directionally right (e.g., low-scoring market)? → "partial"
-    //   3. Neither → "miss"
-    const primarySignal = alpha.topSignals?.[0];
-    const primaryLabel = primarySignal?.label?.toLowerCase() ?? "";
-    let primaryCorrect = false;
-
-    if (primaryLabel.includes("under 3") && totalGoals < 3) primaryCorrect = true;
-    else if (primaryLabel.includes("under 2.5") && totalGoals < 3) primaryCorrect = true;
-    else if (primaryLabel.includes("under 2") && totalGoals < 2) primaryCorrect = true;
-    else if (primaryLabel.includes("btts no") && !(actualResult.homeScore > 0 && actualResult.awayScore > 0)) primaryCorrect = true;
-    else if (primaryLabel.includes("btts yes") && actualResult.homeScore > 0 && actualResult.awayScore > 0) primaryCorrect = true;
-    else if (primaryLabel.includes("over 2.5") && totalGoals > 2) primaryCorrect = true;
-    else if (primaryLabel.includes("over 3") && totalGoals > 3) primaryCorrect = true;
-    else if (primaryLabel.includes("clean sheet") && (actualResult.awayScore === 0 || actualResult.homeScore === 0)) primaryCorrect = true;
-    else if (primaryLabel.includes("win by 2") && Math.abs(actualResult.homeScore - actualResult.awayScore) >= 2) primaryCorrect = true;
-
-    if (exactHit) {
-      alphaOutcome = "hit";
-      alphaOutcomeLabel = "⭐ Exact hit";
-      alphaOutcomeColor = "bg-accent-gold/10 text-accent-gold border-accent-gold/30";
-    } else if (primaryCorrect) {
-      alphaOutcome = "partial";
-      alphaOutcomeLabel = "✓ Signal correct";
-      alphaOutcomeColor = "bg-green-50 text-green-700 border-green-200";
+    if (alpha.signalOutcome) {
+      // Use authoritative manually-set outcome
+      alphaOutcome = alpha.signalOutcome;
+      if (alphaOutcome === "hit") {
+        alphaOutcomeLabel = "✓ Hit";
+        alphaOutcomeColor = "bg-green-50 text-green-700 border-green-200";
+      } else if (alphaOutcome === "partial") {
+        alphaOutcomeLabel = "~ Partial";
+        alphaOutcomeColor = "bg-yellow-50 text-yellow-700 border-yellow-200";
+      } else {
+        alphaOutcomeLabel = "✗ Miss";
+        alphaOutcomeColor = "bg-red-50 text-red-600 border-red-200";
+      }
     } else {
-      alphaOutcome = "miss";
-      alphaOutcomeLabel = "✗ Signal missed";
-      alphaOutcomeColor = "bg-red-50 text-red-600 border-red-200";
+      // Dynamic fallback when signalOutcome not yet set
+      const [pickHome, pickAway] = alpha.alphaPickExact
+        .split(/[-–]/)
+        .map((s) => parseInt(s.trim(), 10));
+      const totalGoals = actualResult.homeScore + actualResult.awayScore;
+      const exactHit =
+        pickHome === actualResult.homeScore && pickAway === actualResult.awayScore;
+
+      const primarySignal = alpha.topSignals?.[0];
+      const primaryLabel = primarySignal?.label?.toLowerCase() ?? "";
+      let primaryCorrect = false;
+
+      if (primaryLabel.includes("under 3") && totalGoals < 3) primaryCorrect = true;
+      else if (primaryLabel.includes("under 2.5") && totalGoals < 3) primaryCorrect = true;
+      else if (primaryLabel.includes("under 2") && totalGoals < 2) primaryCorrect = true;
+      else if (primaryLabel.includes("btts no") && !(actualResult.homeScore > 0 && actualResult.awayScore > 0)) primaryCorrect = true;
+      else if (primaryLabel.includes("btts yes") && actualResult.homeScore > 0 && actualResult.awayScore > 0) primaryCorrect = true;
+      else if (primaryLabel.includes("over 2.5") && totalGoals > 2) primaryCorrect = true;
+      else if (primaryLabel.includes("over 3") && totalGoals > 3) primaryCorrect = true;
+      else if (primaryLabel.includes("clean sheet") && (actualResult.awayScore === 0 || actualResult.homeScore === 0)) primaryCorrect = true;
+      else if (primaryLabel.includes("win by 2") && Math.abs(actualResult.homeScore - actualResult.awayScore) >= 2) primaryCorrect = true;
+
+      if (exactHit) {
+        alphaOutcome = "hit";
+        alphaOutcomeLabel = "✓ Hit";
+        alphaOutcomeColor = "bg-green-50 text-green-700 border-green-200";
+      } else if (primaryCorrect) {
+        alphaOutcome = "partial";
+        alphaOutcomeLabel = "~ Partial";
+        alphaOutcomeColor = "bg-yellow-50 text-yellow-700 border-yellow-200";
+      } else {
+        alphaOutcome = "miss";
+        alphaOutcomeLabel = "✗ Miss";
+        alphaOutcomeColor = "bg-red-50 text-red-600 border-red-200";
+      }
     }
   }
 
