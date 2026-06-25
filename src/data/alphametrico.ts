@@ -282,6 +282,50 @@ export const alphaMatchData: AlphaMatchData[] = [
     signalNote: "Complete directional miss — South Africa won 1-0. KOR win signals (Score 83) were wrong. xG was near-even (RSA 1.1, KOR 1.0) — this was a genuine upset, not a freak result. The market correctly priced Korea as favorites but mispriced South Africa's defensive capability and motivation. BTTS No at Score 58 (discarded per Rule 2) actually landed — South Korea blanked. Key calibration: Rule 2 threshold (Score 60) prevented us from using the one signal that was correct. Motivation factor (South Africa needing win for historic R32 qualification) was not captured in any signal. Over 2 at Score 77 was wrong — only 1 goal total. Both model and alpha failed directionally.",
   },
 
+  // ─── JUNE 25 — SLOT 1 (MD3) ───────────────────────────────────────────────
+
+  {
+    matchId: "GS-E-5",
+    matchDate: "2026-06-25",
+    homeTeamId: "ECU",
+    awayTeamId: "GER",
+    overallScore: 93,
+    radarSummary: "Low-scoring Germany win — cascade confirms margin compression, not result divergence",
+    divergence: "warning",
+    divergenceNote: "Under 3 Score 86, Under 3.5 Score 86, Under 4 Score 88 — alpha strongly suppresses goal volume. BTTS No Score 65 (above Rule 2 threshold — trusted). Ecuador AH cascade from +1 to +2 all Score 83-85 — halts before +0.75 (Score 77), signalling Germany wins by exactly 1-2 goals, not a rout. Germany result markets all deeply negative EV — market overprices Germany blowout. Correct Score 0_1 shows +19.7% EV (Score 3 — low confidence for exact score, used as direction indicator only). Rule 7 active: cascade peaks Score 85 on underdog handicap but Germany win markets underwater — margin signal only, pick favorite by exactly 1-2 goals. Germany rotating (already through) adds margin compression. Model app pick 1-3 Germany overshoots on goals. Alpha calibrated pick: 2-0 Germany.",
+    topSignals: [
+      { label: "Under 4 total goals", ev: "+16.4%", confidence: "high" },
+      { label: "Under 3 total goals", ev: "+36.7%", confidence: "high" },
+      { label: "Under 3.5 total goals", ev: "+21.1%", confidence: "high" },
+      { label: "BTTS No", ev: "+21.9%", confidence: "high" },
+      { label: "Ecuador +2 AH (margin cap)", ev: "+10.6%", confidence: "high" },
+      { label: "Ecuador +1 AH", ev: "+31.9%", confidence: "high" },
+    ],
+    alphaPickExact: "2-0 Germany",
+    alphaPickNote: "Low-scoring signals dominant across all Score thresholds. BTTS No Score 65 (above Rule 2 — trusted). Ecuador +1 to +2 AH cascade (Score 83-85) = Rule 7: Germany wins by 1-2 goals, not 3+. Model app pick (1-3) overshoots on goals. Correct Score 0_1 EV +19.7% (Score 3) used only as directional indicator — too low confidence for exact score. Alpha pick: 2-0 Germany. One goal above pure 0-1 margin signal to account for Germany attack even in rotation — still within Rule 3.",
+  },
+
+  {
+    matchId: "GS-E-6",
+    matchDate: "2026-06-25",
+    homeTeamId: "CUR",
+    awayTeamId: "CIV",
+    overallScore: 92,
+    radarSummary: "Ivory Coast dominant — Rule 6 active, high-scoring, clean sheet probable",
+    divergence: "confirmed",
+    divergenceNote: "IVC result cascade: -0.5 Score 87, -0.75 Score 83, 1X2 Score 83, -2 Score 81, -1.75 Score 81, -1.5 Score 79, -1.25 Score 79, -1 Score 78, -2.25 Score 76, -2.5 Score 71, -2.75 Score 64 — Rule 6 triggers: 3+ AH signals beyond -2 at Score 50+, Elo gap >400, Curaçao form depressed by 7-1 loss vs Germany MD1. High-scoring signals: Over 2 Score 79, Over 3 Score 73, Over 2.5 Score 66, Over 3.5 Score 61. BTTS No Score 45 — below Rule 2 threshold, discarded. Win to Nil IVC fair odds 1.62. Stakes asymmetry: IVC needs result for R32, Curaçao eliminated. Rule 6 floor: model pick (0-1) treated as minimum margin, ±2 divergence permissible.",
+    topSignals: [
+      { label: "IVC -0.5 AH", ev: "+15.7%", confidence: "high" },
+      { label: "IVC -2 AH (Rule 6 cascade)", ev: "+24.5%", confidence: "high" },
+      { label: "IVC -2.5 AH", ev: "+30.4%", confidence: "high" },
+      { label: "IVC -2.75 AH", ev: "+38.3%", confidence: "high" },
+      { label: "Over 2 total goals", ev: "+7.2%", confidence: "high" },
+      { label: "Over 3 total goals", ev: "+13.7%", confidence: "high" },
+    ],
+    alphaPickExact: "3-0 Ivory Coast",
+    alphaPickNote: "Rule 6 active: cascade beyond AH -2 at Score 50+, Elo gap >400. Over 3 Score 73 and Over 2 Score 79 confirm high-scoring output. BTTS No Score 45 (below Rule 2 — discarded). Win to Nil IVC fair odds 1.62 supports clean sheet. Stakes asymmetry reinforces dominant performance. Model app pick (0-1) severely underprices IVC margin. Rule 6 floor = 0-1, alpha diverges to 3-0 within ±2 permissible range.",
+  },
+
   {
     matchId: "GS-C-5",
     matchDate: "2026-06-24",
