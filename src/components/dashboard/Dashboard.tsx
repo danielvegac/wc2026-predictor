@@ -896,7 +896,9 @@ function ModelTrackRecord({
                     {r.modelHome}–{r.modelAway}
                   </td>
                   <td className="py-2 px-2 text-center font-mono text-xs text-violet-500">
-                    {r.alphaPick ?? "—"}
+                    {r.alphaPick
+                      ? (r.alphaPick.match(/\d+\s*[-–]\s*\d+/)?.[0] ?? r.alphaPick)
+                      : "—"}
                   </td>
                   <td className="py-2 px-2 text-center font-mono text-xs font-bold">
                     {r.actualHome}–{r.actualAway}

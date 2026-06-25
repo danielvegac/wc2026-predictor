@@ -224,7 +224,7 @@ export function MatchCard({
               α Pick
             </span>
             <span className="font-mono text-xs font-semibold text-violet-500">
-              {alpha.alphaPickExact}
+              {alpha.alphaPickExact.match(/\d+\s*[-–]\s*\d+/)?.[0] ?? alpha.alphaPickExact}
             </span>
             {outcomeBadge}
           </div>
@@ -473,7 +473,9 @@ function AlphaSignalRow({
               Alpha Pick
             </span>
             <div className="flex items-baseline gap-2">
-              <span className="font-mono text-sm font-bold text-text-primary">{alpha.alphaPickExact}</span>
+              <span className="font-mono text-sm font-bold text-text-primary">
+                {alpha.alphaPickExact.match(/\d+\s*[-–]\s*\d+/)?.[0] ?? alpha.alphaPickExact}
+              </span>
               <span className="text-xs text-text-muted leading-snug">{alpha.alphaPickNote}</span>
             </div>
           </div>

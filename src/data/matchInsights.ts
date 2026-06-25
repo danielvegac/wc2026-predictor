@@ -605,6 +605,29 @@ export const matchInsights: MatchInsight[] = [
   // JUNE 23 — GROUP STAGE DAY 13
   // ==========================================
 
+  {
+    matchId: "GS-K-3",
+    date: "2026-06-23",
+    homeTeamId: "POR", awayTeamId: "UZB",
+    homeGoals: 5, awayGoals: 0,
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.65,
+    notes: "Portugal 5-0 Uzbekistan. xG: POR 3.8, UZB 0.3. Dominant throughout — both multipliers at cap. Rule 6 confirmed: form depression from DR Congo draw was single-match outlier vs stronger opponent. Portugal attack/defense now among tournament's strongest. Group K top (6pts).",
+  },
+  {
+    matchId: "GS-L-3",
+    date: "2026-06-23",
+    homeTeamId: "ENG", awayTeamId: "GHA",
+    homeGoals: 0, awayGoals: 0,
+    homeAttackMultiplier: 0.67,
+    homeDefenseMultiplier: 1.35,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 1.35,
+    notes: "England 0-0 Ghana. xG: ENG 0.9, GHA 0.4. England attack DOWN sharply — no shots on target first half, Bellingham/Saka stifled by Ghana 5-4-1 block. Ghana defense UP significantly — held England scoreless. Partey anchored midfield. Major calibration: England attacking form regressed from Croatia blowout.",
+  },
+
   // GS-L-4: Panama 0-1 Croatia
   {
     matchId: "GS-L-4",
