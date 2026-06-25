@@ -670,6 +670,38 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 1.12,
     notes: "Egypt's first ever World Cup win — came from behind (Surman header 15'). Zico equalizer 58', Salah (67', assist+goal), Trezeguet diving header 82'. Egypt 1.96 xG, NZL 1.21 xG. Salah in #10 role devastating as creator and finisher — 68th international goal. Shobeir solid in goal. Group G now: EGY 4pts (first!), BEL 1pt, IRN 1pt, NZL 1pt. Egypt vs Iran MD3 is group decider — winner likely tops group. NZL defense multiplier DOWN significantly — now 0 wins in 8 WC games all time.",
   },
+
+  // ==========================================
+  // JUNE 24 — GROUP STAGE DAY 14
+  // ==========================================
+
+  // GS-A-5: Czechia 0-3 Mexico
+  // xG: CZE 0.47, MEX 1.79
+  {
+    matchId: "GS-A-5",
+    date: "2026-06-24",
+    homeTeamId: "CZE", awayTeamId: "MEX",
+    homeGoals: 0, awayGoals: 3,
+    homeAttackMultiplier: 0.65,   // 0.47/1.35 = 0.35 → floored to 0.65
+    homeDefenseMultiplier: 0.75,  // 1.35/1.79 = 0.75
+    awayAttackMultiplier: 1.33,   // 1.79/1.35 = 1.33
+    awayDefenseMultiplier: 1.45,  // 1.35/0.47 = 2.87 → capped to 1.45
+    notes: "AUTO-XG. Mexico 3-0 with perfect rotation — Chavez (55'), Quinones (61'), Fidalgo sub (90+4'). Mexico made 5 changes (heaviest rotation of campaign), yet dominated by xG (1.79 vs 0.47). Czechia had 13 shots but only 1 on target — purely speculative shooting. Gilberto Mora (17yo) was MOTM catalyst for 2nd-half surge. Mexico finish Group A with 3W/0D/0L — first perfect group stage in their WC history. Ochoa made history at 40yo (6th WC). Czechia eliminated with 1pt (W0D1L2). CONTEXT: Mexico rotated heavily but crowd + home atmosphere elevated performance beyond what form metrics suggested. Czechia's attacking fragility (0.47 xG) confirms what MD1-2 data showed — Schick ineffectual, attack systemically broken.",
+  },
+
+  // GS-A-6: South Africa 1-0 South Korea
+  // xG: RSA 1.1, KOR 1.0
+  {
+    matchId: "GS-A-6",
+    date: "2026-06-24",
+    homeTeamId: "RSA", awayTeamId: "KOR",
+    homeGoals: 1, awayGoals: 0,
+    homeAttackMultiplier: 0.81,   // 1.1/1.35 = 0.81
+    homeDefenseMultiplier: 1.35,  // 1.35/1.0 = 1.35
+    awayAttackMultiplier: 0.74,   // 1.0/1.35 = 0.74
+    awayDefenseMultiplier: 1.23,  // 1.35/1.1 = 1.23
+    notes: "AUTO-XG. South Africa historic 1-0 win — qualify for R32 for the first time ever. Maseko 63' winner. xG was near-even (RSA 1.1 vs KOR 1.0) — genuinely competitive match, not a fluke scoreline. South Korea had 68% possession but couldn't convert — Son Heung-min benched at start, came on HT but failed to ignite again (scoreless from 1.01 xG across tournament). South Africa defended brilliantly in low block after taking the lead. KOR attack multiplier DOWN — 3 matches, consistent underperformance vs xG. RSA defense UP — held Mexico 0.07 xG (MD1 context: 9-men), held Korea to 1.0 xG. Son's form is a genuine concern heading into R32 if they qualify as best 3rd. South Africa face Canada in R32.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

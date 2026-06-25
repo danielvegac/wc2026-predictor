@@ -259,6 +259,30 @@ export const alphaMatchData: AlphaMatchData[] = [
   },
 
   {
+    matchId: "GS-A-5",
+    matchDate: "2026-06-24",
+    homeTeamId: "CZE",
+    awayTeamId: "MEX",
+    overallScore: 92,
+    alphaPickExact: "1-0 Mexico",
+    alphaPickNote: "Czech Republic AH cascade (Score 88-91) interpreted as margin compression — expected narrow Mexico win. Under 2.5 at Score 63 suggested low total. Zero positive EV in Mexico result group raised caution about margin. Alpha pick: 1-0 Mexico. Model app pick: 2-0 Mexico.",
+    signalOutcome: "miss",
+    signalNote: "Direction correct (Mexico win ✅) but margin severely underpredicted. Mexico 3-0, xG 1.79 vs 0.47 — market underpriced Mexico's dominance, not Czechia's resistance. Czechia's AH cascade was a mirage: their xG confirmed they were genuinely weak, not unlucky. The Under signals (2.5 at Score 63) were also wrong — goals came. Key calibration: when a team rotates heavily in a must-win home party atmosphere, model and alpha both underprice the output. Model app (2-0) was closer than alpha pick (1-0). Czechia's AH cascade should have been read as 'market hasn't priced Mexico's full dominance,' not 'Czechia will compete.'",
+  },
+
+  {
+    matchId: "GS-A-6",
+    matchDate: "2026-06-24",
+    homeTeamId: "RSA",
+    awayTeamId: "KOR",
+    overallScore: 92,
+    alphaPickExact: "2-1 South Korea",
+    alphaPickNote: "KOR win signals dominant: 1X2 Korea Score 83, AH -0.5 Score 83, AH -0.75 Score 82. Over 2 at Score 77 suggested multiple goals. BTTS No at Score 58 (below Rule 2 threshold of 60) discarded — could not trust clean sheet signal. Alpha pick: 2-1 Korea (model app: 2-0 Korea, chat pick pre-session: 2-0 Korea).",
+    signalOutcome: "miss",
+    signalNote: "Complete directional miss — South Africa won 1-0. KOR win signals (Score 83) were wrong. xG was near-even (RSA 1.1, KOR 1.0) — this was a genuine upset, not a freak result. The market correctly priced Korea as favorites but mispriced South Africa's defensive capability and motivation. BTTS No at Score 58 (discarded per Rule 2) actually landed — South Korea blanked. Key calibration: Rule 2 threshold (Score 60) prevented us from using the one signal that was correct. Motivation factor (South Africa needing win for historic R32 qualification) was not captured in any signal. Over 2 at Score 77 was wrong — only 1 goal total. Both model and alpha failed directionally.",
+  },
+
+  {
     matchId: "GS-C-5",
     matchDate: "2026-06-24",
     homeTeamId: "SCO",
