@@ -345,6 +345,69 @@ export const alphaMatchData: AlphaMatchData[] = [
     alphaPickNote: "Scotland AH cascade (Score 65-68) is a margin signal: Brazil wins, but market overprices the 3-0 blowout. Model pick 3-0 diverges from form reality (Brazil ~1.02 attack multiplier, Raphinha out, Ancelotti conservative). Alpha pick: 2-0 Brazil — 1 goal below model, within Rule 3. BTTS Yes Score 43 too weak to upgrade to 2-1.",
   },
 
+  // ─── JUNE 25 — SLOT 2 (MD3) ───────────────────────────────────────────────
+
+  {
+    matchId: "GS-F-6",
+    matchDate: "2026-06-25",
+    homeTeamId: "JPN",
+    awayTeamId: "SWE",
+    overallScore: 93,
+    radarSummary: "Japan dominant — cleanest cascade of the day, high-scoring, Sweden has no value",
+    divergence: "confirmed",
+    divergenceNote: "Japan result cascade is the strongest of any match today: Japan 0 Score 88, Japan +0.25 Score 88, Japan DC Score 86, Japan +0.5 Score 86, Japan +0.75 Score 85, Japan -0.25 Score 82, 1X2 Japan Score 80, Japan -0.5 Score 74, Japan -0.75 Score 63 — cascade extends into negative AH territory, meaning market underprices Japan even winning outright. Sweden: zero positive EV signals anywhere. High-scoring dominant: Over 2 Score 84, Over 1.5 Score 80, Over 2.5 Score 75, Over 3 Score 61 (above Rule 2 threshold). BTTS Yes negative (-4.4%) — not trusted. Draw Score 37 (overpriced by market). Scoreline matrix: 2-0 and 2-1 Japan both at 10% (highest probability cells). Stakes: Japan only needs draw to qualify — but their attacking philosophy means they don't park the bus. Sweden must chase → opens spaces for Japan counter.",
+    topSignals: [
+      { label: "Japan 0 AH", ev: "+33.9%", confidence: "high" },
+      { label: "Japan -0.25 AH", ev: "+45.4%", confidence: "high" },
+      { label: "1X2 Japan", ev: "+54.1%", confidence: "high" },
+      { label: "Over 2 total goals", ev: "+18.5%", confidence: "high" },
+      { label: "Over 2.5 total goals", ev: "+29.0%", confidence: "high" },
+      { label: "Over 3 total goals", ev: "+48.2%", confidence: "high" },
+    ],
+    alphaPickExact: "2-1 Japan",
+    alphaPickNote: "Strongest directional cascade of the day — Japan 0 AH Score 88, 1X2 Japan Score 80. Model app picks 1-1 but alpha contradicts clearly: zero value on draw, zero value on Sweden. Over 3 Score 61 (above Rule 2 threshold) allows for BTTS. Sweden must attack to qualify → Japan punishes on the counter → both teams score but Japan controls. Scoreline matrix centroid: 2-1 Japan (10%, tied with 2-0). 2-1 preferred over 2-0 because Sweden pressing increases likelihood of conceding. Rule 1 overridden: cascade",
+  },
+
+  // ─── JUNE 25 — SLOT 3 (MD3) ───────────────────────────────────────────────
+
+  {
+    matchId: "GS-D-5",
+    matchDate: "2026-06-25",
+    homeTeamId: "TUR",
+    awayTeamId: "USA",
+    overallScore: 86,
+    radarSummary: "USA wins by exactly 1 goal — Turkey AH cascade is margin compression, not upset signal",
+    divergence: "warning",
+    divergenceNote: "Turkey AH cascade: +1 Score 81, +1.25 Score 80, +1.5 Score 78, +1.75 Score 78, +0.75 Score 76, +0.5 Score 72, Turkey DC Score 71, +0.25 Score 66, Turkey 0 Score 53 — cascade halts at 0 (Score 53). Rule 7 active: cascade peaks Score 81 on underdog handicap, Turkey 1X2 Score only 34 — margin signal only, pick USA by exactly 1 goal. USA result markets all deeply negative EV (1X2 USA -26.4%). No volume signals above Rule 2 threshold: BTTS Yes Score 19, all Over/Under signals below 35. Context: USA already qualified and rotating, Turkey eliminated with 0 goals in 3.5 xG across 2 matches — historic finishing failure. Ecuador lesson: rotated favorite + motivated rival = margin compression. Pick USA by minimum margin.",
+    topSignals: [
+      { label: "Turkey +1 AH (margin cap)", ev: "+19.4%", confidence: "high" },
+      { label: "Turkey +1.25 AH", ev: "+13.8%", confidence: "high" },
+      { label: "Turkey +0.75 AH", ev: "+22.1%", confidence: "high" },
+      { label: "Turkey +0.5 AH", ev: "+26.0%", confidence: "high" },
+      { label: "Turkey DC (any result)", ev: "+24.2%", confidence: "medium" },
+    ],
+    alphaPickExact: "1-0 USA",
+    alphaPickNote: "Rule 7: Turkey +1 cascade Score 81 but 1X2 Turkey Score 34 — margin signal only. USA wins by exactly 1 goal. No volume signals above threshold → minimum goals. Turkey have 0 goals in 3.5 xG across 2 matches — finishing failure is real. USA rotating but squad depth sufficient to control. Ecuador lesson already incorporated: rotated favorite still wins, but by 1 goal.",
+  },
+
+  {
+    matchId: "GS-D-6",
+    matchDate: "2026-06-25",
+    homeTeamId: "PAR",
+    awayTeamId: "AUS",
+    overallScore: 63,
+    radarSummary: "Lowest-confidence read of the day — alpha genuinely uncertain, low scoring most likely",
+    divergence: "neutral",
+    divergenceNote: "Overall Score 63 — weakest dashboard of the day. No volume signals above Rule 2 threshold: BTTS No Score 29, BTTS Yes Score negative (-19.2%), all Over/Under signals below 30 or negative. Paraguay: zero positive EV signals. Australia AH: +1.5 Score 76 (only signal above 60) — Paraguay will not win by 2+ goals. AUS 0 Score 60 (right at threshold) — Australia level or better is slightly underpriced. Draw: 1X2 -25.2% — market prices a result but alpha can't identify which. Both teams need a win — bilateral stakes means neither parks the bus, but neither takes reckless risks. Low-scoring most likely given both teams' poor xG histories (PAR 0.32 xG vs Turkey, AUS 0.35 xG in MD1). Alpha pick: Paraguay 1-0 as minimum-goal default toward slight favorite.",
+    topSignals: [
+      { label: "Australia +1.5 AH (Paraguay margin cap)", ev: "+6.5%", confidence: "high" },
+      { label: "Australia 0 AH", ev: "+30.8%", confidence: "medium" },
+      { label: "Australia +0.25 AH", ev: "+8.2%", confidence: "medium" },
+    ],
+    alphaPickExact: "1-0 Paraguay",
+    alphaPickNote: "Lowest-confidence pick of the day — overall Score 63, no volume signals above Rule 2. AUS +1.5 Score 76 caps Paraguay margin at 1 goal. AUS 0 Score 60 (threshold) suggests Australia not far behind. Default to minimum-goal result toward slight Elo favorite (Paraguay). Both teams' xG histories are poor — genuine low-scoring match expected. WARNING: coin-flip match. 1-0 Paraguay captures result + Paraguay goal if correct.",
+  },
+
 ];
 
 /** Get alphametrico data for a specific match. Returns undefined if not available. */
