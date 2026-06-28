@@ -15,6 +15,7 @@ import { teams, getTeamMap } from "../data/teams";
 import { calculateStrengthFromElo, calculateBaseStrengthFromElo } from "../engine/strengthCalculator";
 import { analyzeMatch } from "../engine/matchSimulator";
 import { matchInsights } from "../data/matchInsights";
+import { knockoutMatches } from "../data/knockoutMatches";
 
 export interface ModelPrediction {
   homeGoals: number;
@@ -24,6 +25,9 @@ export interface ModelPrediction {
   awayWinProb: number;
   expectedHomeGoals: number;
   expectedAwayGoals: number;
+  // Knockout-only fields
+  koAdvanceProbability?: number;  // Prob the "home" (listed-first) team advances
+  aetLikely?: boolean;           // True when predicted score is a draw
 }
 
 interface ModelPredictionState {
@@ -146,6 +150,39 @@ export const useModelPredictionStore = create<ModelPredictionState>()(
           };
         }
 
+        // --- Knockout match predictions (R32+) ---
+        for (const ko of knockoutMatches) {
+          if (locked.has(ko.matchId)) {
+            if (existing[ko.matchId]) {
+              predictions[ko.matchId] = existing[ko.matchId];
+              continue;
+            }
+          }
+
+          const home = teamMap.get(ko.homeTeamId);
+          const away = teamMap.get(ko.awayTeamId);
+          const homeStr = strengthMap.get(ko.homeTeamId);
+          const awayStr = strengthMap.get(ko.awayTeamId);
+          if (!home || !away || !homeStr || !awayStr) continue;
+
+          const result = analyzeMatch(ko.matchId, home, away, homeStr, awayStr);
+          const isDraw = result.mostLikelyScore[0] === result.mostLikelyScore[1];
+          // Advance prob = winProb + (drawProb * 0.5) since penalties are ~50/50
+          const koAdvanceProbability = result.homeWinProb + result.drawProb * 0.5;
+
+          predictions[ko.matchId] = {
+            homeGoals: result.mostLikelyScore[0],
+            awayGoals: result.mostLikelyScore[1],
+            homeWinProb: result.homeWinProb,
+            drawProb: result.drawProb,
+            awayWinProb: result.awayWinProb,
+            expectedHomeGoals: result.expectedHomeGoals,
+            expectedAwayGoals: result.expectedAwayGoals,
+            koAdvanceProbability,
+            aetLikely: isDraw,
+          };
+        }
+
         set({ predictions, baselinePredictions: baseline, computedAt: Date.now() });
       },
 
@@ -196,6 +233,12 @@ export function initModelPredictions() {
   // the source of truth for which matches have been played.
   for (const insight of matchInsights) {
     store.lockMatch(insight.matchId);
+  }
+  // Lock completed knockout matches too
+  for (const ko of knockoutMatches) {
+    if (ko.status === "completed") {
+      store.lockMatch(ko.matchId);
+    }
   }
 
   store.compute();

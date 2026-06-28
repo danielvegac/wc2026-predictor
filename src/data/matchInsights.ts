@@ -5,6 +5,8 @@
 // performance (xG, dominance, tactical performance) — beyond what
 // Elo captures from the result alone.
 
+import { getTeamKnockoutInsights } from "./knockoutMatches";
+
 export interface MatchInsight {
   matchId: string;
   date: string;
@@ -721,9 +723,15 @@ export function getTeamFormMultipliers(teamId: string): {
   defenseMultiplier: number;
 } {
   const insights = getTeamInsights(teamId);
-  if (insights.length === 0) return { attackMultiplier: 1.0, defenseMultiplier: 1.0 };
 
-  // Extract per-match multipliers (chronological order — insights array is chronological)
+  // Also include completed knockout match insights (same multiplier schema)
+  const koInsights = getTeamKnockoutInsights(teamId);
+
+  if (insights.length === 0 && koInsights.length === 0) {
+    return { attackMultiplier: 1.0, defenseMultiplier: 1.0 };
+  }
+
+  // Extract per-match multipliers (chronological order — GS first, then KO)
   const attackMults: number[] = [];
   const defenseMults: number[] = [];
 
@@ -737,6 +745,16 @@ export function getTeamFormMultipliers(teamId: string): {
     }
   }
 
+  for (const ko of koInsights) {
+    if (ko.homeTeamId === teamId) {
+      attackMults.push(ko.homeAttackMultiplier!);
+      defenseMults.push(ko.homeDefenseMultiplier!);
+    } else {
+      attackMults.push(ko.awayAttackMultiplier!);
+      defenseMults.push(ko.awayDefenseMultiplier!);
+    }
+  }
+
   const attackMult = recencyWeightedAverage(attackMults);
   const defenseMult = recencyWeightedAverage(defenseMults);
 
@@ -745,6 +763,7 @@ export function getTeamFormMultipliers(teamId: string): {
     defenseMultiplier: Math.max(0.50, Math.min(1.50, defenseMult)),
   };
 }
+
 
 /**
  * Weighted average favoring recent matches.

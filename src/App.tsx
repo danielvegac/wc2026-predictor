@@ -6,6 +6,7 @@ import { getFlagClass } from "./data/flags";
 import { groups } from "./data/groups";
 import { GroupStage } from "./components/bracket/GroupStage";
 import { MatchesByDate } from "./components/prediction/MatchesByDate";
+import { KnockoutSection } from "./components/prediction/KnockoutSection";
 import { Dashboard } from "./components/dashboard/Dashboard";
 import { usePredictionStore } from "./store/predictionStore";
 import { initModelPredictions } from "./store/modelPredictionStore";
@@ -339,6 +340,7 @@ function MatchesView({
         </div>
       </div>
       {mode === "date" ? <MatchesByDate /> : <GroupStage />}
+      <KnockoutSection />
     </div>
   );
 }
