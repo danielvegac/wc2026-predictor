@@ -9,6 +9,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useResultsStore } from "../store/resultsStore";
 import { useLiveEloStore } from "../store/liveEloStore";
 import { useModelPredictionStore } from "../store/modelPredictionStore";
+import { knockoutMatches } from "../data/knockoutMatches";
 import type { MatchResult } from "../store/resultsStore";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
@@ -78,14 +79,27 @@ export function useLiveData() {
             awayScore: m.awayScore,
           }));
 
-        if (completedMatches.length > 0) {
+        // Also include statically completed knockout matches
+        const koCompletedMatches = knockoutMatches
+          .filter((ko) => ko.status === "completed" && ko.homeGoals != null)
+          .map((ko) => ({
+            matchId: ko.matchId,
+            homeTeamId: ko.homeTeamId,
+            awayTeamId: ko.awayTeamId,
+            homeScore: ko.homeGoals!,
+            awayScore: ko.awayGoals!,
+          }));
+
+        const allCompleted = [...completedMatches, ...koCompletedMatches];
+
+        if (allCompleted.length > 0) {
           const eloStore = useLiveEloStore.getState();
           eloStore.init();
-          eloStore.syncWithResults(completedMatches);
+          eloStore.syncWithResults(allCompleted);
 
           // Lock completed matches and recalculate predictions for unplayed matches
           const modelStore = useModelPredictionStore.getState();
-          for (const m of completedMatches) {
+          for (const m of allCompleted) {
             modelStore.lockMatch(m.matchId);
           }
           modelStore.compute(eloStore.ratings);

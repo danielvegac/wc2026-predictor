@@ -758,10 +758,19 @@ export function getTeamFormMultipliers(teamId: string): {
   const attackMult = recencyWeightedAverage(attackMults);
   const defenseMult = recencyWeightedAverage(defenseMults);
 
-  return {
+  const result = {
     attackMultiplier: Math.max(0.50, Math.min(1.50, attackMult)),
     defenseMultiplier: Math.max(0.50, Math.min(1.50, defenseMult)),
   };
+
+  // Diagnostic: log form multipliers for R32 teams to verify pipeline
+  if (teamId === "RSA" || teamId === "CAN") {
+    console.log(
+      `[FormPipeline] ${teamId}: attack=${result.attackMultiplier.toFixed(3)}, defense=${result.defenseMultiplier.toFixed(3)} (from ${attackMults.length} matches, raw attack=${attackMults.map(v => v.toFixed(2)).join(",")}, raw defense=${defenseMults.map(v => v.toFixed(2)).join(",")})`
+    );
+  }
+
+  return result;
 }
 
 

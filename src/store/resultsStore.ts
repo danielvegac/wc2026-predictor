@@ -6,6 +6,7 @@
 
 import { create } from "zustand";
 import { groupStageSchedule } from "../data/schedule";
+import { knockoutMatches } from "../data/knockoutMatches";
 
 export interface MatchResult {
   matchId: string | null;
@@ -38,22 +39,39 @@ export const useResultsStore = create<ResultsState>()((set, get) => ({
     const mapped = results.map((r) => {
       if (r.matchId) return r;
 
-      // Find our schedule match by team IDs
-      const match = groupStageSchedule.find(
+      // Find our schedule match by team IDs (group stage first, then knockout)
+      const gsMatch = groupStageSchedule.find(
         (m) =>
           (m.homeTeamId === r.homeTeamId && m.awayTeamId === r.awayTeamId) ||
           (m.homeTeamId === r.awayTeamId && m.awayTeamId === r.homeTeamId)
       );
 
-      if (match) {
-        // Ensure home/away alignment matches our schedule
-        const flipped =
-          match.homeTeamId === r.awayTeamId;
+      if (gsMatch) {
+        const flipped = gsMatch.homeTeamId === r.awayTeamId;
         return {
           ...r,
-          matchId: match.id,
-          homeTeamId: match.homeTeamId,
-          awayTeamId: match.awayTeamId,
+          matchId: gsMatch.id,
+          homeTeamId: gsMatch.homeTeamId,
+          awayTeamId: gsMatch.awayTeamId,
+          homeScore: flipped ? r.awayScore : r.homeScore,
+          awayScore: flipped ? r.homeScore : r.awayScore,
+        };
+      }
+
+      // Check knockout matches
+      const koMatch = knockoutMatches.find(
+        (m) =>
+          (m.homeTeamId === r.homeTeamId && m.awayTeamId === r.awayTeamId) ||
+          (m.homeTeamId === r.awayTeamId && m.awayTeamId === r.homeTeamId)
+      );
+
+      if (koMatch) {
+        const flipped = koMatch.homeTeamId === r.awayTeamId;
+        return {
+          ...r,
+          matchId: koMatch.matchId,
+          homeTeamId: koMatch.homeTeamId,
+          awayTeamId: koMatch.awayTeamId,
           homeScore: flipped ? r.awayScore : r.homeScore,
           awayScore: flipped ? r.homeScore : r.awayScore,
         };

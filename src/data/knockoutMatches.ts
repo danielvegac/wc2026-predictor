@@ -29,7 +29,11 @@ export const knockoutMatches: KnockoutMatch[] = [
 
   // June 28
   { matchId: "R32-01", round: "R32", date: "2026-06-28", homeTeamId: "RSA", awayTeamId: "CAN",
-    venue: "SoFi Stadium, Inglewood, CA", kickoffET: "15:00", status: "upcoming" },
+    venue: "SoFi Stadium, Inglewood, CA", kickoffET: "15:00", status: "completed",
+    homeGoals: 0, awayGoals: 1,
+    homeAttackMultiplier: 0.65, homeDefenseMultiplier: 1.02,
+    awayAttackMultiplier: 0.98, awayDefenseMultiplier: 1.45,
+    notes: "AUTO-XG. Canada 1-0 via Eustaquio 90+' stoppage-time strike. xG: CAN 1.32, RSA 0.13. South Africa played extreme low-block 4-2-3-1, barely attacked all match (1 shot on target after 6th minute). Canada dominated (12 shots, 7 on target) but underperformed finishing until the last moment. RSA attack floor applied — not a true reflection of capability, extreme defensive setup distorted output. CAN defense multiplier capped — RSA xG was anomalously low due to tactical approach. Davies came off bench. Eustaquio returned from injury knock to win it. Canada advance to R16 vs Netherlands/Morocco." },
 
   // June 29
   { matchId: "R32-02", round: "R32", date: "2026-06-29", homeTeamId: "BRA", awayTeamId: "JPN",

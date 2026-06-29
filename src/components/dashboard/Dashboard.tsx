@@ -25,6 +25,7 @@ import {
   ResponsiveContainer, ComposedChart, Line,
 } from "recharts";
 import { getAlphaData } from "../../data/alphametrico";
+import { knockoutMatches } from "../../data/knockoutMatches";
 import type { MonteCarloResults, Prediction } from "../../types";
 
 const NUM_SIMS = 10_000;
@@ -193,12 +194,18 @@ function ExpertAccuracyTracker({
   const modelPredictions = useModelPredictionStore((s) => s.predictions);
 
   const rows = useMemo(() => {
-    // Build actual results map
+    // Build actual results map (group stage + knockout)
     const actualMap: Record<string, { homeGoals: number; awayGoals: number }> = {};
     for (const match of groupStageSchedule) {
       const actual = getResult(match.id);
       if (actual) {
         actualMap[match.id] = { homeGoals: actual.homeScore, awayGoals: actual.awayScore };
+      }
+    }
+    // Include completed knockout matches
+    for (const ko of knockoutMatches) {
+      if (ko.status === "completed" && ko.homeGoals != null && ko.awayGoals != null) {
+        actualMap[ko.matchId] = { homeGoals: ko.homeGoals, awayGoals: ko.awayGoals };
       }
     }
 
@@ -817,6 +824,74 @@ function ModelTrackRecord({
       });
     }
 
+    // --- Knockout matches (completed) ---
+    const completedKO = knockoutMatches
+      .filter((ko) => ko.status === "completed" && ko.homeGoals != null && ko.awayGoals != null)
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    for (const ko of completedKO) {
+      const actualHome = ko.homeGoals!;
+      const actualAway = ko.awayGoals!;
+
+      const model = modelPredictions[ko.matchId];
+      if (!model) continue;
+
+      const userPred = predictions[ko.matchId];
+      const actualPred = { matchId: ko.matchId, homeGoals: actualHome, awayGoals: actualAway, source: "model" as const };
+
+      const mb = scoreMatch(
+        { matchId: ko.matchId, homeGoals: model.homeGoals, awayGoals: model.awayGoals, source: "model" },
+        actualPred
+      );
+
+      let userPts = 0;
+      let userBreakdown = "";
+      let userIsExact = false;
+      let userIsResult = false;
+      if (userPred) {
+        const ub = scoreMatch(userPred, actualPred);
+        userPts = ub.totalPoints;
+        userIsExact = ub.isExactScore;
+        userIsResult = ub.isCorrectResult;
+        const parts: string[] = [];
+        if (ub.exactScorePoints) parts.push(`${ub.exactScorePoints} exact`);
+        if (ub.resultPoints) parts.push(`${ub.resultPoints} result`);
+        if (ub.homeGoalsPoints || ub.awayGoalsPoints)
+          parts.push(`${ub.homeGoalsPoints + ub.awayGoalsPoints} goals`);
+        userBreakdown = parts.join(" + ");
+      }
+
+      const mParts: string[] = [];
+      if (mb.exactScorePoints) mParts.push(`${mb.exactScorePoints} exact`);
+      if (mb.resultPoints) mParts.push(`${mb.resultPoints} result`);
+      if (mb.homeGoalsPoints || mb.awayGoalsPoints)
+        mParts.push(`${mb.homeGoalsPoints + mb.awayGoalsPoints} goals`);
+
+      out.push({
+        matchId: ko.matchId,
+        homeTeamId: ko.homeTeamId,
+        awayTeamId: ko.awayTeamId,
+        userHome: userPred?.homeGoals ?? null,
+        userAway: userPred?.awayGoals ?? null,
+        modelHome: model.homeGoals,
+        modelAway: model.awayGoals,
+        actualHome,
+        actualAway,
+        userPts,
+        modelPts: mb.totalPoints,
+        alphaPick: null,
+        alphaPts: null,
+        alphaIsExact: false,
+        alphaIsResult: false,
+        userBreakdown,
+        modelBreakdown: mParts.join(" + "),
+        userIsExact,
+        userIsResult,
+        modelIsExact: mb.isExactScore,
+        modelIsResult: mb.isCorrectResult,
+      });
+    }
+
     return out;
   }, [predictions, results, getResult, modelPredictions]);
 
@@ -1003,9 +1078,15 @@ function PointsByMatchday({
     userHome: number | null;
   }>;
 }) {
-  // Build a schedule lookup: matchId → date
+  // Build a schedule lookup: matchId → date (group stage + knockout)
   const scheduleMap = useMemo(
-    () => new Map(groupStageSchedule.map((m) => [m.id, m.date])),
+    () => {
+      const map = new Map(groupStageSchedule.map((m) => [m.id, m.date]));
+      for (const ko of knockoutMatches) {
+        map.set(ko.matchId, ko.date);
+      }
+      return map;
+    },
     []
   );
 
@@ -1753,14 +1834,24 @@ function useActualScoring(predictions: Record<string, Prediction>): ScoringResul
     let correctScores = 0;
     let matchesScored = 0;
 
+    // Build knockout results lookup for fallback
+    const koResultMap = new Map(
+      knockoutMatches
+        .filter((ko) => ko.status === "completed" && ko.homeGoals != null)
+        .map((ko) => [ko.matchId, { homeScore: ko.homeGoals!, awayScore: ko.awayGoals! }])
+    );
+
     for (const [matchId, userPred] of Object.entries(predictions)) {
-      const actual = getResult(matchId);
-      if (!actual) continue;
+      const espnResult = getResult(matchId);
+      const koResult = koResultMap.get(matchId);
+      const actualHome = espnResult?.homeScore ?? koResult?.homeScore;
+      const actualAway = espnResult?.awayScore ?? koResult?.awayScore;
+      if (actualHome == null || actualAway == null) continue;
 
       const actualPred: Prediction = {
         matchId,
-        homeGoals: actual.homeScore,
-        awayGoals: actual.awayScore,
+        homeGoals: actualHome,
+        awayGoals: actualAway,
         source: "model",
       };
 
@@ -1771,12 +1862,14 @@ function useActualScoring(predictions: Record<string, Prediction>): ScoringResul
       matchesScored++;
     }
 
+    const hasKOCompleted = knockoutMatches.some((ko) => ko.status === "completed");
+
     return {
       totalPoints,
       correctResults,
       correctScores,
       matchesScored,
-      hasActual: results.some((r) => r.completed),
+      hasActual: results.some((r) => r.completed) || hasKOCompleted,
     };
   }, [predictions, results, getResult]);
 }
