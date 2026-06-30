@@ -21,17 +21,6 @@ const ROUND_LABELS: Record<string, string> = {
   F: "Final",
 };
 
-/** Format kickoffET like "15:00" into "3:00 PM ET" */
-function formatKickoffET(et: string): string {
-  const [hStr, mStr] = et.split(":");
-  let h = parseInt(hStr, 10);
-  const m = mStr;
-  const period = h >= 12 ? "PM" : "AM";
-  if (h > 12) h -= 12;
-  if (h === 0) h = 12;
-  return `${h}:${m} ${period} ET`;
-}
-
 export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: KnockoutMatchCardProps) {
   const prediction = usePredictionStore((s) => s.predictions[ko.matchId]);
   const setPrediction = usePredictionStore((s) => s.setPrediction);
@@ -67,7 +56,7 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
             {ROUND_LABELS[ko.round] ?? ko.round}
           </span>
           <span className="text-[11px] font-mono text-text-muted">
-            {formatKickoffET(ko.kickoffET)}
+            {ko.kickoffCOT} COT
           </span>
         </div>
         {isCompleted && (

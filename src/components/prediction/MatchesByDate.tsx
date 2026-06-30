@@ -4,30 +4,9 @@ import { getTeamMap } from "../../data/teams";
 import { usePredictionStore } from "../../store/predictionStore";
 import { MatchCard } from "./MatchCard";
 import type { Match } from "../../types";
+import { getTodayCOT, formatDateLabelCOT, parseKickoffMinutesCOT } from "../../utils/timezone";
 
 const teamMap = getTeamMap();
-
-/** Parse kickoffCOT like "2:00 PM" into minutes since midnight for sorting */
-function parseKickoffMinutes(kickoff?: string): number {
-  if (!kickoff) return 720; // default to noon
-  const match = kickoff.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-  if (!match) return 720;
-  let hours = parseInt(match[1], 10);
-  const minutes = parseInt(match[2], 10);
-  const period = match[3].toUpperCase();
-  if (period === "AM" && hours === 12) hours = 0;
-  if (period === "PM" && hours !== 12) hours += 12;
-  return hours * 60 + minutes;
-}
-
-/** Get today's date as YYYY-MM-DD in local timezone */
-function getTodayStr(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
 
 interface DateGroup {
   date: string;
@@ -43,13 +22,13 @@ export function MatchesByDate() {
   const todayRef = useRef<HTMLDivElement>(null);
 
   const dateGroups = useMemo(() => {
-    const today = getTodayStr();
+    const today = getTodayCOT();
 
     // Sort all matches by date then by kickoff time
     const sorted = [...groupStageSchedule].sort((a, b) => {
       const dateCmp = a.date.localeCompare(b.date);
       if (dateCmp !== 0) return dateCmp;
-      return parseKickoffMinutes(a.kickoffCOT) - parseKickoffMinutes(b.kickoffCOT);
+      return parseKickoffMinutesCOT(a.kickoffCOT) - parseKickoffMinutesCOT(b.kickoffCOT);
     });
 
     // Group by date
@@ -62,13 +41,7 @@ export function MatchesByDate() {
 
     const groups: DateGroup[] = [];
     for (const [date, matches] of map) {
-      const d = new Date(date + "T12:00:00");
-      const label = d.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-      });
-      groups.push({ date, label, matches, isToday: date === today });
+      groups.push({ date, label: formatDateLabelCOT(date), matches, isToday: date === today });
     }
 
     return groups;

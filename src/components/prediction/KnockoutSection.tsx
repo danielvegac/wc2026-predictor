@@ -3,29 +3,15 @@ import { knockoutMatches, type KnockoutMatch } from "../../data/knockoutMatches"
 import { getTeamMap } from "../../data/teams";
 import { useModelPredictionStore } from "../../store/modelPredictionStore";
 import { KnockoutMatchCard } from "./KnockoutMatchCard";
+import { getTodayCOT, formatDateLabelCOT, parseKickoffMinutesCOT } from "../../utils/timezone";
 
 const teamMap = getTeamMap();
-
-/** Get today's date as YYYY-MM-DD in local timezone */
-function getTodayStr(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
 
 interface DateGroup {
   date: string;
   label: string;
   matches: KnockoutMatch[];
   isToday: boolean;
-}
-
-/** Parse kickoffET "15:00" into minutes since midnight for sorting */
-function parseKickoffMinutes(et: string): number {
-  const [h, m] = et.split(":").map(Number);
-  return h * 60 + m;
 }
 
 export function KnockoutSection() {
@@ -38,12 +24,12 @@ export function KnockoutSection() {
   }, []);
 
   const dateGroups = useMemo(() => {
-    const today = getTodayStr();
+    const today = getTodayCOT();
 
     const sorted = [...r32Matches].sort((a, b) => {
       const dateCmp = a.date.localeCompare(b.date);
       if (dateCmp !== 0) return dateCmp;
-      return parseKickoffMinutes(a.kickoffET) - parseKickoffMinutes(b.kickoffET);
+      return parseKickoffMinutesCOT(a.kickoffCOT) - parseKickoffMinutesCOT(b.kickoffCOT);
     });
 
     const map = new Map<string, KnockoutMatch[]>();
@@ -55,13 +41,7 @@ export function KnockoutSection() {
 
     const groups: DateGroup[] = [];
     for (const [date, matches] of map) {
-      const d = new Date(date + "T12:00:00");
-      const label = d.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-      });
-      groups.push({ date, label, matches, isToday: date === today });
+      groups.push({ date, label: formatDateLabelCOT(date), matches, isToday: date === today });
     }
 
     return groups;

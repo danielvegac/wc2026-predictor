@@ -202,10 +202,13 @@ function ExpertAccuracyTracker({
         actualMap[match.id] = { homeGoals: actual.homeScore, awayGoals: actual.awayScore };
       }
     }
-    // Include completed knockout matches
+    // Include completed knockout matches (ESPN live result first, static fallback)
     for (const ko of knockoutMatches) {
-      if (ko.status === "completed" && ko.homeGoals != null && ko.awayGoals != null) {
-        actualMap[ko.matchId] = { homeGoals: ko.homeGoals, awayGoals: ko.awayGoals };
+      const espnResult = getResult(ko.matchId);
+      const homeGoals = espnResult?.homeScore ?? ko.homeGoals;
+      const awayGoals = espnResult?.awayScore ?? ko.awayGoals;
+      if (homeGoals != null && awayGoals != null) {
+        actualMap[ko.matchId] = { homeGoals, awayGoals };
       }
     }
 
@@ -824,15 +827,21 @@ function ModelTrackRecord({
       });
     }
 
-    // --- Knockout matches (completed) ---
+    // --- Knockout matches (completed; ESPN live result first, static fallback) ---
     const completedKO = knockoutMatches
-      .filter((ko) => ko.status === "completed" && ko.homeGoals != null && ko.awayGoals != null)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .map((ko) => {
+        const espnResult = getResult(ko.matchId);
+        const actualHome = espnResult?.homeScore ?? ko.homeGoals;
+        const actualAway = espnResult?.awayScore ?? ko.awayGoals;
+        return { ko, actualHome, actualAway };
+      })
+      .filter(
+        (x): x is { ko: typeof x.ko; actualHome: number; actualAway: number } =>
+          x.actualHome != null && x.actualAway != null
+      )
+      .sort((a, b) => new Date(a.ko.date).getTime() - new Date(b.ko.date).getTime());
 
-    for (const ko of completedKO) {
-      const actualHome = ko.homeGoals!;
-      const actualAway = ko.awayGoals!;
-
+    for (const { ko, actualHome, actualAway } of completedKO) {
       const model = modelPredictions[ko.matchId];
       if (!model) continue;
 
