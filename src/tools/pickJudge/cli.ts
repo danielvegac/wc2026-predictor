@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /// <reference types="node" />
 import { judgePickInput } from './engine';
-import { civ_nor, fra_swe, mex_ecu, eng_cod } from './__tests__/historicalFixtures';
+import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen } from './__tests__/historicalFixtures';
 import type { PickJudgeInput } from './types';
 
 const fixtures: Record<string, PickJudgeInput> = {
@@ -9,6 +9,7 @@ const fixtures: Record<string, PickJudgeInput> = {
   'R32-06': fra_swe,
   'R32-07': mex_ecu,
   'R32-08': eng_cod,
+  'R32-09': bel_sen,
 };
 
 const matchId = process.argv[2]?.replace('--match', '').replace('=', '').trim() || 'R32-07';

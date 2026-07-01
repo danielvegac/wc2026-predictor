@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { judgePickInput } from '../engine';
-import { civ_nor, fra_swe, mex_ecu, eng_cod } from './historicalFixtures';
+import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen } from './historicalFixtures';
 
 describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
 
@@ -73,6 +73,13 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
   });
 
   describe('R32-08: England vs Congo DR (Rule 16b lesson)', () => {
+    it('R32-08 ENG-COD: Rule 16b fires → 2-1 England (not 2-0)', () => {
+      const result = judgePickInput(eng_cod);
+      expect(result.finalPick).toEqual({ home: 2, away: 1 });
+      expect(result.tier).toBe(2);
+      expect(result.rulesTriggered).toContain('Rule16b');
+    });
+
     it('outputs 2-1 England — NOT 2-0 (Rule 16b BTTS compression)', () => {
       const result = judgePickInput(eng_cod);
       expect(result.finalPick).toEqual({ home: 2, away: 1 });
@@ -101,6 +108,47 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
     });
   });
 
+  describe('R32-09: Belgium vs Senegal (Rule 12 + Rule 11b)', () => {
+    it('R32-09 BEL-SEN: Rule 12 + Rule 11b → 1-1 Draw (Tier 1)', () => {
+      const result = judgePickInput(bel_sen);
+      expect(result.finalPick).toEqual({ home: 1, away: 1 });
+      expect(result.tier).toBe(1);
+      expect(result.rulesTriggered).toContain('Rule12');
+      expect(result.rulesTriggered).toContain('Rule11b');
+    });
+
+    it('outputs 1-1 Draw — Tier 1 (model confirmed, no compression signal)', () => {
+      const result = judgePickInput(bel_sen);
+      expect(result.finalPick).toEqual({ home: 1, away: 1 });
+      expect(result.tier).toBe(1);
+    });
+
+    it('Rule 12 fires (Senegal outright ahead + cascade 86 + draw% 28%)', () => {
+      const result = judgePickInput(bel_sen);
+      expect(result.rulesTriggered).toContain('Rule12');
+    });
+
+    it('Rule 11b fires (Senegal scored in all 3 group matches)', () => {
+      const result = judgePickInput(bel_sen);
+      expect(result.rulesTriggered).toContain('Rule11b');
+    });
+
+    it('Rule 14 does NOT fire (best cascade line +1.00 is not tight ≤ 0.75)', () => {
+      const result = judgePickInput(bel_sen);
+      expect(result.rulesTriggered).not.toContain('Rule14');
+    });
+
+    it('Rule 16a does NOT fire (Belgium has draws — not a perfect 3W-0D-0L record)', () => {
+      const result = judgePickInput(bel_sen);
+      expect(result.rulesTriggered).not.toContain('Rule16a');
+    });
+
+    it('NEVER outputs a Belgium clean sheet (Rule 11b: Senegal scored every group match)', () => {
+      const result = judgePickInput(bel_sen);
+      expect(result.finalPick.away).toBeGreaterThan(0);
+    });
+  });
+
   describe('Cross-fixture: tier distribution', () => {
     it('CIV-NOR is Tier 3 (alpha override)', () => {
       expect(judgePickInput(civ_nor).tier).toBe(3);
@@ -113,6 +161,9 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
     });
     it('ENG-COD is Tier 2 (Rule 16b BTTS compressed)', () => {
       expect(judgePickInput(eng_cod).tier).toBe(2);
+    });
+    it('BEL-SEN is Tier 1 (Rule 12 draw confirmed, no compression)', () => {
+      expect(judgePickInput(bel_sen).tier).toBe(1);
     });
   });
 });
