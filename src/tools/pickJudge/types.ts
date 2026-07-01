@@ -52,6 +52,9 @@ export interface AlphaSignals {
 
   // CLIMATE (net factor: >1.0 = favors home, <1.0 = favors away)
   climateNetFactor: number;     // homeClimate / awayClimate combined
+
+  // EXPECTED GOALS (from Alphametrico adjusted dots)
+  awayAdjustedLambda?: number;  // orange/adjusted away xG per match from Alphametrico
 }
 
 export interface PickJudgeInput {

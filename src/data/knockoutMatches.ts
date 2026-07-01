@@ -30,32 +30,37 @@ export const knockoutMatches: KnockoutMatch[] = [
   // ==========================================
 
   // June 28
+  // Form multipliers for R32-01 through R32-08 are stored in matchInsights.ts
   { matchId: "R32-01", round: "R32", date: "2026-06-28", homeTeamId: "RSA", awayTeamId: "CAN",
     venue: "SoFi Stadium, Inglewood, CA", kickoffCOT: "2:00 PM", status: "completed",
-    homeGoals: 0, awayGoals: 1,
-    homeAttackMultiplier: 0.65, homeDefenseMultiplier: 1.02,
-    awayAttackMultiplier: 0.98, awayDefenseMultiplier: 1.45,
-    notes: "AUTO-XG. Canada 1-0 via Eustaquio 90+' stoppage-time strike. xG: CAN 1.32, RSA 0.13. South Africa played extreme low-block 4-2-3-1, barely attacked all match (1 shot on target after 6th minute). Canada dominated (12 shots, 7 on target) but underperformed finishing until the last moment. RSA attack floor applied — not a true reflection of capability, extreme defensive setup distorted output. CAN defense multiplier capped — RSA xG was anomalously low due to tactical approach. Davies came off bench. Eustaquio returned from injury knock to win it. Canada advance to R16 vs Netherlands/Morocco." },
+    homeGoals: 0, awayGoals: 1 },
 
   // June 29
   { matchId: "R32-02", round: "R32", date: "2026-06-29", homeTeamId: "BRA", awayTeamId: "JPN",
-    venue: "NRG Stadium, Houston, TX", kickoffCOT: "12:00 PM", status: "upcoming" },
+    venue: "NRG Stadium, Houston, TX", kickoffCOT: "12:00 PM", status: "completed",
+    homeGoals: 2, awayGoals: 1 },
   { matchId: "R32-03", round: "R32", date: "2026-06-29", homeTeamId: "GER", awayTeamId: "PAR",
-    venue: "Gillette Stadium, Foxborough, MA", kickoffCOT: "3:30 PM", status: "upcoming" },
+    venue: "Gillette Stadium, Foxborough, MA", kickoffCOT: "3:30 PM", status: "completed",
+    homeGoals: 1, awayGoals: 1 },  // regulation 1-1; Germany advance on penalties
   { matchId: "R32-04", round: "R32", date: "2026-06-29", homeTeamId: "NED", awayTeamId: "MAR",
-    venue: "Estadio BBVA, Monterrey, Mexico", kickoffCOT: "8:00 PM", status: "upcoming" },
+    venue: "Estadio BBVA, Monterrey, Mexico", kickoffCOT: "8:00 PM", status: "completed",
+    homeGoals: 1, awayGoals: 1 },  // regulation 1-1; Morocco advance on penalties
 
   // June 30
   { matchId: "R32-05", round: "R32", date: "2026-06-30", homeTeamId: "CIV", awayTeamId: "NOR",
-    venue: "AT&T Stadium, Arlington, TX", kickoffCOT: "2:00 PM", status: "upcoming" },
+    venue: "AT&T Stadium, Arlington, TX", kickoffCOT: "2:00 PM", status: "completed",
+    homeGoals: 1, awayGoals: 2 },
   { matchId: "R32-06", round: "R32", date: "2026-06-30", homeTeamId: "FRA", awayTeamId: "SWE",
-    venue: "MetLife Stadium, East Rutherford, NJ", kickoffCOT: "4:00 PM", status: "upcoming" },
+    venue: "MetLife Stadium, East Rutherford, NJ", kickoffCOT: "4:00 PM", status: "completed",
+    homeGoals: 3, awayGoals: 0 },
   { matchId: "R32-07", round: "R32", date: "2026-06-30", homeTeamId: "MEX", awayTeamId: "ECU",
-    venue: "Estadio Azteca, Mexico City, Mexico", kickoffCOT: "8:00 PM", status: "upcoming" },
+    venue: "Estadio Azteca, Mexico City, Mexico", kickoffCOT: "8:00 PM", status: "completed",
+    homeGoals: 2, awayGoals: 0 },
 
   // July 1
   { matchId: "R32-08", round: "R32", date: "2026-07-01", homeTeamId: "ENG", awayTeamId: "COD",
-    venue: "Mercedes-Benz Stadium, Atlanta, GA", kickoffCOT: "11:00 AM", status: "upcoming" },
+    venue: "Mercedes-Benz Stadium, Atlanta, GA", kickoffCOT: "11:00 AM", status: "completed",
+    homeGoals: 2, awayGoals: 1 },
 
   // July 2
   { matchId: "R32-09", round: "R32", date: "2026-07-02", homeTeamId: "BEL", awayTeamId: "SEN",

@@ -23,7 +23,8 @@ export function checkRule16a(input: PickJudgeInput): RuleCheck {
 
   if (stage !== 'knockout') return { ruleId: 'Rule16a', triggered: false, reason: 'Not knockout stage' };
 
-  const homePerfect = homeTournament.losses === 0 && homeTournament.wins >= 2 && homeTournament.cleanSheets >= 2;
+  // Only a true 3W-0D-0L record with 2+ CS qualifies — draws disqualify (ENG-COD lesson)
+  const homePerfect = homeTournament.losses === 0 && homeTournament.draws === 0 && homeTournament.wins >= 3 && homeTournament.cleanSheets >= 2;
   const awayFragile = awayTournament.losses >= 1 || (awayTournament.wins <= 1 && awayTournament.draws >= 1);
   const homeAdvantage = homeIsCoHost || playingAtIconicHomeStadium || (homeElo - awayElo) > 100;
   const noOverride = !hasDocumentedRotation && !hasDocumentedDemoralization;
@@ -39,6 +40,32 @@ export function checkRule16a(input: PickJudgeInput): RuleCheck {
         `${homeIsCoHost ? 'Co-host. ' : ''}${playingAtIconicHomeStadium ? 'Iconic home stadium. ' : ''}` +
         `No documented rotation or demoralization. Tier 3 VETOED.`
       : 'Rule 16a conditions not met'
+  };
+}
+
+/**
+ * Rule 16b — ENG-COD lesson (July 1, 2026): BTTS No 60-79 + genuine away threat = BTTS compression
+ * When: BTTS No score is moderate (not dominant), away team's adjusted lambda > 0.45,
+ * AND away scored in 2+ of 3 group matches (≥2 total goals as proxy).
+ * Effect: Do NOT pick home clean sheet. Apply BTTS Tier 2 compression instead of clean sheet.
+ * Overrides Rule 13's league-suppression relaxation.
+ */
+export function checkRule16b(input: PickJudgeInput): RuleCheck {
+  const { alpha, awayTournament } = input;
+  const bttsNoModerate = alpha.bttsNoScore >= 60 && alpha.bttsNoScore < 80;
+  const awayLambdaThreat = (alpha.awayAdjustedLambda ?? 0) > 0.45;
+  const awayScoredMultipleMatches = awayTournament.goalsScored >= 2;
+
+  const triggered = bttsNoModerate && awayLambdaThreat && awayScoredMultipleMatches;
+  return {
+    ruleId: 'Rule16b',
+    triggered,
+    reason: triggered
+      ? `BTTS No Score ${alpha.bttsNoScore} (60-79 — moderate, not dominant). ` +
+        `Away λ ${(alpha.awayAdjustedLambda ?? 0).toFixed(2)} > 0.45 — genuine scoring threat. ` +
+        `${input.awayTeam} scored in 2+/3 group matches (${awayTournament.goalsScored} total). ` +
+        `Do NOT pick home clean sheet — apply BTTS compression.`
+      : 'Rule 16b not triggered'
   };
 }
 

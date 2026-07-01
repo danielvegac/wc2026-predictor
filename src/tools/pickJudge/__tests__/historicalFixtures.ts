@@ -249,3 +249,84 @@ export const mex_ecu: PickJudgeInput = {
 // Compression: 2-1 → 2-0 (reduce away goals, floor at 0)
 // MUST NOT output Ecuador win in any form
 // Actual: 2-0 Mexico ✓
+
+
+/**
+ * R32-08: England vs Congo DR — ENG-COD (July 1, 2026)
+ * Rule 16b lesson: BTTS No 60-79 + away λ 0.47 + COD scored 2/3 matches
+ * → Engine must NOT pick clean sheet (2-0) but apply BTTS compression (2-1).
+ * Model pick 3-0, Tier 2 compression → 2-0 normally, Rule 16b overrides → 2-1.
+ * England won 2-1 (trailed 0-1 from 7'–75', Kane brace via Gordon assists).
+ * Actual result: 2-1 England ✓
+ */
+export const eng_cod: PickJudgeInput = {
+  matchId: 'R32-08',
+  homeTeam: 'England',
+  awayTeam: 'Congo DR',
+  stage: 'knockout',
+
+  modelPick: { home: 3, away: 0 },
+  homeElo: 1980,
+  awayElo: 1510,
+
+  // ENG 2W-1D-0L, 2 clean sheets, blanked once (vs Ghana)
+  homeTournament: { wins: 2, draws: 1, losses: 0, cleanSheets: 2, goalsConceded: 1, goalsScored: 4 },
+  // COD 1W-1D-1L, 0 clean sheets, scored in 2 of 3 matches (2 total goals)
+  awayTournament: { wins: 1, draws: 1, losses: 1, cleanSheets: 0, goalsConceded: 4, goalsScored: 2 },
+  homeFormMultiplier: 1.20,
+  awayFormMultiplier: 0.95,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 91,           // Under 3 Score=91
+    bttsNoScore: 74,             // moderate (60-79 range) — Rule 16b condition (a)
+
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    // COD AH cascade — wide lines only (best at +2.00)
+    awayAHBestScore: 91,
+    awayAHBestLine: 2.0,         // wide line — Rule 14 tight-line condition fails
+    awayAHConsecutiveAbove80: 5,
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 0,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 12,   // below noise floor
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 50.6,
+    alphaDrawPct: 34.4,
+    alphaAwayWinPct: 15.0,
+
+    leagueBttsPct: 25.5,
+    matchProjectedBttsPct: 18.0,
+    leagueOver25Pct: 47.1,
+    matchProjectedOver25Pct: 20.8,
+    projectedGoalsPerMatch: 1.57,
+
+    climateNetFactor: 0.90,
+    awayAdjustedLambda: 0.47,   // COD orange dot from Alphametrico — Rule 16b condition (b)
+  },
+
+  fieldTopPick: { home: 1, away: 0 },
+  fieldTopPickPct: 0.22,
+};
+// Expected: 2-1 England (Tier 2, Rule 16b BTTS compression)
+// Rule 16a: conditions met but no Tier 3 trigger (COD cascade on wide lines only) → veto moot
+// Rule 16b: bttsNo=74 (60-79) + awayλ=0.47 (>0.45) + COD goalsScored=2 (≥2) → fires
+// Compression: 3-0 → 2-0 (Tier 2) → 2-1 (Rule 16b gives away 1 goal)
+// Actual: 2-1 England ✓

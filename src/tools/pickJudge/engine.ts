@@ -1,6 +1,6 @@
 import type { PickJudgeInput, PickJudgeOutput, RuleCheck } from './types';
 import {
-  checkRule16a, checkRule15,
+  checkRule16a, checkRule16b, checkRule15,
   checkRule14, checkRule12,
   checkRule13, checkRule11b, checkRule9, checkRule7,
   NOISE_FLOOR
@@ -34,6 +34,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
 
   // ── STEP 1: Run all rule checks ──────────────────────────────────
   const rule16a = checkRule16a(input);
+  const rule16b = checkRule16b(input);
   const rule15 = checkRule15(input);
   const rule14 = checkRule14(input);
   const rule12 = checkRule12(input);
@@ -42,7 +43,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
   const rule9 = checkRule9(input);
   const rule7 = checkRule7(input);
 
-  const allChecks: RuleCheck[] = [rule16a, rule15, rule14, rule12, rule13, rule11b, rule9, rule7];
+  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7];
   allChecks.filter(r => r.triggered).forEach(r => rulesTriggered.push(r.ruleId));
 
   reasoning.push(`STEP 1 — Model anchor: ${input.homeTeam} ${input.modelPick.home}-${input.modelPick.away} ${input.awayTeam}`);
@@ -62,9 +63,15 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     // Apply Tier 2 compression
     let tier2pick = compressTier2(input.modelPick);
 
-    // Apply Rule 13: if compressing lands on clean sheet but BTTS No < 80 AND
-    // scoring is not suppressed, prefer BTTS split.
-    if (rule13.triggered) {
+    // Rule 16b takes priority over Rule 13: genuine away threat → BTTS compression
+    if (rule16b.triggered) {
+      if (tier2pick.away === 0) {
+        tier2pick = { home: tier2pick.home, away: 1 };
+        reasoning.push(`Rule 16b fired: BTTS No 60-79 + away λ > 0.45 + away scored 2+/3 → BTTS compression → ${tier2pick.home}-${tier2pick.away}`);
+      }
+    } else if (rule13.triggered) {
+      // Apply Rule 13: if compressing lands on clean sheet but BTTS No < 80 AND
+      // scoring is not suppressed, prefer BTTS split.
       const compressed = tier2pick;
       if (compressed.home === 0 || compressed.away === 0) {
         if (input.alpha.bttsNoScore < 80) {
@@ -159,8 +166,13 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     reasoning.push(`STEP 4 — Tier 2: Under/BTTS No signals valid. Compressing model pick total by 1 goal.`);
     let tier2pick = compressTier2(input.modelPick);
 
-    // Apply Rule 13
-    if (rule13.triggered) {
+    // Rule 16b takes priority over Rule 13: genuine away threat → BTTS compression
+    if (rule16b.triggered) {
+      if (tier2pick.away === 0) {
+        tier2pick = { home: tier2pick.home, away: 1 };
+        reasoning.push(`Rule 16b fired: BTTS No 60-79 + away λ > 0.45 + away scored 2+/3 → BTTS compression → ${tier2pick.home}-${tier2pick.away}`);
+      }
+    } else if (rule13.triggered) {
       const compressed = tier2pick;
       if (compressed.home === 0 || compressed.away === 0) {
         if (input.alpha.bttsNoScore < 80) {

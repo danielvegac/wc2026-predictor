@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { judgePickInput } from '../engine';
-import { civ_nor, fra_swe, mex_ecu } from './historicalFixtures';
+import { civ_nor, fra_swe, mex_ecu, eng_cod } from './historicalFixtures';
 
 describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
 
@@ -72,6 +72,35 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
     });
   });
 
+  describe('R32-08: England vs Congo DR (Rule 16b lesson)', () => {
+    it('outputs 2-1 England — NOT 2-0 (Rule 16b BTTS compression)', () => {
+      const result = judgePickInput(eng_cod);
+      expect(result.finalPick).toEqual({ home: 2, away: 1 });
+    });
+
+    it('tier is 2 (Tier 2 compression)', () => {
+      const result = judgePickInput(eng_cod);
+      expect(result.tier).toBe(2);
+    });
+
+    it('Rule 16b fires (BTTS No 74 + awayλ 0.47 + COD scored 2/3)', () => {
+      const result = judgePickInput(eng_cod);
+      expect(result.rulesTriggered).toContain('Rule16b');
+    });
+
+    it('Rule 16a does NOT veto (England 2W-1D-0L is not a perfect record)', () => {
+      const result = judgePickInput(eng_cod);
+      // Rule 16a may trigger but veto is moot (no Tier 3 to block)
+      // What matters: NOT vetoed by Rule 16a
+      expect(result.vetoedBy).not.toBe('Rule16a');
+    });
+
+    it('NEVER outputs Congo DR winning', () => {
+      const result = judgePickInput(eng_cod);
+      expect(result.finalPick.home).toBeGreaterThan(result.finalPick.away);
+    });
+  });
+
   describe('Cross-fixture: tier distribution', () => {
     it('CIV-NOR is Tier 3 (alpha override)', () => {
       expect(judgePickInput(civ_nor).tier).toBe(3);
@@ -81,6 +110,9 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
     });
     it('MEX-ECU is Tier 2 (Rule 16a compressed)', () => {
       expect(judgePickInput(mex_ecu).tier).toBe(2);
+    });
+    it('ENG-COD is Tier 2 (Rule 16b BTTS compressed)', () => {
+      expect(judgePickInput(eng_cod).tier).toBe(2);
     });
   });
 });

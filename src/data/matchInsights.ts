@@ -704,6 +704,242 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 1.23,  // 1.35/1.1 = 1.23
     notes: "AUTO-XG. South Africa historic 1-0 win — qualify for R32 for the first time ever. Maseko 63' winner. xG was near-even (RSA 1.1 vs KOR 1.0) — genuinely competitive match, not a fluke scoreline. South Korea had 68% possession but couldn't convert — Son Heung-min benched at start, came on HT but failed to ignite again (scoreless from 1.01 xG across tournament). South Africa defended brilliantly in low block after taking the lead. KOR attack multiplier DOWN — 3 matches, consistent underperformance vs xG. RSA defense UP — held Mexico 0.07 xG (MD1 context: 9-men), held Korea to 1.0 xG. Son's form is a genuine concern heading into R32 if they qualify as best 3rd. South Africa face Canada in R32.",
   },
+
+  // ==========================================
+  // GROUP STAGE MATCHDAY 3 — MISSING ENTRIES
+  // ==========================================
+
+  // June 24 — Group B MD3
+  // GS-B-5: Switzerland 1-1 Canada
+  // AUTO-XG: SUI 1.6, CAN 1.4
+  {
+    matchId: "GS-B-5",
+    date: "2026-06-24",
+    homeTeamId: "SUI", awayTeamId: "CAN",
+    homeGoals: 1, awayGoals: 1,
+    homeAttackMultiplier: 1.19,   // 1.6/1.35 = 1.19
+    homeDefenseMultiplier: 0.96,  // 1.35/1.4 = 0.96
+    awayAttackMultiplier: 1.04,   // 1.4/1.35 = 1.04
+    awayDefenseMultiplier: 0.84,  // 1.35/1.6 = 0.84
+    notes: "AUTO-XG. Switzerland 1-1 Canada — competitive draw with both teams already qualified (CAN 6pts, SUI 3pts). Switzerland needed the win to guarantee 2nd; a draw sufficed given Bosnia's result. Davies featured for Canada after injury knock. Both teams rotated key figures. Switzerland's xG lead (1.6 vs 1.4) reflects stronger territorial control — their technical quality showed even vs a rotated Canada side. Group B final: CAN 1st (7pts), SUI 2nd (4pts). Switzerland qualify for R32 to face Algeria.",
+  },
+
+  // GS-B-6: Bosnia 2-0 Qatar
+  // AUTO-XG: BIH 1.8, QAT 0.7
+  {
+    matchId: "GS-B-6",
+    date: "2026-06-24",
+    homeTeamId: "BIH", awayTeamId: "QAT",
+    homeGoals: 2, awayGoals: 0,
+    homeAttackMultiplier: 1.33,   // 1.8/1.35 = 1.33
+    homeDefenseMultiplier: 1.45,  // 1.35/0.7 = 1.93 → capped
+    awayAttackMultiplier: 0.65,   // 0.7/1.35 = 0.52 → floored
+    awayDefenseMultiplier: 0.75,  // 1.35/1.8 = 0.75
+    notes: "AUTO-XG. Bosnia 2-0 Qatar — straightforward win for Bosnia, finishing 3rd in Group B (3pts). Qatar eliminated with 1pt. Bosnia's physicality and set-piece delivery dominated Qatar's limited defensive structure. 2 red cards received over the tournament (vs Switzerland) hurt their earlier campaign. Qatar failed to build on their MD1 late equalizer vs Switzerland — organization dropped when their plan required goals.",
+  },
+
+  // June 27 — Group I MD3
+  // GS-I-5: France 2-1 Norway (group decider)
+  // AUTO-XG: FRA 2.5, NOR 1.1
+  {
+    matchId: "GS-I-5",
+    date: "2026-06-27",
+    homeTeamId: "FRA", awayTeamId: "NOR",
+    homeGoals: 2, awayGoals: 1,
+    homeAttackMultiplier: 1.45,   // 2.5/1.35 = 1.85 → capped
+    homeDefenseMultiplier: 1.23,  // 1.35/1.1 = 1.23
+    awayAttackMultiplier: 0.81,   // 1.1/1.35 = 0.81
+    awayDefenseMultiplier: 0.65,  // 1.35/2.5 = 0.54 → floored
+    notes: "AUTO-XG. France 2-1 Norway — France win the group. Mbappé instrumental; Olise with a late assist. Norway's Haaland struck a consolation in the final minutes — his tournament form (4 goals in 3 GS matches) remains elite. France 2.5 xG vs Norway 1.1 xG — France clearly dominant. Norway defense DOWN significantly — conceded 2 to France's superior combination play. Both advance: France 1st (9pts), Norway 2nd (6pts). KEY CALIBRATION: Norway defend better vs lesser opposition; France exposed their high defensive line with pace.",
+  },
+
+  // GS-I-6: Senegal 2-0 Iraq (Senegal fight for survival)
+  // AUTO-XG: SEN 1.9, IRQ 0.7
+  {
+    matchId: "GS-I-6",
+    date: "2026-06-27",
+    homeTeamId: "SEN", awayTeamId: "IRQ",
+    homeGoals: 2, awayGoals: 0,
+    homeAttackMultiplier: 1.41,   // 1.9/1.35 = 1.41
+    homeDefenseMultiplier: 1.45,  // 1.35/0.7 = 1.93 → capped
+    awayAttackMultiplier: 0.65,   // 0.7/1.35 = 0.52 → floored
+    awayDefenseMultiplier: 0.71,  // 1.35/1.9 = 0.71
+    notes: "AUTO-XG. Senegal 2-0 Iraq — Senegal secure enough to qualify as best 3rd (3pts). Mané key as creator again. Iraq outclassed across their entire tournament (1 goal in 3 matches, bottom of Group I). Senegal's athleticism and pressing too much for Iraq's passive midfield. Senegal advance to R32 to face Belgium. Group I final: FRA 9pts, NOR 6pts, SEN 3pts (qualified as best 3rd), IRQ 0pts.",
+  },
+
+  // June 27 — Group J MD3
+  // GS-J-4: Austria 1-0 Algeria
+  // AUTO-XG: AUT 1.4, ALG 0.9
+  {
+    matchId: "GS-J-4",
+    date: "2026-06-27",
+    homeTeamId: "AUT", awayTeamId: "ALG",
+    homeGoals: 1, awayGoals: 0,
+    homeAttackMultiplier: 1.04,   // 1.4/1.35 = 1.04
+    homeDefenseMultiplier: 1.45,  // 1.35/0.9 = 1.50 → capped
+    awayAttackMultiplier: 0.67,   // 0.9/1.35 = 0.67
+    awayDefenseMultiplier: 0.96,  // 1.35/1.4 = 0.96
+    notes: "AUTO-XG. Austria 1-0 Algeria — narrow win secures Austria 2nd place in Group J. Rangnick's press contained Algeria's technical play. Algeria despite 0.9 xG created intermittent danger on the counter. Austria 1.4 xG — not dominant but efficient. Algeria qualify as best 3rd with their goal difference sufficient (3pts). Group J final: ARG 1st (9pts), AUT 2nd (6pts), ALG 3rd (3pts, qualified as best 3rd to face Switzerland). JOR eliminated.",
+  },
+
+  // GS-J-5: Jordan 0-3 Argentina (Argentina rotate)
+  // AUTO-XG: JOR 0.4, ARG 3.0
+  {
+    matchId: "GS-J-5",
+    date: "2026-06-27",
+    homeTeamId: "JOR", awayTeamId: "ARG",
+    homeGoals: 0, awayGoals: 3,
+    homeAttackMultiplier: 0.65,   // 0.4/1.35 = 0.30 → floored
+    homeDefenseMultiplier: 0.65,  // 1.35/3.0 = 0.45 → floored
+    awayAttackMultiplier: 1.45,   // 3.0/1.35 = 2.22 → capped
+    awayDefenseMultiplier: 1.45,  // 1.35/0.4 = 3.38 → capped
+    notes: "AUTO-XG. Argentina 3-0 Jordan — Alvarez hat-trick with Messi rotated to bench. Argentina rotated heavily (perfect group stage secured) but depth still clinical — Di María and Lautaro featured. Jordan 0.4 xG across the match; exposed by Argentina's rotational pressing. KEY: Argentina attack depth confirmed — not Messi-dependent. Jordan eliminated without a win. Argentina advance to face Cape Verde in R32.",
+  },
+
+  // June 27 — Group L MD3
+  // GS-L-5: England 3-0 Panama
+  // AUTO-XG: ENG 2.8, PAN 0.5
+  {
+    matchId: "GS-L-5",
+    date: "2026-06-27",
+    homeTeamId: "ENG", awayTeamId: "PAN",
+    homeGoals: 3, awayGoals: 0,
+    homeAttackMultiplier: 1.45,   // 2.8/1.35 = 2.07 → capped
+    homeDefenseMultiplier: 1.45,  // 1.35/0.5 = 2.70 → capped
+    awayAttackMultiplier: 0.65,   // 0.5/1.35 = 0.37 → floored
+    awayDefenseMultiplier: 0.65,  // 1.35/2.8 = 0.48 → floored
+    notes: "AUTO-XG. England 3-0 Panama — England top Group L. High-press game unlocked Panama's compact structure in second half. Kane, Bellingham, Rashford all on target. England 2.8 xG — dominant once they committed to vertical pressing. PAN 0.5 xG — outplayed but their defensive record (only 1 goal conceded vs Croatia MD2) suggests ability vs less elite press. KEY: England attack UP from Ghana draw — when vertical channel is open, England's attack is genuine elite tier. Defense also clean sheet. Group L: ENG 1st (7pts), CRO 2nd (6pts). England advance to R32 vs Congo DR.",
+  },
+
+  // GS-L-6: Croatia 2-0 Ghana
+  // AUTO-XG: CRO 1.8, GHA 0.8
+  {
+    matchId: "GS-L-6",
+    date: "2026-06-27",
+    homeTeamId: "CRO", awayTeamId: "GHA",
+    homeGoals: 2, awayGoals: 0,
+    homeAttackMultiplier: 1.33,   // 1.8/1.35 = 1.33
+    homeDefenseMultiplier: 1.45,  // 1.35/0.8 = 1.69 → capped
+    awayAttackMultiplier: 0.65,   // 0.8/1.35 = 0.59 → floored
+    awayDefenseMultiplier: 0.75,  // 1.35/1.8 = 0.75
+    notes: "AUTO-XG. Croatia 2-0 Ghana — Modric orchestrated a composed midfield performance to confirm 2nd place. Croatia's experience showed against a Ghana side that had overperformed vs Panama. Yirenkyi (scorer vs Panama MD2) subdued. Croatia 1.8 xG — clinical on limited chances. Ghana's attack flatters their ability in open play; lost when Croatia controlled tempo. KEY: Croatia defense UP from MD2 — Livakovic back to form. Ghana defense DOWN — allowed 2 to Croatia's patient buildup. Croatia advance to R32 vs Portugal.",
+  },
+
+  // ==========================================
+  // ROUND OF 32 — COMPLETED MATCHES
+  // ==========================================
+
+  // R32-01: South Africa 0-1 Canada (June 28)
+  // AUTO-XG: RSA 0.13, CAN 1.32 (from match data)
+  {
+    matchId: "R32-01",
+    date: "2026-06-28",
+    homeTeamId: "RSA", awayTeamId: "CAN",
+    homeGoals: 0, awayGoals: 1,
+    homeAttackMultiplier: 0.65,   // 0.13/1.35 = 0.10 → floored (extreme low-block, not true capability)
+    homeDefenseMultiplier: 1.02,  // 1.35/1.32 = 1.02
+    awayAttackMultiplier: 0.98,   // 1.32/1.35 = 0.98
+    awayDefenseMultiplier: 1.45,  // 1.35/0.13 = 10.38 → capped
+    notes: "AUTO-XG. Canada 1-0 via Eustaquio 90+' stoppage-time strike. xG: CAN 1.32, RSA 0.13. South Africa played extreme low-block 4-2-3-1, barely attacked all match (1 shot on target after 6th minute). Canada dominated (12 shots, 7 on target) but underperformed finishing until the last moment. RSA attack floor applied — extreme defensive setup distorted output. Davies came off bench. Canada advance to R16 vs Netherlands/Morocco winner.",
+  },
+
+  // R32-02: Brazil 2-1 Japan (June 29)
+  // AUTO-XG: BRA 2.4, JPN 0.9
+  {
+    matchId: "R32-02",
+    date: "2026-06-29",
+    homeTeamId: "BRA", awayTeamId: "JPN",
+    homeGoals: 2, awayGoals: 1,
+    homeAttackMultiplier: 1.45,   // 2.4/1.35 = 1.78 → capped
+    homeDefenseMultiplier: 1.45,  // 1.35/0.9 = 1.50 → capped
+    awayAttackMultiplier: 0.67,   // 0.9/1.35 = 0.67
+    awayDefenseMultiplier: 0.65,  // 1.35/2.4 = 0.56 → floored
+    notes: "AUTO-XG. Brazil 2-1 Japan. BRA xG 2.4 — dominant in possession and chance creation. Vinícius Júnior brace settled the tie. Japan's pressing created a chaotic goal and kept the match tense, but lacked the individual quality to threaten a genuine upset. JPN 0.9 xG — better than their defensive record in group stage suggested. Brazil advance to face Germany/Paraguay winner in R16. KEY: Cunha–ViniJr combination continued from group stage. Matheus Cunha missed but created. Japan's World Cup ends having overachieved their Elo projection.",
+  },
+
+  // R32-03: Germany 1-1 AET Paraguay (Germany win on penalties, regulation score used)
+  // AUTO-XG: GER 2.8, PAR 0.6
+  {
+    matchId: "R32-03",
+    date: "2026-06-29",
+    homeTeamId: "GER", awayTeamId: "PAR",
+    homeGoals: 1, awayGoals: 1,
+    homeAttackMultiplier: 1.45,   // 2.8/1.35 = 2.07 → capped
+    homeDefenseMultiplier: 1.45,  // 1.35/0.6 = 2.25 → capped
+    awayAttackMultiplier: 0.65,   // 0.6/1.35 = 0.44 → floored
+    awayDefenseMultiplier: 0.65,  // 1.35/2.8 = 0.48 → floored
+    notes: "AUTO-XG (regulation score). Germany 1-1 Paraguay AET, Germany win on penalties. GER xG 2.8 — dominated territory and chance creation. PAR xG 0.6 — classic low-block counter approach. Germany's clinical failure in regulation (missed multiple clear chances) echoes their group stage performance at times. Paraguay's lone goal came from a set piece — their only real moment of threat. Germany advance on pens to R16. KEY: Germany attack remains elite by xG but finishing inconsistency noted. Defense solid (only 0.6 conceded against a direct South American side).",
+  },
+
+  // R32-04: Netherlands 1-1 AET Morocco (Morocco win on penalties, regulation score used)
+  // AUTO-XG: NED 2.1, MAR 0.9
+  {
+    matchId: "R32-04",
+    date: "2026-06-29",
+    homeTeamId: "NED", awayTeamId: "MAR",
+    homeGoals: 1, awayGoals: 1,
+    homeAttackMultiplier: 1.45,   // 2.1/1.35 = 1.56 → capped
+    homeDefenseMultiplier: 1.45,  // 1.35/0.9 = 1.50 → capped
+    awayAttackMultiplier: 0.67,   // 0.9/1.35 = 0.67
+    awayDefenseMultiplier: 0.65,  // 1.35/2.1 = 0.64 → floored
+    notes: "AUTO-XG (regulation score). Netherlands 1-1 Morocco AET, Morocco win on penalties — MASSIVE UPSET. NED xG 2.1 — dominated possession and forward territory. Morocco's defense absorbed pressure brilliantly — Bounou outstanding. Morocco converted their lone clear chance from a clinical counter. Morocco advance to face Canada in R16. KEY: Morocco continue 2022 legacy — penalty shootout specialists (5th shootout in major tournaments). Netherlands penalty record under Koeman poor. Morocco defense multiplier floored — 0.9 xG is actually decent against the Dutch attack. NED eliminate before quarterfinals despite dominant xG across the tournament.",
+  },
+
+  // R32-05: Ivory Coast 1-2 Norway (June 30)
+  // AUTO-XG: CIV 1.4, NOR 1.9
+  {
+    matchId: "R32-05",
+    date: "2026-06-30",
+    homeTeamId: "CIV", awayTeamId: "NOR",
+    homeGoals: 1, awayGoals: 2,
+    homeAttackMultiplier: 1.04,   // 1.4/1.35 = 1.04
+    homeDefenseMultiplier: 0.71,  // 1.35/1.9 = 0.71
+    awayAttackMultiplier: 1.41,   // 1.9/1.35 = 1.41
+    awayDefenseMultiplier: 0.96,  // 1.35/1.4 = 0.96
+    notes: "AUTO-XG. Norway 2-1 Ivory Coast — Haaland opened and closed the scoring; Ivory Coast equalized mid-second half from a set piece (Daniel pick: 1-2 NOR, EXACT). Norway AH cascade had signaled strong away value — Pick Judge Rule 14 correctly identified the flip from model draw to Norway win. Both teams scored (BTTS confirmed). Norway advance to R16 vs France winner bracket. CIV xG 1.4 — competitive and created genuine chances but Norway quality told in the end.",
+  },
+
+  // R32-06: France 3-0 Sweden (June 30)
+  // AUTO-XG: FRA 3.2, SWE 0.5
+  {
+    matchId: "R32-06",
+    date: "2026-06-30",
+    homeTeamId: "FRA", awayTeamId: "SWE",
+    homeGoals: 3, awayGoals: 0,
+    homeAttackMultiplier: 1.45,   // 3.2/1.35 = 2.37 → capped
+    homeDefenseMultiplier: 1.45,  // 1.35/0.5 = 2.70 → capped
+    awayAttackMultiplier: 0.65,   // 0.5/1.35 = 0.37 → floored
+    awayDefenseMultiplier: 0.65,  // 1.35/3.2 = 0.42 → floored
+    notes: "AUTO-XG. France 3-0 Sweden — Mbappé brace, Olise assist. FRA xG 3.2 — dominant throughout. Sweden 0.5 xG — completely shut out, their attack (Gyökeres/Isak) neutralized by France's high defensive line and press. Pick Judge Rule 15 correctly confirmed clean sheet: both result markets zero, BTTS Yes only moderate, Sweden cascade on wide lines only. Daniel pick 3-0 EXACT. France advance to face Norway in R16 — a genuine dark horse clash. Sweden's attack, explosive in group stage, completely stifled by elite opposition.",
+  },
+
+  // R32-07: Mexico 2-0 Ecuador (June 30, Estadio Azteca)
+  // AUTO-XG: MEX 2.2, ECU 0.8
+  {
+    matchId: "R32-07",
+    date: "2026-06-30",
+    homeTeamId: "MEX", awayTeamId: "ECU",
+    homeGoals: 2, awayGoals: 0,
+    homeAttackMultiplier: 1.45,   // 2.2/1.35 = 1.63 → capped
+    homeDefenseMultiplier: 1.45,  // 1.35/0.8 = 1.69 → capped
+    awayAttackMultiplier: 0.65,   // 0.8/1.35 = 0.59 → floored
+    awayDefenseMultiplier: 0.65,  // 1.35/2.2 = 0.61 → floored
+    notes: "AUTO-XG. Mexico 2-0 Ecuador at Estadio Azteca — Rule 16a veto CONFIRMED. Ecuador AH cascade (Score 86-91, 6 lines) pointed to Ecuador, but co-host + perfect group record + Azteca + Ecuador fragility triggered Rule 16a. Pick Judge output 2-0 EXACT (model 2-1 compressed, away goal removed). MEX xG 2.2 — dominant in second half after cautious opening. ECU xG 0.8 — some threat on counter but Ochoa (40yo) excellent when required. Mexico advance to R16 vs England/COD winner. KEY LESSON: Tournament form veto (Rule 16a) overrode market signals correctly — DO NOT fade a perfect-record co-host at their iconic stadium.",
+  },
+
+  // R32-08: England 2-1 Congo DR (July 1, 2026)
+  // Rule 16b lesson — BTTS No 74 (moderate) + COD λ 0.47 → BTTS compression applied
+  {
+    matchId: "R32-08",
+    date: "2026-07-01",
+    homeTeamId: "ENG", awayTeamId: "COD",
+    homeGoals: 2, awayGoals: 1,
+    homeAttackMultiplier: 0.95,   // England attack DOWN — toothless vs 5-3-2 low block for 60+ mins
+    homeDefenseMultiplier: 0.72,  // England defense DOWN sharply — Spence RB crisis, repeatedly exposed
+    awayAttackMultiplier: 1.28,   // DRC attack UP — Cipenga finish, Wissa hit frame, real counter threat
+    awayDefenseMultiplier: 1.38,  // DRC defense UP — Mpasi-Nzau world-class (5+ saves), held England until 75'
+    notes: "England 2-1 but trailed 0-1 from 7' to 75'. Cipenga stunner (Mbemba assist) — Spence left him completely unmarked at back post, defensive howler exposing RB crisis (no James/Quansah). England 1.31 xG at HT from 8 shots, all 8 shots + 20 box touches came AFTER hydration break (OptaJoe). Mpasi-Nzau heroic GK — 5+ saves including point-blank Bellingham header and Rice corner. Wissa hit the frame late — DRC could have led 2-0. Anthony Gordon (sub 61') provided BOTH assists for Kane brace (75' header, 86' shot). First time England won WC match after conceding first since 1966 final. DRC defense UP sharply — Mpasi world-class display. Pick Judge Rule 16b: BTTS No 74 (moderate, 60-79) + COD λ 0.47 + COD scored 2/3 matches → output 2-1 EXACT (Rule 16a veto was moot — COD cascade on wide lines, no tight-line Tier 3 trigger). England advance to face Mexico at Azteca in R16.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
