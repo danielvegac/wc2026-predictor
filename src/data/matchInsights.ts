@@ -966,6 +966,20 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.72,
     notes: "USA 2-0 10-man heroics. Balogun 45' goal (Tillman assist — Ream intercept → Adams → Tillman → Balogun low left-foot). Balogun red card 64' controversial — wrongly carded per ESPN. Tillman stunning free kick 82'. USA xG 0.92 vs BIH 0.25 (confirmed). Bosnia 5-4-1 low block — USA 63% possession but only 1 SoT first 44 mins. Freese 2 early saves. Clean sheet with 10 men = elite defensive performance. CRITICAL: Balogun suspended vs Belgium in R16. USA attack DOWN without top scorer (3 tournament goals). Bosnia 3-1 vs Qatar was misleading — Qatar bottom tier. Bosnia attacking threat essentially zero vs quality teams.",
   },
+  // R32-11: Spain 3-0 Austria (July 2, 2026)
+  // Model pick EXACT (3-0 Tier 1 High Confidence). Engine CLI correcto.
+  // LECCIÓN: Tier 1 High Confidence + model coincide + cascade underdog colapsado → seguir engine sin override.
+  {
+    matchId: "R32-11",
+    date: "2026-07-02",
+    homeTeamId: "ESP", awayTeamId: "AUT",
+    homeGoals: 3, awayGoals: 0,
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.65,
+    notes: "España 3-0 Austria R32. Model pick EXACT (3-0 Tier 1 High Confidence). España xG ajustada ~2.1, dominancia total. Lamine Yamal determinante. Austria λ 0.75 pero no convirtió — defensa española impermeable. Spain attack capped UP: dominancia total confirmada. Spain defense capped UP: clean sheet vs Top 8% ataque. Austria attack floored DOWN: 0 goles, λ ajustada 0.75 pero no convirtió. Austria defense floored DOWN: 3 goles concedidos vs España.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

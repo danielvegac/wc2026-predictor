@@ -68,7 +68,8 @@ export const knockoutMatches: KnockoutMatch[] = [
   { matchId: "R32-10", round: "R32", date: "2026-07-02", homeTeamId: "USA", awayTeamId: "BIH",
     venue: "Levi's Stadium, Santa Clara, CA", kickoffCOT: "7:00 PM", status: "upcoming" },
   { matchId: "R32-11", round: "R32", date: "2026-07-02", homeTeamId: "ESP", awayTeamId: "AUT",
-    venue: "SoFi Stadium, Inglewood, CA", kickoffCOT: "2:00 PM", status: "upcoming" },
+    venue: "SoFi Stadium, Inglewood, CA", kickoffCOT: "2:00 PM", status: "completed",
+    homeGoals: 3, awayGoals: 0 },
 
   // July 3
   { matchId: "R32-12", round: "R32", date: "2026-07-03", homeTeamId: "POR", awayTeamId: "CRO",

@@ -513,3 +513,95 @@ export const usa_bih: PickJudgeInput = {
 // tier2Conditions: underTopScore=44 < 60, bttsNoScore=20 < 60 → false (Rule 17 fires first)
 // Output: 2-0 USA (Tier 2, Rule 17 clean sheet override)
 // Actual: 2-0 USA ✓
+
+
+/**
+ * R32-11: Spain vs Austria — ESP-AUT (July 2026)
+ * Model pick: 3-0 ESP. No qualifying alpha signals → Tier 1 (follow model).
+ *
+ * Why NOT Tier 2/3:
+ *   - underTopScore=19 + bttsNoScore=0: both below noise floor (60) → tier2Conditions=false
+ *   - awayAHBestScore=70 (< 83) + consecutive>80=0 → Rule 14 NOT triggered
+ *   - alphaAwayWinPct=11.8 < alphaHomeWinPct=68.0 → Rule 12 NOT triggered
+ *   - awayAdjustedLambda=0.75 > 0.45 → Rule 17 NOT triggered
+ *   - Spain 2W-1D-0L → draws=1, not 3W-0D-0L perfect → Rule 16a NOT triggered
+ *   - awayValueMarketsFound=1 → Rule 15 zeroHomeValueMarkets check fails → NOT triggered
+ *
+ * Austria (away) cascade on wide lines only (+2.0 Score=70) — noise territory.
+ * Rule 7 fires (home dominates outrights, cascade present) but no Tier 2 path exists.
+ * Rule 11b fires (AUT goalsScored=3 >= matchesPlayed=3) but irrelevant at Tier 1.
+ */
+export const esp_aut: PickJudgeInput = {
+  matchId: 'R32-11',
+  homeTeam: 'ESP',
+  awayTeam: 'AUT',
+  stage: 'knockout',
+
+  modelPick: { home: 3, away: 0 },
+  homeElo: 2048,
+  awayElo: 1805,
+
+  // ESP 2W-1D-0L: 4-0 KSA (CS), 0-0 CPV (mutual CS), MD3 vs URU
+  homeTournament: { wins: 2, draws: 1, losses: 0, cleanSheets: 1, goalsConceded: 0, goalsScored: 4 },
+  // AUT 2W-0D-1L: ~2g vs JOR (MD1), 0g vs ARG (MD2), 1g vs ALG (MD3 CS); 0-2 vs ARG
+  awayTournament: { wins: 2, draws: 0, losses: 1, cleanSheets: 1, goalsConceded: 2, goalsScored: 3 },
+  homeFormMultiplier: 1.45,  // capped — MD2: 4-0 KSA (2.85 xG)
+  awayFormMultiplier: 1.04,  // MD3 1-0 ALG (60%) + MD2 0-2 ARG (30%)
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 19,             // below noise floor (60) — no compression signal
+    bttsNoScore: 0,                // no BTTS No market with valid Score
+
+    bttsYesScore: 8,               // negligible
+    overTopScore: 19,              // below noise floor
+
+    homeAHBestScore: 0,            // no Spain AH value markets
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    // Austria AH cascade — wide lines only, low score (noise territory)
+    awayAHBestScore: 70,           // Austria +2.0 Score=70 — well below 83 threshold
+    awayAHBestLine: 2.0,           // wide line — Rule 14 tight-line check fails
+    awayAHConsecutiveAbove80: 0,   // no consecutive lines above 80
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 1,      // Austria +2 found value (blocks Rule 15)
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 68.0,         // Spain dominant
+    alphaDrawPct: 20.2,
+    alphaAwayWinPct: 11.8,
+
+    leagueBttsPct: 48,
+    matchProjectedBttsPct: 38,     // low — Spain dominance suppresses BTTS
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 55.0,
+    projectedGoalsPerMatch: 2.85,  // homeλ=2.1 + awayλ=0.75
+
+    climateNetFactor: 1.0,
+    awayAdjustedLambda: 0.75,      // > 0.45 → Rule 17 NOT triggered
+    goalDistribution: {
+      awayPeakAtZeroPct: 46,       // AUT peaks at 0 goals (46%), but Rule 17 fails on λ condition
+    },
+  },
+};
+// Expected: 3-0 ESP (Tier 1, model confirmed — no qualifying alpha signals)
+// Rule 14: awayAHBestScore=70 < 83 → NOT triggered
+// Rule 17: awayλ=0.75 > 0.45 → NOT triggered
+// Rule 16a: ESP draws=1 → NOT perfect 3W-0D-0L → NOT triggered
+// Rule 15: awayValueMarketsFound=1 → NOT triggered
+// tier2Conditions: underTopScore=19 < 60, bttsNoScore=0 < 60 → false
+// Tier 1 fallback: follow model → 3-0 ESP
+// Rule 7 + Rule 11b fire but have no Tier 2 path to act on

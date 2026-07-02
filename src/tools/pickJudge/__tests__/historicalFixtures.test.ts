@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { judgePickInput } from '../engine';
-import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen } from './historicalFixtures';
+import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, esp_aut } from './historicalFixtures';
 
 describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
 
@@ -149,6 +149,39 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
     });
   });
 
+  describe('R32-11: Spain vs Austria (Tier 1 — no qualifying alpha signals)', () => {
+    it('R32-11 ESP-AUT: 3-0 Spain (Tier 1, model confirmed)', () => {
+      const result = judgePickInput(esp_aut);
+      expect(result.finalPick).toEqual({ home: 3, away: 0 });
+      expect(result.tier).toBe(1);
+    });
+
+    it('Rule 14 does NOT fire (cascade 70 < 83, wide line +2.0 not tight)', () => {
+      const result = judgePickInput(esp_aut);
+      expect(result.rulesTriggered).not.toContain('Rule14');
+    });
+
+    it('Rule 17 does NOT fire (away λ=0.75 > 0.45)', () => {
+      const result = judgePickInput(esp_aut);
+      expect(result.rulesTriggered).not.toContain('Rule17');
+    });
+
+    it('Rule 16a does NOT fire (Spain 2W-1D-0L — draws=1, not perfect)', () => {
+      const result = judgePickInput(esp_aut);
+      expect(result.rulesTriggered).not.toContain('Rule16a');
+    });
+
+    it('Rule 15 does NOT fire (awayValueMarketsFound=1 — not zero)', () => {
+      const result = judgePickInput(esp_aut);
+      expect(result.rulesTriggered).not.toContain('Rule15');
+    });
+
+    it('NEVER outputs Austria winning', () => {
+      const result = judgePickInput(esp_aut);
+      expect(result.finalPick.home).toBeGreaterThan(result.finalPick.away);
+    });
+  });
+
   describe('Cross-fixture: tier distribution', () => {
     it('CIV-NOR is Tier 3 (alpha override)', () => {
       expect(judgePickInput(civ_nor).tier).toBe(3);
@@ -164,6 +197,9 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
     });
     it('BEL-SEN is Tier 1 (Rule 12 draw confirmed, no compression)', () => {
       expect(judgePickInput(bel_sen).tier).toBe(1);
+    });
+    it('ESP-AUT is Tier 1 (model confirmed, no qualifying alpha signals)', () => {
+      expect(judgePickInput(esp_aut).tier).toBe(1);
     });
   });
 });
