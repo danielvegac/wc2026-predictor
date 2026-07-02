@@ -1,9 +1,11 @@
+import { useState } from "react";
 import type { Team } from "../../types";
 import type { KnockoutMatch } from "../../data/knockoutMatches";
 import type { ModelPrediction } from "../../store/modelPredictionStore";
 import { getFlagClass } from "../../data/flags";
 import { ScoreInput } from "./ScoreInput";
 import { usePredictionStore } from "../../store/predictionStore";
+import { ScorelineMatrix } from "./ScorelineMatrix";
 
 interface KnockoutMatchCardProps {
   ko: KnockoutMatch;
@@ -21,10 +23,15 @@ const ROUND_LABELS: Record<string, string> = {
   F: "Final",
 };
 
+const MATRIX_CUTOFF = "2026-07-02";
+
 export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: KnockoutMatchCardProps) {
   const prediction = usePredictionStore((s) => s.predictions[ko.matchId]);
   const setPrediction = usePredictionStore((s) => s.setPrediction);
   const locked = usePredictionStore((s) => s.locked);
+
+  const showMatrixToggle = ko.date >= MATRIX_CUTOFF && ko.status !== "completed";
+  const [matrixOpen, setMatrixOpen] = useState(false);
 
   const homeGoals = prediction?.homeGoals ?? null;
   const awayGoals = prediction?.awayGoals ?? null;
@@ -148,6 +155,32 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
           <span className="font-mono text-sm font-bold text-text-primary">
             {ko.homeGoals} – {ko.awayGoals}
           </span>
+        </div>
+      )}
+
+      {/* Scoreline matrix toggle (upcoming July 2+ matches only) */}
+      {showMatrixToggle && modelPred?.expectedHomeGoals != null && (
+        <div className="mt-3 border-t border-gray-100 pt-3">
+          <button
+            onClick={() => setMatrixOpen((o) => !o)}
+            className="w-full flex items-center justify-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <span>📊 Ver matriz del modelo</span>
+            <span>{matrixOpen ? "▴" : "▾"}</span>
+          </button>
+          {matrixOpen && (
+            <div className="mt-3">
+              <ScorelineMatrix
+                homeTeamName={homeTeam.name}
+                awayTeamName={awayTeam.name}
+                lambdaHome={modelPred.expectedHomeGoals}
+                lambdaAway={modelPred.expectedAwayGoals}
+                homeWinProb={modelPred.homeWinProb}
+                drawProb={modelPred.drawProb}
+                awayWinProb={modelPred.awayWinProb}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
