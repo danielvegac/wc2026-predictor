@@ -811,18 +811,18 @@ export const matchInsights: MatchInsight[] = [
     notes: "AUTO-XG. England 3-0 Panama — England top Group L. High-press game unlocked Panama's compact structure in second half. Kane, Bellingham, Rashford all on target. England 2.8 xG — dominant once they committed to vertical pressing. PAN 0.5 xG — outplayed but their defensive record (only 1 goal conceded vs Croatia MD2) suggests ability vs less elite press. KEY: England attack UP from Ghana draw — when vertical channel is open, England's attack is genuine elite tier. Defense also clean sheet. Group L: ENG 1st (7pts), CRO 2nd (6pts). England advance to R32 vs Congo DR.",
   },
 
-  // GS-L-6: Croatia 2-0 Ghana
-  // AUTO-XG: CRO 1.8, GHA 0.8
+  // GS-L-6: Croatia 2-1 Ghana
+  // AUTO-XG: CRO 1.8, GHA 1.0
   {
     matchId: "GS-L-6",
     date: "2026-06-27",
     homeTeamId: "CRO", awayTeamId: "GHA",
-    homeGoals: 2, awayGoals: 0,
+    homeGoals: 2, awayGoals: 1,
     homeAttackMultiplier: 1.33,   // 1.8/1.35 = 1.33
-    homeDefenseMultiplier: 1.45,  // 1.35/0.8 = 1.69 → capped
-    awayAttackMultiplier: 0.65,   // 0.8/1.35 = 0.59 → floored
+    homeDefenseMultiplier: 1.35,  // 1.35/1.0 = 1.35 (1 goal conceded)
+    awayAttackMultiplier: 0.74,   // 1.0/1.35 = 0.74 (Ghana scored 1)
     awayDefenseMultiplier: 0.75,  // 1.35/1.8 = 0.75
-    notes: "AUTO-XG. Croatia 2-0 Ghana — Modric orchestrated a composed midfield performance to confirm 2nd place. Croatia's experience showed against a Ghana side that had overperformed vs Panama. Yirenkyi (scorer vs Panama MD2) subdued. Croatia 1.8 xG — clinical on limited chances. Ghana's attack flatters their ability in open play; lost when Croatia controlled tempo. KEY: Croatia defense UP from MD2 — Livakovic back to form. Ghana defense DOWN — allowed 2 to Croatia's patient buildup. Croatia advance to R32 vs Portugal.",
+    notes: "AUTO-XG. Croatia 2-1 Ghana — Modric orchestrated a composed midfield performance to confirm 2nd place. Croatia's experience showed against a Ghana side that had overperformed vs Panama. Ghana pulled one back late — Croatia defense not airtight (1 goal conceded). Croatia 1.8 xG — clinical on limited chances. KEY: Croatia defense moderate vs MD2 — Livakovic tested (1 goal allowed). Ghana attack UP from MD2 — scored despite ultimately losing. Croatia advance to R32 vs Portugal.",
   },
 
   // ==========================================

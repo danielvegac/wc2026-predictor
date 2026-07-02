@@ -605,3 +605,93 @@ export const esp_aut: PickJudgeInput = {
 // tier2Conditions: underTopScore=19 < 60, bttsNoScore=0 < 60 → false
 // Tier 1 fallback: follow model → 3-0 ESP
 // Rule 7 + Rule 11b fire but have no Tier 2 path to act on
+
+
+/**
+ * R32-12: Portugal vs Croatia — POR-CRO
+ * Under 3 Score=71 is the key low-scoring signal (valid, above noise floor).
+ * Croatia AH cascade on +1.0 line (Score=66) — below 83 threshold, Rule 14 NOT triggered.
+ * Away value markets=1 — blocks Rule 15.
+ * homeAdjustedLambda=1.4, awayAdjustedLambda=0.78 — Rule 17 NOT triggered (λ > 0.45).
+ * Croatia awayPeakAtZero=45% but λ condition fails → no clean sheet override.
+ * BTTS No Score=57 — below Rule 2 floor, noise.
+ * Model pick: 2-1 POR.
+ */
+export const por_cro: PickJudgeInput = {
+  matchId: 'R32-12',
+  homeTeam: 'POR',
+  awayTeam: 'CRO',
+  stage: 'knockout',
+  homeElo: 2010,
+  awayElo: 1890,
+  homeFormMultiplier: 1.05,  // recency: MD3 lost vs COL (60%) + MD2 5-0 (30%) + MD1 0.79 (10%)
+  awayFormMultiplier: 1.18,  // recency: MD3 2-0 GHA (60%: 1.33) + MD2 1-0 PAN (30%: ~0.85) + MD1 0.65 (10%)
+  modelPick: { home: 2, away: 1 },
+
+  homeTournament: {
+    wins: 2, draws: 1, losses: 0,
+    cleanSheets: 1,      // 5-0 Uzbekistan only
+    goalsScored: 7,      // 1+5+1
+    goalsConceded: 2,    // 1 vs DR Congo, 1 vs Colombia
+  },
+  awayTournament: {
+    wins: 2, draws: 0, losses: 1,
+    cleanSheets: 1,      // 1-0 PAN only (GHA scored 1 in MD3)
+    goalsScored: 7,      // 2+1+4
+    goalsConceded: 3,    // 2 vs ENG + 0 vs PAN + 1 vs GHA
+  },
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    alphaHomeWinPct: 62.5,
+    alphaDrawPct: 23.2,
+    alphaAwayWinPct: 14.4,
+
+    // Croatia AH cascade
+    awayAHBestScore: 66,
+    awayAHBestLine: 1.0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    // Result markets
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 1,
+
+    // Low scoring signals — Under 3 Score 71 is the key signal
+    bttsYesScore: 0,
+    bttsNoScore: 57,     // below Rule 2 floor — noise
+    underTopScore: 71,   // Under 3 — valid signal
+    overTopScore: 0,     // No high scoring value
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    // Lambdas
+    awayAdjustedLambda: 0.78,  // Croatia adjusted (peak at 0-1)
+
+    // Goal distribution
+    goalDistribution: {
+      awayPeakAtZeroPct: 45,   // Croatia peak at 0 goals ~45%
+    },
+
+    // League context
+    leagueBttsPct: 48,
+    matchProjectedBttsPct: 42,
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 52.0,
+    projectedGoalsPerMatch: 2.18,  // homeλ=1.4 + awayλ=0.78
+
+    climateNetFactor: 1.0,
+  },
+};
