@@ -3,6 +3,7 @@ import {
   checkRule16a, checkRule16b, checkRule15,
   checkRule14, checkRule12,
   checkRule13, checkRule11b, checkRule9, checkRule7,
+  checkRule17,
   NOISE_FLOOR
 } from './rules';
 
@@ -42,8 +43,9 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
   const rule11b = checkRule11b(input);
   const rule9 = checkRule9(input);
   const rule7 = checkRule7(input);
+  const rule17 = checkRule17(input);
 
-  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7];
+  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7, rule17];
   allChecks.filter(r => r.triggered).forEach(r => rulesTriggered.push(r.ruleId));
 
   reasoning.push(`STEP 1 — Model anchor: ${input.homeTeam} ${input.modelPick.home}-${input.modelPick.away} ${input.awayTeam}`);
@@ -158,6 +160,24 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
       rulesTriggered,
       reasoning,
       confidence: 'HIGH'
+    };
+  }
+
+  // ── STEP 5b: Rule 17 — clean sheet override (fires before BTTS evaluation) ──
+  // Conditions: away λ ≤ 0.45 + goal dist 0-peak ≥ 35% + home win% ≥ 55%
+  // Takes priority over Rule 13 (BTTS context). Does NOT override Rule 12 / Rule 14.
+  if (rule17.triggered) {
+    let tier2pick = compressTier2(input.modelPick);
+    tier2pick = { home: tier2pick.home, away: 0 };
+    reasoning.push(`STEP 5b — Rule 17 fired: away λ ≤0.45 + goal dist 0-peak ≥35% + home win% ≥55% → clean sheet override, BTTS league context invalid`);
+    reasoning.push(`Tier 2 compression: ${input.modelPick.home}-${input.modelPick.away} → ${tier2pick.home}-${tier2pick.away} (clean sheet forced)`);
+    reasoning.push(`FINAL PICK: ${input.homeTeam} ${tier2pick.home}-${tier2pick.away} ${input.awayTeam} [Tier 2]`);
+    return {
+      finalPick: tier2pick,
+      tier: 2,
+      rulesTriggered,
+      reasoning,
+      confidence: 'MEDIUM'
     };
   }
 

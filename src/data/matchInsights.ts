@@ -940,6 +940,19 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 1.38,  // DRC defense UP — Mpasi-Nzau world-class (5+ saves), held England until 75'
     notes: "England 2-1 but trailed 0-1 from 7' to 75'. Cipenga stunner (Mbemba assist) — Spence left him completely unmarked at back post, defensive howler exposing RB crisis (no James/Quansah). England 1.31 xG at HT from 8 shots, all 8 shots + 20 box touches came AFTER hydration break (OptaJoe). Mpasi-Nzau heroic GK — 5+ saves including point-blank Bellingham header and Rice corner. Wissa hit the frame late — DRC could have led 2-0. Anthony Gordon (sub 61') provided BOTH assists for Kane brace (75' header, 86' shot). First time England won WC match after conceding first since 1966 final. DRC defense UP sharply — Mpasi world-class display. Pick Judge Rule 16b: BTTS No 74 (moderate, 60-79) + COD λ 0.47 + COD scored 2/3 matches → output 2-1 EXACT (Rule 16a veto was moot — COD cascade on wide lines, no tight-line Tier 3 trigger). England advance to face Mexico at Azteca in R16.",
   },
+  // R32-10: USA 2-0 Bosnia Herzegovina (July 1, 2026)
+  // Rule 17 lesson — away λ 0.45 + BIH goal dist 0-peak 38% + USA win% 57.8% → clean sheet override
+  {
+    matchId: "R32-10",
+    date: "2026-07-01",
+    homeTeamId: "USA", awayTeamId: "BIH",
+    homeGoals: 2, awayGoals: 0,
+    homeAttackMultiplier: 0.88,
+    homeDefenseMultiplier: 1.38,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.72,
+    notes: "USA 2-0 10-man heroics. Balogun 45' goal (Tillman assist — Ream intercept → Adams → Tillman → Balogun low left-foot). Balogun red card 64' controversial — wrongly carded per ESPN. Tillman stunning free kick 82'. USA xG 0.92 vs BIH 0.25 (confirmed). Bosnia 5-4-1 low block — USA 63% possession but only 1 SoT first 44 mins. Freese 2 early saves. Clean sheet with 10 men = elite defensive performance. CRITICAL: Balogun suspended vs Belgium in R16. USA attack DOWN without top scorer (3 tournament goals). Bosnia 3-1 vs Qatar was misleading — Qatar bottom tier. Bosnia attacking threat essentially zero vs quality teams.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

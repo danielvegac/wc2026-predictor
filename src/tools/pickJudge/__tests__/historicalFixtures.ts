@@ -416,7 +416,7 @@ export const bel_sen: PickJudgeInput = {
   fieldTopPick: { home: 1, away: 1 },
   fieldTopPickPct: 0.26,
 };
-// Expected: 1-1 Draw (Tier 1, model confirmed)
+// Expected: 1-1 Draw (Tier 1, model confirmed, to be confirmed post-match)
 // Rule 12 FIRES: Senegal outright ahead + cascade 86 + draw% 28% → tier3TriggerPresent=true
 // Rule 11b FIRES: Senegal scored in all 3 group matches + bttsNo=44 < 80 + league 53.5% not suppressed
 // Rule 16a: Belgium 1W-2D-0L → draws=2 ≠ 0 → NOT triggered (veto moot)
@@ -424,3 +424,92 @@ export const bel_sen: PickJudgeInput = {
 // tier2Conditions: underTopScore=52 < 60 → false, bttsNoScore=44 < 60 → false → NO compression
 // Tier 1 fallback: follow model → 1-1 (Rule 12 confirms draw direction, Rule 11b avoids clean sheet)
 // Actual: TBD (match July 2, 2026)
+
+
+/**
+ * R32-10: USA vs Bosnia Herzegovina — BLIND VALIDATION (July 1, 2026)
+ * Rule 17 lesson: away λ 0.45 + BIH goal dist 0-peak 38% + USA win% 57.8%
+ * → clean sheet override fires before BTTS evaluation.
+ * Under/BTTS No signals both below noise floor (44, 20) → no tier2Conditions.
+ * Rule 17 creates its own Tier 2 path: compress model 2-1 → 2-0 (clean sheet forced).
+ * BIH cascade on wide lines (+2.00) — Rule 14 tight-line condition fails.
+ * Actual result: 2-0 USA (Balogun 45', Tillman FK 82'; USA played 28' with 10 men).
+ */
+export const usa_bih: PickJudgeInput = {
+  matchId: 'R32-10',
+  homeTeam: 'USA',
+  awayTeam: 'Bosnia Herzegovina',
+  stage: 'knockout',
+
+  modelPick: { home: 2, away: 1 },
+  homeElo: 1820,
+  awayElo: 1600,
+
+  // USA 2W-0D-1L, 2 clean sheets — scored in all 3 group matches
+  homeTournament: { wins: 2, draws: 0, losses: 1, cleanSheets: 2, goalsConceded: 2, goalsScored: 5 },
+  // BIH 1W-1D-1L, 0 clean sheets — scored in all 3 group matches (incl. 3-1 vs Qatar)
+  awayTournament: { wins: 1, draws: 1, losses: 1, cleanSheets: 0, goalsConceded: 4, goalsScored: 4 },
+  homeFormMultiplier: 1.10,
+  awayFormMultiplier: 0.90,
+
+  homeIsCoHost: true,              // USA is co-host (Levi's Stadium, San Francisco)
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 44,             // Under3 Score=44 — below noise floor (< 60)
+    bttsNoScore: 20,               // Score=20 — well below noise floor
+
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    // BIH AH cascade — wide lines only (best at +2.00)
+    awayAHBestScore: 84,           // BIH +2.00 Score=84
+    awayAHBestLine: 2.0,           // wide line — Rule 14 tight-line condition fails
+    awayAHConsecutiveAbove80: 4,   // +2.00(84), +2.25(83), +1.75(81), +2.50(81)
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 4,      // BIH AH markets with value
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 57.8,
+    alphaDrawPct: 23.7,
+    alphaAwayWinPct: 18.5,
+
+    leagueBttsPct: 53.0,
+    matchProjectedBttsPct: 42.0,   // Low — BIH λ=0.45, 38% zero-goal peak suppresses BTTS
+    leagueOver25Pct: 47.1,
+    matchProjectedOver25Pct: 53.7,
+    projectedGoalsPerMatch: 2.83,
+
+    climateNetFactor: 1.0,
+    awayAdjustedLambda: 0.45,     // Rule 17 condition (a): λ ≤ 0.45
+    goalDistribution: {
+      awayPeakAtZeroPct: 38,      // Rule 17 condition (b): BIH peaks at 0 goals (38% ≥ 35%)
+      homePeakAtZeroPct: 15,      // USA peaks at 1 goal
+    },
+  },
+
+  fieldTopPick: { home: 2, away: 1 },
+  fieldTopPickPct: 0.28,
+};
+// BLIND — no expectedOutput injected
+// Rule 17 fires: λ=0.45 ≤ 0.45 ✓ + awayPeakAtZero=38% ≥ 35% ✓ + USA win%=57.8% ≥ 55% ✓
+// Rule 16a: USA 2W-0D-1L → losses=1 → NOT perfect → NOT triggered
+// Rule 14: awayAHBestLine=2.0 > 0.75 → NOT triggered (wide cascade, not tight)
+// Rule 16b: bttsNoScore=20 < 60 → NOT triggered
+// tier2Conditions: underTopScore=44 < 60, bttsNoScore=20 < 60 → false (Rule 17 fires first)
+// Output: 2-0 USA (Tier 2, Rule 17 clean sheet override)
+// Actual: 2-0 USA ✓

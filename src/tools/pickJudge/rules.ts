@@ -246,5 +246,32 @@ export function checkRule7(input: PickJudgeInput): RuleCheck {
   };
 }
 
+/**
+ * Rule 17 — USA-BIH lesson: clean sheet override when away team's goal distribution
+ * peaks at zero AND home win probability is dominant AND away adjusted lambda is low.
+ * Fires BEFORE the BTTS evaluation step, overriding league BTTS context (Rule 13).
+ * Conditions: awayAdjustedLambda ≤ 0.45 + awayPeakAtZeroPct ≥ 35% + homeWinPct ≥ 55%.
+ * Effect: Tier 2 compressed margin output as clean sheet (away goals forced to 0).
+ * Does NOT override Rule 12 (draw primary) or Rule 14 (Tier 3 direction flip).
+ */
+export function checkRule17(input: PickJudgeInput): RuleCheck {
+  const { alpha } = input;
+  const awayLambdaLow = (alpha.awayAdjustedLambda ?? 1.0) <= 0.45;
+  const awayGoalDistPeaksAtZero = (alpha.goalDistribution?.awayPeakAtZeroPct ?? 0) >= 35;
+  const homeWinDominant = alpha.alphaHomeWinPct >= 55.0;
+
+  const triggered = awayLambdaLow && awayGoalDistPeaksAtZero && homeWinDominant;
+  return {
+    ruleId: 'Rule17',
+    triggered,
+    reason: triggered
+      ? `Away λ ${(alpha.awayAdjustedLambda ?? 0).toFixed(2)} ≤ 0.45. ` +
+        `Away goal dist 0-peak ${alpha.goalDistribution?.awayPeakAtZeroPct}% ≥ 35%. ` +
+        `Home win% ${alpha.alphaHomeWinPct}% ≥ 55%. ` +
+        `Clean sheet override — BTTS league context invalid.`
+      : 'Rule 17 not triggered'
+  };
+}
+
 // Exported for engine noise-floor checks (Rule 2).
 export { NOISE_FLOOR };

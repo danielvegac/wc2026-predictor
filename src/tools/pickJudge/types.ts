@@ -55,6 +55,12 @@ export interface AlphaSignals {
 
   // EXPECTED GOALS (from Alphametrico adjusted dots)
   awayAdjustedLambda?: number;  // orange/adjusted away xG per match from Alphametrico
+
+  // GOAL DISTRIBUTION (from Alphametrico goal distribution chart)
+  goalDistribution?: {
+    awayPeakAtZeroPct: number;  // % probability at 0 goals for away team
+    homePeakAtZeroPct?: number; // optional
+  };
 }
 
 export interface PickJudgeInput {
