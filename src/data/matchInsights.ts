@@ -710,18 +710,17 @@ export const matchInsights: MatchInsight[] = [
   // ==========================================
 
   // June 24 — Group B MD3
-  // GS-B-5: Switzerland 1-1 Canada
-  // AUTO-XG: SUI 1.6, CAN 1.4
+  // GS-B-5: Switzerland 2-1 Canada (CORRECTED from 1-1)
   {
     matchId: "GS-B-5",
     date: "2026-06-24",
     homeTeamId: "SUI", awayTeamId: "CAN",
-    homeGoals: 1, awayGoals: 1,
-    homeAttackMultiplier: 1.19,   // 1.6/1.35 = 1.19
-    homeDefenseMultiplier: 0.96,  // 1.35/1.4 = 0.96
+    homeGoals: 2, awayGoals: 1,
+    homeAttackMultiplier: 1.35,   // 2-1 win — stronger attack signal than xG suggested
+    homeDefenseMultiplier: 0.96,  // conceded 1 vs Canada — unchanged
     awayAttackMultiplier: 1.04,   // 1.4/1.35 = 1.04
     awayDefenseMultiplier: 0.84,  // 1.35/1.6 = 0.84
-    notes: "AUTO-XG. Switzerland 1-1 Canada — competitive draw with both teams already qualified (CAN 6pts, SUI 3pts). Switzerland needed the win to guarantee 2nd; a draw sufficed given Bosnia's result. Davies featured for Canada after injury knock. Both teams rotated key figures. Switzerland's xG lead (1.6 vs 1.4) reflects stronger territorial control — their technical quality showed even vs a rotated Canada side. Group B final: CAN 1st (7pts), SUI 2nd (4pts). Switzerland qualify for R32 to face Algeria.",
+    notes: "AUTO-XG. Switzerland 2-1 Canada — Switzerland won to top Group B with 7pts. Davies featured for Canada. Switzerland's clinical finish confirmed attacking quality. CORRECTED: Switzerland WON 2-1, topped Group B with 7pts. Attack confirmed stronger than 1-1 suggested.",
   },
 
   // GS-B-6: Bosnia 2-0 Qatar
@@ -768,18 +767,17 @@ export const matchInsights: MatchInsight[] = [
   },
 
   // June 27 — Group J MD3
-  // GS-J-4: Austria 1-0 Algeria
-  // AUTO-XG: AUT 1.4, ALG 0.9
+  // GS-J-4: Algeria 3-3 Austria (CORRECTED from Austria 1-0 Algeria; home/away also fixed)
   {
     matchId: "GS-J-4",
     date: "2026-06-27",
-    homeTeamId: "AUT", awayTeamId: "ALG",
-    homeGoals: 1, awayGoals: 0,
-    homeAttackMultiplier: 1.04,   // 1.4/1.35 = 1.04
-    homeDefenseMultiplier: 1.45,  // 1.35/0.9 = 1.50 → capped
-    awayAttackMultiplier: 0.67,   // 0.9/1.35 = 0.67
-    awayDefenseMultiplier: 0.96,  // 1.35/1.4 = 0.96
-    notes: "AUTO-XG. Austria 1-0 Algeria — narrow win secures Austria 2nd place in Group J. Rangnick's press contained Algeria's technical play. Algeria despite 0.9 xG created intermittent danger on the counter. Austria 1.4 xG — not dominant but efficient. Algeria qualify as best 3rd with their goal difference sufficient (3pts). Group J final: ARG 1st (9pts), AUT 2nd (6pts), ALG 3rd (3pts, qualified as best 3rd to face Switzerland). JOR eliminated.",
+    homeTeamId: "ALG", awayTeamId: "AUT",
+    homeGoals: 3, awayGoals: 3,
+    homeAttackMultiplier: 1.45,   // 3 goals — capped
+    homeDefenseMultiplier: 0.65,  // 3 conceded — floored
+    awayAttackMultiplier: 1.45,   // Austria also scored 3 — capped
+    awayDefenseMultiplier: 0.65,  // 3 conceded — floored
+    notes: "CORRECTED: Algeria 3-3 Austria thriller at Kansas City. Mahrez 90+' strike nearly eliminated Austria; Kalajdzic 96' equalizer saw both advance. Algeria arrive at R32 with Mahrez in explosive form. Attack multiplier capped — genuine attacking quality confirmed vs Austria. Amoura out (hamstring) but Mahrez-Gouiri axis dangerous.",
   },
 
   // GS-J-5: Jordan 0-3 Argentina (Argentina rotate)

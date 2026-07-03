@@ -695,3 +695,88 @@ export const por_cro: PickJudgeInput = {
     climateNetFactor: 1.0,
   },
 };
+
+/**
+ * R32-13: Switzerland vs Algeria — SUI-ALG
+ * Data corrections: SUI topped Group B 2-1 vs CAN (not 1-1). ALG had 3-3 AUT in MD3 (not 0-1).
+ * With corrected ALG form (awayFormMultiplier=1.26), awayAdjustedLambda rises to 1.75.
+ * DC modal score at λ_h=1.65, λ_a=1.75: 1-1 (P~10.9%) — the 1-0 vs 2-0 tie fully resolves.
+ * Over 2.5 Score=87 — strongest high-scoring signal seen this tournament.
+ * Away value markets=1 → blocks Rule 15 (no clean sheet override even with away λ edge).
+ * BTTS Yes Score=77 — below 80 but combined with Over87 confirms open game.
+ * No AH cascade for either team — no Rule 14 direction flip.
+ * Model pick: 1-1 (from corrected data DC modal).
+ */
+export const sui_alg: PickJudgeInput = {
+  matchId: 'R32-13',
+  homeTeam: 'SUI',
+  awayTeam: 'ALG',
+  stage: 'knockout',
+  homeElo: 1820,
+  awayElo: 1780,
+  homeFormMultiplier: 1.35,
+  awayFormMultiplier: 1.26,
+  modelPick: { home: 1, away: 1 },
+
+  homeTournament: {
+    wins: 2, draws: 1, losses: 0,
+    cleanSheets: 0,
+    goalsScored: 7,
+    goalsConceded: 3,
+  },
+  awayTournament: {
+    wins: 1, draws: 1, losses: 1,
+    cleanSheets: 0,
+    goalsScored: 5,
+    goalsConceded: 7,
+  },
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    alphaHomeWinPct: 35.3,
+    alphaDrawPct: 24.0,
+    alphaAwayWinPct: 40.6,
+
+    awayAHBestScore: 79,
+    awayAHBestLine: 1.0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 1,
+
+    bttsYesScore: 77,
+    bttsNoScore: 0,
+    underTopScore: 0,
+    overTopScore: 87,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    awayAdjustedLambda: 1.75,  // corrected: ALG MD3 was 3-3 AUT (not 0-1); was ~1.0 before
+
+    goalDistribution: {
+      awayPeakAtZeroPct: 15,
+    },
+
+    leagueBttsPct: 52,
+    matchProjectedBttsPct: 65,
+    leagueOver25Pct: 54.0,
+    matchProjectedOver25Pct: 72.0,
+    projectedGoalsPerMatch: 3.40,  // homeλ=1.65 + awayλ=1.75
+
+    climateNetFactor: 1.0,
+  },
+};
