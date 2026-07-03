@@ -144,7 +144,7 @@ function EloUpdateIndicator() {
     : "—";
 
   return (
-    <div className="bg-white rounded-xl border border-border shadow-sm p-4">
+    <div className="bg-bg-secondary rounded-xl border border-border p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-text-primary">
@@ -319,7 +319,7 @@ function ExpertAccuracyTracker({
   if (!hasExpertWithResult) return null;
 
   return (
-    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+    <div className="bg-bg-secondary rounded-xl border border-border p-6">
       <h2 className="text-lg font-bold text-text-primary mb-1">
         Expert Accuracy Tracker
       </h2>
@@ -458,7 +458,7 @@ function TournamentFormRankings() {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+    <div className="bg-bg-secondary rounded-xl border border-border p-6">
       <h2 className="text-lg font-bold text-text-primary mb-1">
         Tournament Form Power Rankings
       </h2>
@@ -605,7 +605,7 @@ function FormInsights() {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+    <div className="bg-bg-secondary rounded-xl border border-border p-6">
       <h2 className="text-lg font-bold text-text-primary mb-1">
         Tournament Form Insights
       </h2>
@@ -935,7 +935,7 @@ function ModelTrackRecord({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+    <div className="bg-bg-secondary rounded-xl border border-border p-6">
       <h2 className="text-lg font-bold text-text-primary mb-1">
         Model Track Record
       </h2>
@@ -1334,7 +1334,7 @@ function ChampionshipComparison({
   return (
     <div className="flex flex-col gap-6">
       {/* ── 4-column header ── */}
-      <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+      <div className="bg-bg-secondary rounded-xl border border-border p-6">
         <h2 className="text-lg font-bold text-text-primary mb-6">
           Championship Comparison
         </h2>
@@ -1424,7 +1424,7 @@ function ChampionshipComparison({
       </div>
 
       {/* ── 4-bar chart ── */}
-      <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+      <div className="bg-bg-secondary rounded-xl border border-border p-6">
         <h3 className="text-base font-bold text-text-primary mb-1">
           Championship Probability — 4 Models Compared
         </h3>
@@ -1485,7 +1485,7 @@ function ChampionshipComparison({
       </div>
 
       {/* ── 4 independent ranked lists ── */}
-      <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+      <div className="bg-bg-secondary rounded-xl border border-border p-6">
         <h3 className="text-base font-bold text-text-primary mb-1">
           Championship Probability — 4 Models Compared
         </h3>
@@ -1593,7 +1593,7 @@ function HealthCheck({ results }: { results: MonteCarloResults }) {
   const teamMap = getTeamMap();
 
   return (
-    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+    <div className="bg-bg-secondary rounded-xl border border-border p-6">
       <h2 className="text-lg font-bold text-text-primary mb-1">
         Model Health Check — Where we disagree with Opta
       </h2>
@@ -1702,7 +1702,7 @@ function GroupStageComparison({
   if (completedGroups.length === 0) return null;
 
   return (
-    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+    <div className="bg-bg-secondary rounded-xl border border-border p-6">
       <h2 className="text-lg font-bold text-text-primary mb-1">
         Group Stage Comparison
       </h2>
@@ -1908,7 +1908,7 @@ function ScoreAccuracy({
   else message = "The math is beating you right now 😅";
 
   return (
-    <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+    <div className="bg-bg-secondary rounded-xl border border-border p-6">
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-lg font-bold text-text-primary">
           Score & Accuracy
@@ -1921,7 +1921,7 @@ function ScoreAccuracy({
               onClick={() => setMode("model")}
               className={`text-xs px-3 py-1 rounded-md cursor-pointer transition-colors ${
                 mode === "model"
-                  ? "bg-white text-text-primary font-medium shadow-sm"
+                  ? "bg-bg-tertiary text-text-primary font-medium shadow-sm"
                   : "text-text-muted hover:text-text-secondary"
               }`}
             >
@@ -1931,7 +1931,7 @@ function ScoreAccuracy({
               onClick={() => setMode("actual")}
               className={`text-xs px-3 py-1 rounded-md cursor-pointer transition-colors ${
                 mode === "actual"
-                  ? "bg-white text-text-primary font-medium shadow-sm"
+                  ? "bg-bg-tertiary text-text-primary font-medium shadow-sm"
                   : "text-text-muted hover:text-text-secondary"
               }`}
             >

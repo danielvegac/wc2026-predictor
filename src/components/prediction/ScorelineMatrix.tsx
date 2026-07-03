@@ -30,10 +30,10 @@ export function ScorelineMatrix({
 
   function cellStyle(prob: number): string {
     const intensity = maxProb > 0 ? prob / maxProb : 0;
-    if (intensity > 0.75) return "bg-amber-500 text-white font-bold border border-gray-100";
-    if (intensity >= 0.4) return "bg-amber-200 text-gray-800 border border-gray-100";
-    if (intensity >= 0.15) return "bg-amber-50 text-gray-700 border border-gray-100";
-    return "bg-white text-gray-500 border border-gray-100";
+    if (intensity > 0.75) return "bg-amber-500 text-white font-bold border border-white/10";
+    if (intensity >= 0.4) return "bg-amber-500/30 text-amber-200 border border-white/10";
+    if (intensity >= 0.15) return "bg-amber-500/10 text-slate-300 border border-white/10";
+    return "text-slate-500 border border-white/10";
   }
 
   // Top 3 scorelines
@@ -50,9 +50,9 @@ export function ScorelineMatrix({
   const awayWinPct = Math.round(awayWinProb * 100);
 
   return (
-    <div className="bg-gray-50 rounded-lg border border-gray-200 p-2.5">
+    <div className="rounded-lg border border-white/10 p-2.5" style={{ background: "rgba(255,255,255,0.06)" }}>
       {/* xG header */}
-      <p className="text-center text-[10px] text-gray-400 mb-2">
+      <p className="text-center text-[10px] text-slate-400 mb-2">
         xG modelo: {lambdaHome.toFixed(2)} – {lambdaAway.toFixed(2)}
       </p>
 
@@ -60,7 +60,7 @@ export function ScorelineMatrix({
         {/* Vertical axis label */}
         <div className="flex items-center justify-center shrink-0" style={{ width: 16 }}>
           <span
-            className="text-[9px] text-gray-400 whitespace-nowrap"
+            className="text-[9px] text-slate-500 whitespace-nowrap"
             style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
           >
             ↓ goles {homeTeamName}
@@ -69,7 +69,7 @@ export function ScorelineMatrix({
 
         <div className="flex-1 min-w-0">
           {/* Horizontal axis label */}
-          <p className="text-center text-[9px] text-gray-400 mb-1">
+          <p className="text-center text-[9px] text-slate-500 mb-1">
             ← goles {awayTeamName} →
           </p>
 
@@ -81,7 +81,7 @@ export function ScorelineMatrix({
                   {/* corner cell */}
                   <th className="w-6" />
                   {[0, 1, 2, 3, 4].map((a) => (
-                    <th key={a} className="text-[10px] font-semibold text-gray-500 pb-0.5 w-12">
+                    <th key={a} className="text-[10px] font-semibold text-slate-500 pb-0.5 w-12">
                       {a}
                     </th>
                   ))}
@@ -90,7 +90,7 @@ export function ScorelineMatrix({
               <tbody>
                 {[0, 1, 2, 3, 4].map((h) => (
                   <tr key={h}>
-                    <td className="text-[10px] font-semibold text-gray-500 pr-1">{h}</td>
+                    <td className="text-[10px] font-semibold text-slate-500 pr-1">{h}</td>
                     {[0, 1, 2, 3, 4].map((a) => {
                       const prob = grid[h][a];
                       return (
@@ -112,11 +112,11 @@ export function ScorelineMatrix({
       </div>
 
       {/* Top 3 scorelines strip */}
-      <p className="text-center text-[10px] text-gray-400 mt-2">
+      <p className="text-center text-[10px] text-slate-400 mt-2">
         {top3.map(([key, prob], i) => (
           <span key={key}>
             {i > 0 && <span className="mx-1">·</span>}
-            <span className="font-semibold text-gray-600">{key}</span>{" "}
+            <span className="font-semibold text-slate-300">{key}</span>{" "}
             {(prob * 100).toFixed(1)}%
           </span>
         ))}
@@ -124,13 +124,13 @@ export function ScorelineMatrix({
 
       {/* Outcome bar */}
       <div className="mt-1.5 grid grid-cols-3 text-[10px]">
-        <span className="text-left text-gray-600">
+        <span className="text-left text-slate-400">
           <span className="font-bold">1</span> {homeTeamName} {homeWinPct}%
         </span>
-        <span className="text-center text-gray-500">
+        <span className="text-center text-slate-400">
           <span className="font-bold">X</span> {drawPct}%
         </span>
-        <span className="text-right text-gray-600">
+        <span className="text-right text-slate-400">
           {awayWinPct}% {awayTeamName} <span className="font-bold">2</span>
         </span>
       </div>

@@ -38,7 +38,7 @@ export function ScoreInput({
       disabled={disabled}
       placeholder="–"
       className="w-9 h-9 text-center font-mono text-lg font-bold
-        bg-white border border-border rounded-lg
+        bg-bg-tertiary border border-border rounded-lg
         text-text-primary placeholder:text-text-muted
         focus:outline-none focus:ring-2 focus:ring-accent-blue/30 focus:border-accent-blue
         disabled:opacity-40 disabled:cursor-not-allowed

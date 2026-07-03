@@ -59,7 +59,7 @@ function App() {
   return (
     <div className="min-h-screen bg-bg-secondary text-text-primary font-body">
       {/* Header */}
-      <header className="bg-white border-b border-border sticky top-0 z-10">
+      <header className="bg-bg-secondary border-b border-border sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div>
@@ -173,7 +173,7 @@ function App() {
                 <select
                   value={simCount}
                   onChange={(e) => setSimCount(Number(e.target.value))}
-                  className="bg-white text-text-primary border border-border
+                  className="bg-bg-tertiary text-text-primary border border-border
                     rounded-lg px-3 py-1.5 font-mono text-sm"
                 >
                   <option value={1000}>1,000</option>
@@ -196,7 +196,7 @@ function App() {
             </div>
 
             {results && (
-              <div className="bg-white rounded-xl border border-border shadow-sm p-6">
+              <div className="bg-bg-secondary rounded-xl border border-border p-6">
                 <h2 className="text-lg font-bold text-text-primary mb-1">
                   Championship Probabilities
                 </h2>
@@ -320,7 +320,7 @@ function MatchesView({
               onClick={() => switchMode("date")}
               className={`text-xs px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
                 mode === "date"
-                  ? "bg-white text-text-primary font-medium shadow-sm"
+                  ? "bg-bg-tertiary text-text-primary font-medium shadow-sm"
                   : "text-text-muted hover:text-text-secondary"
               }`}
             >
@@ -330,7 +330,7 @@ function MatchesView({
               onClick={() => switchMode("group")}
               className={`text-xs px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
                 mode === "group"
-                  ? "bg-white text-text-primary font-medium shadow-sm"
+                  ? "bg-bg-tertiary text-text-primary font-medium shadow-sm"
                   : "text-text-muted hover:text-text-secondary"
               }`}
             >

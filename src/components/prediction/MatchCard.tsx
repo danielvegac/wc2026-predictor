@@ -89,8 +89,12 @@ export function MatchCard({
 
   return (
     <div
-      className={`bg-white rounded-lg border ${resultBorder} px-4 py-3
-        shadow-sm hover:shadow-md transition-shadow`}
+      className={`rounded-xl border ${resultBorder} px-4 py-3 transition-shadow`}
+      style={{
+        background: "rgba(255, 255, 255, 0.04)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+      }}
     >
       {/* Date label + kickoff/FT + accuracy badges */}
       <div className="flex items-center justify-between mb-2">
@@ -163,7 +167,7 @@ export function MatchCard({
           <div className="mt-1.5 space-y-0.5">
             <div className="flex items-center justify-center gap-1.5" style={{ fontSize: "0.72rem" }}>
               <span className="text-text-muted font-medium">⚽ Pre-tournament:</span>
-              <span className="font-mono font-semibold text-gray-400">
+              <span className="font-mono font-semibold text-text-secondary">
                 {baselinePred.expectedHomeGoals.toFixed(1)} – {baselinePred.expectedAwayGoals.toFixed(1)}
               </span>
             </div>
@@ -206,15 +210,15 @@ export function MatchCard({
         const outcome = actualResult ? alpha.signalOutcome : null;
         const outcomeBadge =
           outcome === "hit" ? (
-            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200 whitespace-nowrap">
+            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-accent-green/10 text-accent-green border border-accent-green/30 whitespace-nowrap">
               ✓ Hit
             </span>
           ) : outcome === "partial" ? (
-            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-100 text-yellow-700 border border-yellow-200 whitespace-nowrap">
+            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap">
               ~ Partial
             </span>
           ) : outcome === "miss" ? (
-            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 border border-red-200 whitespace-nowrap">
+            <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-accent-red/10 text-accent-red border border-accent-red/30 whitespace-nowrap">
               ✗ Miss
             </span>
           ) : null;
@@ -326,13 +330,13 @@ function AlphaSignalRow({
       alphaOutcome = alpha.signalOutcome;
       if (alphaOutcome === "hit") {
         alphaOutcomeLabel = "✓ Hit";
-        alphaOutcomeColor = "bg-green-50 text-green-700 border-green-200";
+        alphaOutcomeColor = "bg-accent-green/10 text-accent-green border-accent-green/30";
       } else if (alphaOutcome === "partial") {
         alphaOutcomeLabel = "~ Partial";
-        alphaOutcomeColor = "bg-yellow-50 text-yellow-700 border-yellow-200";
+        alphaOutcomeColor = "bg-amber-500/10 text-amber-400 border-amber-500/30";
       } else {
         alphaOutcomeLabel = "✗ Miss";
-        alphaOutcomeColor = "bg-red-50 text-red-600 border-red-200";
+        alphaOutcomeColor = "bg-accent-red/10 text-accent-red border-accent-red/30";
       }
     } else {
       // Dynamic fallback when signalOutcome not yet set
@@ -360,24 +364,24 @@ function AlphaSignalRow({
       if (exactHit) {
         alphaOutcome = "hit";
         alphaOutcomeLabel = "✓ Hit";
-        alphaOutcomeColor = "bg-green-50 text-green-700 border-green-200";
+        alphaOutcomeColor = "bg-accent-green/10 text-accent-green border-accent-green/30";
       } else if (primaryCorrect) {
         alphaOutcome = "partial";
         alphaOutcomeLabel = "~ Partial";
-        alphaOutcomeColor = "bg-yellow-50 text-yellow-700 border-yellow-200";
+        alphaOutcomeColor = "bg-amber-500/10 text-amber-400 border-amber-500/30";
       } else {
         alphaOutcome = "miss";
         alphaOutcomeLabel = "✗ Miss";
-        alphaOutcomeColor = "bg-red-50 text-red-600 border-red-200";
+        alphaOutcomeColor = "bg-accent-red/10 text-accent-red border-accent-red/30";
       }
     }
   }
 
   // Badge color based on divergence
   const badgeStyles = {
-    confirmed: "bg-green-100 text-green-700 border border-green-200",
-    warning:   "bg-yellow-100 text-yellow-700 border border-yellow-200",
-    neutral:   "bg-gray-100 text-gray-500 border border-gray-200",
+    confirmed: "bg-accent-green/10 text-accent-green border border-accent-green/30",
+    warning:   "bg-amber-500/10 text-amber-400 border border-amber-500/30",
+    neutral:   "bg-bg-tertiary text-text-muted border border-border",
   } as const;
 
   const badgeLabels = {
@@ -389,7 +393,7 @@ function AlphaSignalRow({
   const dotColor = {
     high:   "bg-green-500",
     medium: "bg-yellow-400",
-    low:    "bg-gray-400",
+    low:    "bg-text-muted",
   } as const;
 
   return (

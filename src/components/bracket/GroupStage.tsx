@@ -67,7 +67,7 @@ export function GroupStage() {
           return (
             <div
               key={group.name}
-              className="rounded-xl border border-border bg-white shadow-sm overflow-hidden"
+              className="rounded-xl border border-border bg-bg-secondary overflow-hidden"
             >
               {/* Group header */}
               <div className="flex items-center justify-between px-5 py-3 border-b border-border-light bg-bg-secondary">

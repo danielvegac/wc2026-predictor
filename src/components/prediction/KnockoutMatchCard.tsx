@@ -45,7 +45,7 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
   };
 
   // Border color based on completion
-  let resultBorder = "border-transparent";
+  let resultBorder = "border-white/8";
   if (isCompleted) {
     resultBorder = "border-accent-green/40";
   } else if (homeGoals !== null && awayGoals !== null) {
@@ -55,7 +55,14 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
   }
 
   return (
-    <div className={`bg-white rounded-lg border ${resultBorder} px-4 py-3 shadow-sm hover:shadow-md transition-shadow`}>
+    <div
+      className={`rounded-xl border ${resultBorder} px-4 py-3 transition-shadow`}
+      style={{
+        background: "rgba(255, 255, 255, 0.04)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+      }}
+    >
       {/* Top row: R32 badge + date + kickoff */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
@@ -124,7 +131,7 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
               {modelPred.homeGoals} – {modelPred.awayGoals}
             </span>
             {modelPred.aetLikely && (
-              <span className="text-[10px] font-semibold text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-200">
+              <span className="text-[10px] font-semibold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-full border border-amber-500/30">
                 → AET/Pens
               </span>
             )}
@@ -160,10 +167,10 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
 
       {/* Scoreline matrix toggle (upcoming July 2+ matches only) */}
       {showMatrixToggle && modelPred?.expectedHomeGoals != null && (
-        <div className="mt-3 border-t border-gray-100 pt-3">
+        <div className="mt-3 border-t border-border pt-3">
           <button
             onClick={() => setMatrixOpen((o) => !o)}
-            className="w-full flex items-center justify-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+            className="w-full flex items-center justify-center gap-1.5 text-xs text-text-muted hover:text-text-secondary transition-colors"
           >
             <span>📊 Ver matriz del modelo</span>
             <span>{matrixOpen ? "▴" : "▾"}</span>
