@@ -110,6 +110,52 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     reasoning.push(`STEP 2 — Rule 16a: Not triggered. Proceeding to alpha evaluation.`);
   }
 
+  // ── STEP 2b: Rule 18 — Form Anchor (fires before full alpha evaluation) ──
+  // Fires when home λ ≥ 1.0 + away λ < 1.0 + home win% > 55%.
+  // Blocks alpha override unless away AH cascade is very strong (≥85 on tight lines with 2+ consecutive).
+  const rule18Active =
+    (input.alpha.homeAdjustedLambda ?? 0) >= 1.0 &&
+    (input.alpha.awayAdjustedLambda ?? 1.0) < 1.0 &&
+    input.alpha.alphaHomeWinPct > 55;
+
+  if (rule18Active) {
+    const alphaMeetsThreshold =
+      input.alpha.awayAHBestScore >= 85 &&
+      input.alpha.awayAHBestLine <= 1.0 &&
+      input.alpha.awayAHConsecutiveAbove80 >= 2;
+
+    if (!alphaMeetsThreshold) {
+      rulesTriggered.push('Rule18');
+      reasoning.push(
+        `STEP 2b — Rule 18 ACTIVE: Away λ=${input.alpha.awayAdjustedLambda} < 1.0, ` +
+        `Home win%=${input.alpha.alphaHomeWinPct}% > 55%. ` +
+        `Alpha Score=${input.alpha.awayAHBestScore} below threshold (need ≥85 ` +
+        `on tight line ≤+1.0 with 2+ consecutive). ` +
+        `Form anchor enforced → Tier 1: follow model pick.`
+      );
+      reasoning.push(`FINAL PICK: ${input.homeTeam} ${input.modelPick.home}-${input.modelPick.away} ${input.awayTeam} [Tier 1, Rule 18]`);
+      return {
+        finalPick: { ...input.modelPick },
+        tier: 1,
+        rulesTriggered,
+        reasoning,
+        confidence: 'HIGH'
+      };
+    } else {
+      reasoning.push(
+        `STEP 2b — Rule 18 active but alpha meets elevated threshold ` +
+        `(Score=${input.alpha.awayAHBestScore} ≥85 on tight lines). ` +
+        `Proceeding to full alpha evaluation.`
+      );
+    }
+  } else {
+    reasoning.push(
+      `STEP 2b — Rule 18 inactive: ` +
+      `Away λ=${input.alpha.awayAdjustedLambda ?? 'N/A'}, ` +
+      `Home win%=${input.alpha.alphaHomeWinPct}%.`
+    );
+  }
+
   // ── STEP 3: Check if alpha qualifies for Tier 2 or Tier 3 ────────
   const underSignalValid = input.alpha.underTopScore >= NOISE_FLOOR;
   const bttsNoSignalValid = input.alpha.bttsNoScore >= NOISE_FLOOR;
@@ -183,6 +229,31 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
 
   // ── STEP 6: Tier 2 compression (no Tier 3, signals say fewer goals) ──
   if (tier2Conditions) {
+    // Rule 11b bypass: Under 60-79 (subthreshold) + Rule 11b active + home dominant + model has away goal
+    // → don't compress; treat as Tier 1. Only compress when Under ≥ 80 regardless of Rule 11b.
+    const underSubthreshold = underSignalValid && input.alpha.underTopScore < 80;
+    const rule11bBlocksCompression =
+      underSubthreshold &&
+      rule11b.triggered &&
+      input.alpha.alphaHomeWinPct >= 60 &&
+      input.modelPick.away >= 1;
+
+    if (rule11bBlocksCompression) {
+      reasoning.push(
+        `Rule 11b + Under subthreshold (${input.alpha.underTopScore}, 60-79) + ` +
+        `home dominant (${input.alpha.alphaHomeWinPct}%) + model already has away goal → ` +
+        `no compression, Tier 1.`
+      );
+      reasoning.push(`FINAL PICK: ${input.homeTeam} ${input.modelPick.home}-${input.modelPick.away} ${input.awayTeam} [Tier 1]`);
+      return {
+        finalPick: { ...input.modelPick },
+        tier: 1,
+        rulesTriggered,
+        reasoning,
+        confidence: 'HIGH'
+      };
+    }
+
     reasoning.push(`STEP 4 — Tier 2: Under/BTTS No signals valid. Compressing model pick total by 1 goal.`);
     let tier2pick = compressTier2(input.modelPick);
 

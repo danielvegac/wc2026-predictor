@@ -54,6 +54,7 @@ export interface AlphaSignals {
   climateNetFactor: number;     // homeClimate / awayClimate combined
 
   // EXPECTED GOALS (from Alphametrico adjusted dots)
+  homeAdjustedLambda?: number;  // orange/adjusted home xG per match from Alphametrico
   awayAdjustedLambda?: number;  // orange/adjusted away xG per match from Alphametrico
 
   // GOAL DISTRIBUTION (from Alphametrico goal distribution chart)

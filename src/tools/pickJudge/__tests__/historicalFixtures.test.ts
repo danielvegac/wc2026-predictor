@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { judgePickInput } from '../engine';
-import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, esp_aut } from './historicalFixtures';
+import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, esp_aut, por_cro, sui_alg } from './historicalFixtures';
 
 describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
 
@@ -182,6 +182,57 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
     });
   });
 
+  describe('R32-12: Portugal vs Croatia (Rule 11b blocks Under subthreshold compression)', () => {
+    it('R32-12 POR-CRO: 2-1 Portugal (Tier 1, Rule 11b blocks Under compression)', () => {
+      const result = judgePickInput(por_cro);
+      expect(result.finalPick).toEqual({ home: 2, away: 1 });
+      expect(result.tier).toBe(1);
+    });
+
+    it('Rule 11b fires (CRO scored in all 3 group matches)', () => {
+      const result = judgePickInput(por_cro);
+      expect(result.rulesTriggered).toContain('Rule11b');
+    });
+
+    it('Rule 14 does NOT fire (cascade 66 < 83, wide line +1.0)', () => {
+      const result = judgePickInput(por_cro);
+      expect(result.rulesTriggered).not.toContain('Rule14');
+    });
+
+    it('NEVER outputs Croatia winning', () => {
+      const result = judgePickInput(por_cro);
+      expect(result.finalPick.home).toBeGreaterThan(result.finalPick.away);
+    });
+
+    it('NEVER outputs a Croatia clean sheet (Rule 11b)', () => {
+      const result = judgePickInput(por_cro);
+      expect(result.finalPick.away).toBeGreaterThan(0);
+    });
+  });
+
+  describe('R32-13: Switzerland vs Algeria (Rule 18 Form Anchor blocks alpha override)', () => {
+    it('R32-13 SUI-ALG: 2-0 Switzerland (Tier 1, Rule 18 form anchor)', () => {
+      const result = judgePickInput(sui_alg);
+      expect(result.finalPick).toEqual({ home: 2, away: 0 });
+      expect(result.tier).toBe(1);
+    });
+
+    it('Rule 18 fires (homeλ=1.80 ≥ 1.0 + awayλ=0.80 < 1.0 + SUI win% 62% > 55%)', () => {
+      const result = judgePickInput(sui_alg);
+      expect(result.rulesTriggered).toContain('Rule18');
+    });
+
+    it('Rule 14 does NOT fire (cascade 79 < 83 threshold)', () => {
+      const result = judgePickInput(sui_alg);
+      expect(result.rulesTriggered).not.toContain('Rule14');
+    });
+
+    it('NEVER outputs Algeria winning', () => {
+      const result = judgePickInput(sui_alg);
+      expect(result.finalPick.home).toBeGreaterThan(result.finalPick.away);
+    });
+  });
+
   describe('Cross-fixture: tier distribution', () => {
     it('CIV-NOR is Tier 3 (alpha override)', () => {
       expect(judgePickInput(civ_nor).tier).toBe(3);
@@ -200,6 +251,12 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
     });
     it('ESP-AUT is Tier 1 (model confirmed, no qualifying alpha signals)', () => {
       expect(judgePickInput(esp_aut).tier).toBe(1);
+    });
+    it('POR-CRO is Tier 1 (Rule 11b blocks Under subthreshold compression)', () => {
+      expect(judgePickInput(por_cro).tier).toBe(1);
+    });
+    it('SUI-ALG is Tier 1 (Rule 18 form anchor confirmed)', () => {
+      expect(judgePickInput(sui_alg).tier).toBe(1);
     });
   });
 });

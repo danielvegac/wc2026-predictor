@@ -698,14 +698,15 @@ export const por_cro: PickJudgeInput = {
 
 /**
  * R32-13: Switzerland vs Algeria — SUI-ALG
- * Data corrections: SUI topped Group B 2-1 vs CAN (not 1-1). ALG had 3-3 AUT in MD3 (not 0-1).
- * With corrected ALG form (awayFormMultiplier=1.26), awayAdjustedLambda rises to 1.75.
- * DC modal score at λ_h=1.65, λ_a=1.75: 1-1 (P~10.9%) — the 1-0 vs 2-0 tie fully resolves.
- * Over 2.5 Score=87 — strongest high-scoring signal seen this tournament.
- * Away value markets=1 → blocks Rule 15 (no clean sheet override even with away λ edge).
- * BTTS Yes Score=77 — below 80 but combined with Over87 confirms open game.
- * No AH cascade for either team — no Rule 14 direction flip.
- * Model pick: 1-1 (from corrected data DC modal).
+ * Re-corrected: ALG form data was wrong (3-3 AUT in MD3 led to over-inflated λ).
+ * Actual R32 dashboard read: awayAdjustedLambda=0.80, homeAdjustedLambda=1.80.
+ * SUI 2-1 CAN (MD3) confirmed — homeFormMultiplier=1.35.
+ * ALG conservative value: awayFormMultiplier=0.73 reflecting actual R32 dashboard.
+ * Model pick: 2-0 SUI (DC modal at λ_h=1.80, λ_a=0.80).
+ * Rule 18 fires: homeλ=1.80 ≥ 1.0 + awayλ=0.80 < 1.0 + SUI win%=62% > 55%.
+ * awayAHBestScore=79 < 85 threshold → form anchor enforced → Tier 1 (2-0 SUI).
+ * Over 2.5 Score=87 and BTTS Yes 77 are high-scoring signals (irrelevant to tier path).
+ * No AH cascade meets Rule 14 threshold (79 < 83) — no Tier 3.
  */
 export const sui_alg: PickJudgeInput = {
   matchId: 'R32-13',
@@ -715,8 +716,8 @@ export const sui_alg: PickJudgeInput = {
   homeElo: 1820,
   awayElo: 1780,
   homeFormMultiplier: 1.35,
-  awayFormMultiplier: 1.26,
-  modelPick: { home: 1, away: 1 },
+  awayFormMultiplier: 0.73,
+  modelPick: { home: 2, away: 0 },
 
   homeTournament: {
     wins: 2, draws: 1, losses: 0,
@@ -738,9 +739,9 @@ export const sui_alg: PickJudgeInput = {
   hasDocumentedDemoralization: false,
 
   alpha: {
-    alphaHomeWinPct: 35.3,
-    alphaDrawPct: 24.0,
-    alphaAwayWinPct: 40.6,
+    alphaHomeWinPct: 62.0,   // SUI dominant at λ_h=1.80 vs λ_a=0.80 (corrected dashboard read)
+    alphaDrawPct: 21.5,
+    alphaAwayWinPct: 16.5,
 
     awayAHBestScore: 79,
     awayAHBestLine: 1.0,
@@ -765,17 +766,18 @@ export const sui_alg: PickJudgeInput = {
     csAwayCleanSheetScore: 0,
     csHighScoringHomeScore: 0,
 
-    awayAdjustedLambda: 1.75,  // corrected: ALG MD3 was 3-3 AUT (not 0-1); was ~1.0 before
+    homeAdjustedLambda: 1.80,  // SUI confirmed model read (corrected)
+    awayAdjustedLambda: 0.80,  // ALG corrected — was over-inflated at 1.75
 
     goalDistribution: {
-      awayPeakAtZeroPct: 15,
+      awayPeakAtZeroPct: 35,   // ALG peaks at 0 goals with low λ=0.80
     },
 
     leagueBttsPct: 52,
-    matchProjectedBttsPct: 65,
+    matchProjectedBttsPct: 42,
     leagueOver25Pct: 54.0,
-    matchProjectedOver25Pct: 72.0,
-    projectedGoalsPerMatch: 3.40,  // homeλ=1.65 + awayλ=1.75
+    matchProjectedOver25Pct: 48.0,
+    projectedGoalsPerMatch: 2.60,  // homeλ=1.80 + awayλ=0.80
 
     climateNetFactor: 1.0,
   },
