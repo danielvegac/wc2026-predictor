@@ -564,6 +564,19 @@ export const matchInsights: MatchInsight[] = [
   // JUNE 22 — GROUP STAGE DAY 12
   // ==========================================
 
+  // ALG 2-1 JOR (MD2 — missing entry; GS-J-2 was taken by AUT vs JOR MD1)
+  {
+    matchId: "GS-J-6",
+    date: "2026-06-22",
+    homeTeamId: "ALG", awayTeamId: "JOR",
+    homeGoals: 2, awayGoals: 1,
+    homeAttackMultiplier: 1.04,
+    homeDefenseMultiplier: 0.95,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.74,
+    notes: "Algeria 2-1 Jordan MD2. Benbouali 69' header (Mahrez corner), Gouiri 82'. Al-Rashdan 36' gave Jordan lead. Algeria comeback. Amoura out (hamstring). Mahrez-Gouiri axis key.",
+  },
+
   // ARG 2-0 AUT
   {
     matchId: "GS-J-3",
@@ -977,6 +990,30 @@ export const matchInsights: MatchInsight[] = [
     awayAttackMultiplier: 0.65,
     awayDefenseMultiplier: 0.65,
     notes: "España 3-0 Austria R32. Model pick EXACT (3-0 Tier 1 High Confidence). España xG ajustada ~2.1, dominancia total. Lamine Yamal determinante. Austria λ 0.75 pero no convirtió — defensa española impermeable. Spain attack capped UP: dominancia total confirmada. Spain defense capped UP: clean sheet vs Top 8% ataque. Austria attack floored DOWN: 0 goles, λ ajustada 0.75 pero no convirtió. Austria defense floored DOWN: 3 goles concedidos vs España.",
+  },
+  // R32-12: Portugal 2-1 Croatia (July 3, 2026)
+  {
+    matchId: "R32-12",
+    date: "2026-07-03",
+    homeTeamId: "POR", awayTeamId: "CRO",
+    homeGoals: 2, awayGoals: 1,
+    homeAttackMultiplier: 1.45,  // POR 2.18 xG / 1.35 = 1.62 → capped
+    homeDefenseMultiplier: 0.96, // 1 conceded — Perisic 53'. Defense held late.
+    awayAttackMultiplier: 0.99,  // CRO 1.34 xG / 1.35 = 0.99
+    awayDefenseMultiplier: 0.65, // 2 goals conceded, 2.18 xG allowed → floored
+    notes: "THRILLER. Portugal 2-1 Croatia R32. 0-0 HT despite POR dominating (0.92 xG vs 0.21 HT). Perisic 53' gave Croatia lead from Stanisic cross. Ronaldo pen 68' (VAR) equalized — oldest scorer in WC KO history. Ramos 90+4 header from Leao cross won it. Gvardiol 'goal' disallowed by VAR (Matanovic offside touch) in 100+'. Controversial end. Croatia eliminated — likely Modric's last WC. POR xG 2.18 vs CRO 1.34 — Portugal clearly better team. Ronaldo substituted off 81' — Martinez bravery rewarded. MODEL NOTE: 2-1 was correct pick (model app). 1-1 (our pick) wrong — Rule 11b gap led to incorrect compression.",
+  },
+  // R32-13: Switzerland 2-0 Algeria (July 3, 2026)
+  {
+    matchId: "R32-13",
+    date: "2026-07-03",
+    homeTeamId: "SUI", awayTeamId: "ALG",
+    homeGoals: 2, awayGoals: 0,
+    homeAttackMultiplier: 1.35,  // SUI scored 2, controlled match
+    homeDefenseMultiplier: 1.45, // Clean sheet vs Algeria — capped
+    awayAttackMultiplier: 0.65,  // ALG 0 goals, failed to convert — floored
+    awayDefenseMultiplier: 0.65, // 2 goals conceded, poor defensive shape — floored
+    notes: "Switzerland 2-0 Algeria R32. Embolo 11' (Manzambi assist, counterattack). Ndoye 46' (low shot center box). Switzerland controlled throughout — Algeria struggled to create despite tournament xG of 1.3/game. Manzambi MOTM — 3G+2A in tournament, FIFA Young Player frontrunner. Kobel solid GK, clean sheet. Algeria eliminated — Mahrez contained, Amoura absent (hamstring). SUI xG ~1.8 vs ALG ~0.8 confirmed model app read. MODEL NOTE: Model app correct (2-0 or 1-0). Alpha read misdirected — Alphametrico X thread showed Score 91 for ALG +1 but dashboard (more recent) showed Score 79. Dashboard is authoritative. KEY LESSON: When dashboard and X thread diverge, dashboard wins. Model app λ (SUI 1.8, ALG 0.8) was accurate — Algeria 3-3 AUT was outlier, not form signal.",
   },
 ];
 

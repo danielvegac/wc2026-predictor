@@ -64,18 +64,22 @@ export const knockoutMatches: KnockoutMatch[] = [
 
   // July 2
   { matchId: "R32-09", round: "R32", date: "2026-07-02", homeTeamId: "BEL", awayTeamId: "SEN",
-    venue: "Lumen Field, Seattle, WA", kickoffCOT: "3:00 PM", status: "upcoming" },
+    venue: "Lumen Field, Seattle, WA", kickoffCOT: "3:00 PM", status: "completed",
+    homeGoals: 3, awayGoals: 2 },  // AET Belgium advance
   { matchId: "R32-10", round: "R32", date: "2026-07-02", homeTeamId: "USA", awayTeamId: "BIH",
-    venue: "Levi's Stadium, Santa Clara, CA", kickoffCOT: "7:00 PM", status: "upcoming" },
+    venue: "Levi's Stadium, Santa Clara, CA", kickoffCOT: "7:00 PM", status: "completed",
+    homeGoals: 2, awayGoals: 0 },
   { matchId: "R32-11", round: "R32", date: "2026-07-02", homeTeamId: "ESP", awayTeamId: "AUT",
     venue: "SoFi Stadium, Inglewood, CA", kickoffCOT: "2:00 PM", status: "completed",
     homeGoals: 3, awayGoals: 0 },
 
   // July 3
   { matchId: "R32-12", round: "R32", date: "2026-07-03", homeTeamId: "POR", awayTeamId: "CRO",
-    venue: "BMO Field, Toronto, Canada", kickoffCOT: "6:00 PM", status: "upcoming" },
+    venue: "BMO Field, Toronto, Canada", kickoffCOT: "6:00 PM", status: "completed",
+    homeGoals: 2, awayGoals: 1 },
   { matchId: "R32-13", round: "R32", date: "2026-07-03", homeTeamId: "SUI", awayTeamId: "ALG",
-    venue: "BC Place, Vancouver, Canada", kickoffCOT: "10:00 PM", status: "upcoming" },
+    venue: "BC Place, Vancouver, Canada", kickoffCOT: "10:00 PM", status: "completed",
+    homeGoals: 2, awayGoals: 0 },
   { matchId: "R32-14", round: "R32", date: "2026-07-03", homeTeamId: "AUS", awayTeamId: "EGY",
     venue: "AT&T Stadium, Arlington, TX", kickoffCOT: "1:00 PM", status: "upcoming" },
   { matchId: "R32-15", round: "R32", date: "2026-07-03", homeTeamId: "ARG", awayTeamId: "CPV",
