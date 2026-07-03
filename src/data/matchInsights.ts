@@ -750,6 +750,83 @@ export const matchInsights: MatchInsight[] = [
     notes: "AUTO-XG. Bosnia 2-0 Qatar — straightforward win for Bosnia, finishing 3rd in Group B (3pts). Qatar eliminated with 1pt. Bosnia's physicality and set-piece delivery dominated Qatar's limited defensive structure. 2 red cards received over the tournament (vs Switzerland) hurt their earlier campaign. Qatar failed to build on their MD1 late equalizer vs Switzerland — organization dropped when their plan required goals.",
   },
 
+  // June 25 — Group D MD3
+  // GS-D-5: Turkey 3-2 USA
+  // NOTA: Turkey FINALMENTE marcó — 3 goles después de 0 en 2 partidos
+  // xG estimado: TUR ~2.0, USA ~1.2
+  {
+    matchId: "GS-D-5",
+    date: "2026-06-25",
+    homeTeamId: "TUR", awayTeamId: "USA",
+    homeGoals: 3, awayGoals: 2,
+    homeAttackMultiplier: 1.45,  // capped — Turkey 3 goles, xG estimado ~2.0. Finishing failure ended.
+    homeDefenseMultiplier: 0.79, // 1.35/2.0(est) = 0.68, but USA rotated → 0.79 conservatively
+    awayAttackMultiplier: 0.89,  // USA scored 2 but rotating squad. 2 goals from ~1.2 xG.
+    awayDefenseMultiplier: 0.65, // floored — concedieron 3 a Turkey (dead rubber match, rotating)
+    notes: "Turkey 3-2 USA MD3 — dead rubber for both (USA through as group winners, Turkey eliminated). Turkey FINALMENTE convirtió después de 0 goles en 2 partidos anteriores con 3.5+ xG combinado. Kaan Ayhan late winner en stoppage time. USA rotated squad. CRITICAL CALIBRATION: Turkey attack multiplier NOW reflects real scoring capability — their prior 0 goals were historic finishing failure, not lack of quality. USA defense DOWN severely but context is full rotation vs dead rubber — do NOT apply this to USA R32 assessment (already completed vs Bosnia). Australia: advances as Group D runners-up.",
+  },
+
+  // GS-D-6: Paraguay 0-0 Australia (Jun 25 MD3)
+  // Mutually beneficial draw — both needed at least a point to secure advancement
+  {
+    matchId: "GS-D-6",
+    date: "2026-06-25",
+    homeTeamId: "PAR", awayTeamId: "AUS",
+    homeGoals: 0, awayGoals: 0,
+    homeAttackMultiplier: 0.65, // floored — 0 goals in MD3. PAR scored only via counter vs TUR (MD2).
+    homeDefenseMultiplier: 1.45, // capped — Paraguay clean sheet. Defensive identity confirmed.
+    awayAttackMultiplier: 0.65, // floored — Australia 0 goals in last 2 matches (vs USA + PAR)
+    awayDefenseMultiplier: 1.45, // capped — Australia clean sheet vs Paraguay
+    notes: "Paraguay 0-0 Australia MD3 — mutually beneficial draw, both teams advance. Australia as Group D runners-up (2nd), Paraguay as best 3rd-place (3rd). Scoreless match confirms both teams' attacking frailty. Australia enters R32 vs Egypt with attack at floor — 0 goals in last 2 matches. Their only goal came vs Turkey counter-attack (MD1). Paraguay advance to face France in R16.",
+  },
+
+  // June 26 — Group G MD3
+  // GS-G-5: Egypt 1-1 Iran
+  {
+    matchId: "GS-G-5",
+    date: "2026-06-26",
+    homeTeamId: "EGY", awayTeamId: "IRN",
+    homeGoals: 1, awayGoals: 1,
+    homeAttackMultiplier: 1.10, // Egypt scored 1. Salah contribution likely. ~1.5/1.35 est → 1.10
+    homeDefenseMultiplier: 1.10, // Conceded 1 to Iran but solid overall tournament
+    awayAttackMultiplier: 0.92, // Iran scored 1 — real attacking threat confirmed. ~1.24/1.35 est
+    awayDefenseMultiplier: 1.10, // Iran held Egypt to 1 goal — decent display
+    notes: "Egypt 1-1 Iran MD3 — Egypt advance as Group G winners (5pts). Iran eliminated on goal difference despite not losing a match. Belgium topped Group G with 5pts and better goal diff. Egypt's tournament: consistent, Salah-led, never blowout winners but always competitive. Enter R32 vs Australia with balanced attack/defense. Iran showed real quality across tournament — goal vs Egypt confirms attacking capability. KEY: Egypt advance as slight group winners, face Group D runners-up Australia at AT&T Stadium Dallas.",
+  },
+
+  // June 26 — Group H MD3
+  // GS-H-6: Cape Verde 0-0 Saudi Arabia
+  {
+    matchId: "GS-H-6",
+    date: "2026-06-26",
+    homeTeamId: "CPV", awayTeamId: "KSA",
+    homeGoals: 0, awayGoals: 0,
+    homeAttackMultiplier: 0.65, // floored — 0 goals MD3. Cape Verde identity = defensive block.
+    homeDefenseMultiplier: 1.45, // capped — Cape Verde clean sheet. Third 0-0 draw of tournament.
+    awayAttackMultiplier: 0.65, // floored — KSA 0 goals vs Cape Verde's Vozinha
+    awayDefenseMultiplier: 1.45, // capped — KSA clean sheet (eliminated regardless)
+    notes: "Cape Verde 0-0 Saudi Arabia MD3 — Cape Verde advance as Group H runners-up (3pts, 3 draws). Third 0-0 in their group stage — most defensive-oriented team in tournament. Vozinha (40yo) heroic across all 3 matches. Cape Verde profile: attack permanently floored, defense at cap. Their value is entirely in preventing goals. Saudi Arabia eliminated. Cape Verde face Argentina R32 — Rule 9 applies: 0-0 EV historically high for Cape Verde setups.",
+  },
+
+  // June 27 — Group K MD3
+  // GS-K-5: Colombia 0-0 Portugal
+  // Both already qualified. Colombia already group winners (7pts).
+  {
+    matchId: "GS-K-5",
+    date: "2026-06-27",
+    homeTeamId: "COL", awayTeamId: "POR",
+    homeGoals: 0, awayGoals: 0,
+    homeAttackMultiplier: 0.65, // floored — 0 goals. Dead rubber, likely rotation + low intensity.
+    homeDefenseMultiplier: 1.45, // capped — Colombia clean sheet vs Portugal. Elite defensive display.
+    awayAttackMultiplier: 0.65, // floored — Portugal 0 goals. Ronaldo resting/reduced minutes likely.
+    awayDefenseMultiplier: 1.45, // capped — Portugal clean sheet vs Colombia.
+    notes: "Colombia 0-0 Portugal MD3 — both already qualified, Colombia group winners. Tactical dead rubber — low intensity, rotation likely. Colombia xG suppressed by mutual low-press approach. KEY FORM NOTE FOR R32: GS-K-5 recency weight (60%) will depress Colombia attack lambda significantly (0.65 floor). This is dead-rubber context, NOT a structural attacking collapse. Defense multiplier UP — clean sheet vs Portugal is a real quality signal. Colombia enters R32 vs Ghana with elevated defense, suppressed attack in model. Apply dead-rubber context when interpreting lambda output.",
+  },
+
+  // June 27 — Group J MD3 (ARG-JOR)
+  // GS-J-5 data: task says ARG 3-1 JOR (Messi from bench scored) — existing entry has JOR 0-3 ARG
+  // Existing GS-J-5 already present with homeTeamId: JOR / awayTeamId: ARG — SKIP per task instructions
+
   // June 27 — Group I MD3
   // GS-I-5: France 2-1 Norway (group decider)
   // AUTO-XG: FRA 2.5, NOR 1.1
@@ -831,9 +908,9 @@ export const matchInsights: MatchInsight[] = [
     homeGoals: 2, awayGoals: 1,
     homeAttackMultiplier: 1.33,   // 1.8/1.35 = 1.33
     homeDefenseMultiplier: 1.35,  // 1.35/1.0 = 1.35 (1 goal conceded)
-    awayAttackMultiplier: 0.74,   // 1.0/1.35 = 0.74 (Ghana scored 1)
+    awayAttackMultiplier: 0.79,   // CORRECCIÓN: recalibrado a 0.79 — Ghana no está en floor al entrar al R32
     awayDefenseMultiplier: 0.75,  // 1.35/1.8 = 0.75
-    notes: "AUTO-XG. Croatia 2-1 Ghana — Modric orchestrated a composed midfield performance to confirm 2nd place. Croatia's experience showed against a Ghana side that had overperformed vs Panama. Ghana pulled one back late — Croatia defense not airtight (1 goal conceded). Croatia 1.8 xG — clinical on limited chances. KEY: Croatia defense moderate vs MD2 — Livakovic tested (1 goal allowed). Ghana attack UP from MD2 — scored despite ultimately losing. Croatia advance to R32 vs Portugal.",
+    notes: "AUTO-XG. Croatia 2-1 Ghana — Modric orchestrated a composed midfield performance to confirm 2nd place. Croatia's experience showed against a Ghana side that had overperformed vs Panama. Ghana pulled one back late — Croatia defense not airtight (1 goal conceded). Croatia 1.8 xG — clinical on limited chances. KEY: Croatia defense moderate vs MD2 — Livakovic tested (1 goal allowed). Ghana attack UP from MD2 — scored despite ultimately losing. Croatia advance to R32 vs Portugal. CORRECCIÓN: resultado final fue 2-1 (no 2-0). Ghana marcó consolación tardía. awayAttack recalibrado a 0.79 — Ghana no está en floor al entrar al R32.",
   },
 
   // ==========================================

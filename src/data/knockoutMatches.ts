@@ -74,10 +74,10 @@ export const knockoutMatches: KnockoutMatch[] = [
     homeGoals: 3, awayGoals: 0 },
 
   // July 3
-  { matchId: "R32-12", round: "R32", date: "2026-07-03", homeTeamId: "POR", awayTeamId: "CRO",
+  { matchId: "R32-12", round: "R32", date: "2026-07-02", homeTeamId: "POR", awayTeamId: "CRO",
     venue: "BMO Field, Toronto, Canada", kickoffCOT: "6:00 PM", status: "completed",
     homeGoals: 2, awayGoals: 1 },
-  { matchId: "R32-13", round: "R32", date: "2026-07-03", homeTeamId: "SUI", awayTeamId: "ALG",
+  { matchId: "R32-13", round: "R32", date: "2026-07-02", homeTeamId: "SUI", awayTeamId: "ALG",
     venue: "BC Place, Vancouver, Canada", kickoffCOT: "10:00 PM", status: "completed",
     homeGoals: 2, awayGoals: 0 },
   { matchId: "R32-14", round: "R32", date: "2026-07-03", homeTeamId: "AUS", awayTeamId: "EGY",

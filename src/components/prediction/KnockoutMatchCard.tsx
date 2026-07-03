@@ -83,9 +83,9 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
 
         {/* Score inputs */}
         <div className="flex items-center gap-2 shrink-0 pt-0.5">
-          <ScoreInput value={homeGoals} onChange={handleHomeChange} disabled={locked || isCompleted} />
+          <ScoreInput value={homeGoals} onChange={handleHomeChange} disabled={locked || (isCompleted && homeGoals !== null && awayGoals !== null)} />
           <span className="text-text-muted font-medium text-sm">–</span>
-          <ScoreInput value={awayGoals} onChange={handleAwayChange} disabled={locked || isCompleted} />
+          <ScoreInput value={awayGoals} onChange={handleAwayChange} disabled={locked || (isCompleted && homeGoals !== null && awayGoals !== null)} />
         </div>
 
         {/* Away team */}
