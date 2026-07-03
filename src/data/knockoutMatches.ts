@@ -62,13 +62,15 @@ export const knockoutMatches: KnockoutMatch[] = [
     venue: "Mercedes-Benz Stadium, Atlanta, GA", kickoffCOT: "11:00 AM", status: "completed",
     homeGoals: 2, awayGoals: 1 },
 
-  // July 2
-  { matchId: "R32-09", round: "R32", date: "2026-07-02", homeTeamId: "BEL", awayTeamId: "SEN",
+  // July 1 (continued)
+  { matchId: "R32-09", round: "R32", date: "2026-07-01", homeTeamId: "BEL", awayTeamId: "SEN",
     venue: "Lumen Field, Seattle, WA", kickoffCOT: "3:00 PM", status: "completed",
     homeGoals: 3, awayGoals: 2 },  // AET Belgium advance
-  { matchId: "R32-10", round: "R32", date: "2026-07-02", homeTeamId: "USA", awayTeamId: "BIH",
+  { matchId: "R32-10", round: "R32", date: "2026-07-01", homeTeamId: "USA", awayTeamId: "BIH",
     venue: "Levi's Stadium, Santa Clara, CA", kickoffCOT: "7:00 PM", status: "completed",
     homeGoals: 2, awayGoals: 0 },
+
+  // July 2
   { matchId: "R32-11", round: "R32", date: "2026-07-02", homeTeamId: "ESP", awayTeamId: "AUT",
     venue: "SoFi Stadium, Inglewood, CA", kickoffCOT: "2:00 PM", status: "completed",
     homeGoals: 3, awayGoals: 0 },

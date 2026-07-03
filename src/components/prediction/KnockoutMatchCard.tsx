@@ -23,14 +23,12 @@ const ROUND_LABELS: Record<string, string> = {
   F: "Final",
 };
 
-const MATRIX_CUTOFF = "2026-07-02";
-
 export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: KnockoutMatchCardProps) {
   const prediction = usePredictionStore((s) => s.predictions[ko.matchId]);
   const setPrediction = usePredictionStore((s) => s.setPrediction);
   const locked = usePredictionStore((s) => s.locked);
 
-  const showMatrixToggle = ko.date >= MATRIX_CUTOFF && ko.status !== "completed";
+  const showMatrixToggle = modelPred?.expectedHomeGoals != null && modelPred?.expectedAwayGoals != null;
   const [matrixOpen, setMatrixOpen] = useState(false);
 
   const homeGoals = prediction?.homeGoals ?? null;
@@ -161,14 +159,14 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
         </div>
       )}
 
-      {/* Scoreline matrix toggle (upcoming July 2+ matches only) */}
-      {showMatrixToggle && modelPred?.expectedHomeGoals != null && (
+      {/* Scoreline matrix toggle */}
+      {showMatrixToggle && (
         <div className="mt-3 border-t border-border pt-3">
           <button
             onClick={() => setMatrixOpen((o) => !o)}
             className="w-full flex items-center justify-center gap-1.5 text-xs text-text-muted hover:text-text-secondary transition-colors"
           >
-            <span>📊 Ver matriz del modelo</span>
+            <span>📊 Model Score Matrix</span>
             <span>{matrixOpen ? "▴" : "▾"}</span>
           </button>
           {matrixOpen && (
