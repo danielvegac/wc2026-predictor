@@ -45,7 +45,7 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
   };
 
   // Border color based on completion
-  let resultBorder = "border-white/8";
+  let resultBorder = "border-border";
   if (isCompleted) {
     resultBorder = "border-accent-green/40";
   } else if (homeGoals !== null && awayGoals !== null) {
@@ -56,12 +56,8 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
 
   return (
     <div
-      className={`rounded-xl border ${resultBorder} px-4 py-3 transition-shadow`}
-      style={{
-        background: "rgba(255, 255, 255, 0.04)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-      }}
+      className={`rounded-md border ${resultBorder} px-4 py-3 transition-colors`}
+      style={{ background: "var(--color-bg-surface)" }}
     >
       {/* Top row: R32 badge + date + kickoff */}
       <div className="flex items-center justify-between mb-2">
@@ -116,7 +112,7 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
           {modelPred.expectedHomeGoals != null && (
             <div className="mt-1.5 flex items-center justify-center gap-1.5" style={{ fontSize: "0.7rem" }}>
               <span className="text-text-muted font-medium">Exp. goals</span>
-              <span className="font-mono font-semibold text-blue-400">
+              <span className="font-mono font-semibold" style={{ color: "var(--color-info)" }}>
                 {modelPred.expectedHomeGoals.toFixed(1)} – {modelPred.expectedAwayGoals.toFixed(1)}
               </span>
             </div>
@@ -124,10 +120,10 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
 
           {/* Model score + AET indicator */}
           <div className="mt-1.5 flex items-center justify-center gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-blue-400 font-medium">
+            <span className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "var(--color-info)" }}>
               Model
             </span>
-            <span className="font-mono text-xs font-semibold text-blue-500">
+            <span className="font-mono text-xs font-semibold" style={{ color: "var(--color-info)" }}>
               {modelPred.homeGoals} – {modelPred.awayGoals}
             </span>
             {modelPred.aetLikely && (

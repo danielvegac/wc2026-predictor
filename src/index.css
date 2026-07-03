@@ -1,35 +1,64 @@
 @import "tailwindcss";
 @import "flag-icons/css/flag-icons.min.css";
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/700.css";
-@import "@fontsource/inter/800.css";
-@import "@fontsource/jetbrains-mono/400.css";
+
+:root {
+  /* Dark theme (default) */
+  --color-bg-base: #09090B;
+  --color-bg-surface: #141414;
+  --color-bg-elevated: #1C1C1E;
+  --color-border: #27272A;
+  --color-border-strong: #3F3F46;
+  --color-text-primary: #FAFAFA;
+  --color-text-secondary: #A1A1AA;
+  --color-text-muted: #52525B;
+  --color-accent: #F0B429;
+  --color-accent-dim: #78530A;
+  --color-success: #22C55E;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+}
+
+[data-theme="light"] {
+  --color-bg-base: #FAFAFA;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-elevated: #F4F4F5;
+  --color-border: #E4E4E7;
+  --color-border-strong: #D4D4D8;
+  --color-text-primary: #09090B;
+  --color-text-secondary: #52525B;
+  --color-text-muted: #A1A1AA;
+  --color-accent: #D97706;
+  --color-accent-dim: #FEF3C7;
+  --color-success: #16A34A;
+  --color-error: #DC2626;
+  --color-info: #2563EB;
+}
 
 @theme {
-  --color-bg-primary: #0F172A;
-  --color-bg-secondary: #0B1120;
-  --color-bg-tertiary: #1E293B;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-light: rgba(255, 255, 255, 0.04);
-  --color-accent-gold: #F59E0B;
-  --color-accent-green: #10B981;
-  --color-accent-red: #EF4444;
-  --color-accent-blue: #3B82F6;
-  --color-text-primary: #F1F5F9;
-  --color-text-secondary: #94A3B8;
-  --color-text-muted: #475569;
+  --color-bg-primary: var(--color-bg-base);
+  --color-bg-secondary: var(--color-bg-surface);
+  --color-bg-tertiary: var(--color-bg-elevated);
+  --color-border: var(--color-border);
+  --color-border-light: var(--color-border);
+  --color-accent-gold: var(--color-accent);
+  --color-accent-green: var(--color-success);
+  --color-accent-red: var(--color-error);
+  --color-accent-blue: var(--color-info);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
 
-  --font-display: "Inter", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-display: "DM Sans", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", "JetBrains Mono", monospace;
 }
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-base);
   color: var(--color-text-primary);
   margin: 0;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }

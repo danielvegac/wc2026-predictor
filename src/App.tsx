@@ -19,6 +19,14 @@ function App() {
   const [view, setView] = useState<View>("predictions");
   const [results, setResults] = useState<MonteCarloResults | null>(null);
   const [running, setRunning] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    return (localStorage.getItem("wc2026-theme") as "dark" | "light") || "dark";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("wc2026-theme", theme);
+  }, [theme]);
   const [simCount, setSimCount] = useState(10_000);
   const locked = usePredictionStore((s) => s.locked);
   const lockPredictions = usePredictionStore((s) => s.lockPredictions);
@@ -85,6 +93,15 @@ function App() {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Theme toggle */}
+            <button
+              onClick={() => setTheme(t => t === "dark" ? "light" : "dark")}
+              className="text-text-muted hover:text-text-primary transition-colors text-xs font-mono"
+              title="Toggle theme"
+            >
+              {theme === "dark" ? "☀" : "☾"}
+            </button>
+
             {/* Last updated */}
             {lastUpdated && (
               <button
