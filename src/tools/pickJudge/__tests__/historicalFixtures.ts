@@ -1,6 +1,94 @@
 import type { PickJudgeInput } from '../types';
 
 /**
+ * R16-1: Canada vs Morocco
+ * Model pick: 0-1 Morocco.
+ * Strong low-scoring signals: Under Score=87, BTTS No Score=82 → tier2Conditions=TRUE.
+ * Morocco AH cascade: best Score=82 @+1.0 (4 consecutive lines ≥80: +1.0/+1.25/+1.5/+1.75).
+ * bestLine=+1.0 > 0.75 → Rule 14 NOT triggered (not tight lines).
+ * awayAHBestScore=82 < 85 → Rule 12 NOT triggered.
+ * bttsNoScore=82 ≥ 80 → Rule 16b NOT triggered (need 60-79 range), Rule 13 NOT triggered.
+ * awayλ=0.96 > 0.45 → Rule 17 NOT triggered.
+ * compressTier2({0,1}): away>home, home=0 → {0,0}.
+ * Expected: 0-0 [Tier 2].
+ *
+ * NOTE: homeTournament, awayTournament, homeFormMultiplier, awayFormMultiplier are
+ * estimated placeholders — update with actuals before treating as validated fixture.
+ */
+export const can_mor: PickJudgeInput = {
+  matchId: 'R16-1',
+  homeTeam: 'Canada',
+  awayTeam: 'Morocco',
+  stage: 'knockout',
+
+  modelPick: { home: 0, away: 1 },
+  homeElo: 1650,
+  awayElo: 1830,
+
+  // PLACEHOLDER — update with actual group stage + R32 records
+  homeTournament: { wins: 3, draws: 1, losses: 0, cleanSheets: 2, goalsScored: 6, goalsConceded: 3 },
+  awayTournament: { wins: 3, draws: 1, losses: 0, cleanSheets: 1, goalsScored: 5, goalsConceded: 2 },
+  homeFormMultiplier: 1.05,  // PLACEHOLDER
+  awayFormMultiplier: 1.10,  // PLACEHOLDER
+
+  homeIsCoHost: true,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 87,
+    bttsNoScore: 82,
+
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    // Morocco AH cascade — +1.0(82), +1.25(81), +1.5(80), +1.75(80), +0.75(74), +0.5(66), 0(27)
+    awayAHBestScore: 82,
+    awayAHBestLine: 1.0,           // tightest line with Score ≥80 is +1.0 (not tight enough for Rule 14)
+    awayAHConsecutiveAbove80: 4,   // +1.0, +1.25, +1.5, +1.75
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 4,      // Morocco AH lines with value
+
+    cs00Score: 75,                 // from correctScoreEV { "0-0": 0.892 } — estimated
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 20.2,
+    alphaDrawPct: 36.7,
+    alphaAwayWinPct: 43.0,
+
+    leagueBttsPct: 45.0,
+    matchProjectedBttsPct: 27.0,   // derived: (1-e^-0.57)*(1-e^-0.96) ≈ 26.8%
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 20.0, // low — λ_total=1.53
+    projectedGoalsPerMatch: 1.53,  // 0.57 + 0.96
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 0.57,
+    awayAdjustedLambda: 0.96,
+  },
+};
+// Expected: 0-0 CAN-MAR [Tier 2]
+// tier2Conditions: bttsNoScore=82 ≥ 60 → true
+// Rule 14: bestLine=1.0 > 0.75 → NOT triggered
+// Rule 12: bestScore=82 < 85 → NOT triggered
+// Rule 16b: bttsNoScore=82 NOT in 60-79 → NOT triggered
+// Rule 13: bttsNoScore=82 > 79 → NOT triggered
+// Rule 17: awayλ=0.96 > 0.45 → NOT triggered
+// compressTier2({0,1}): home=0 → {0, 0}
+// Final: 0-0 [Tier 2]
+
+/**
  * R32-05: Ivory Coast vs Norway
  * Alpha read #2 (final read before kickoff) — this is the one that flipped:
  * Norway AH cascade Score 70-83, zero CIV value markets,
@@ -782,3 +870,399 @@ export const sui_alg: PickJudgeInput = {
     climateNetFactor: 1.0,
   },
 };
+
+
+/**
+ * R32-14: Australia vs Egypt — AUS-EGY (July 3, 2026)
+ * Model pick: 0-2 Egypt. Egypt outright ahead (46.2% vs 21.6%).
+ * EGY +1 AH Score=71 — below Rule 14 threshold (83), no Tier 3 trigger.
+ * bttsNoScore=69 — valid tier2Conditions signal (≥60). Tier 2 compression applies.
+ * Rule 16b: bttsNo 60-79 + EGY λ=1.18 > 0.45 + EGY scored in all 3 matches → fires,
+ *   but compressTier2(0-2)=0-1 already has away goal, so Rule 16b doesn't add one.
+ * Rule 11b: EGY scored in all 3 (5 goals) → fires, no block compression (under signal invalid).
+ * AUS attack at floor (0 goals last 2 matches). Salah-led Egypt consistent scorer.
+ */
+export const aus_egy: PickJudgeInput = {
+  matchId: 'R32-14',
+  homeTeam: 'AUS',
+  awayTeam: 'EGY',
+  stage: 'knockout',
+
+  modelPick: { home: 0, away: 2 },
+  homeElo: 1680,
+  awayElo: 1700,
+
+  // AUS: 2-0 TUR (W,CS), 0-2 USA (L), 0-0 PAR (D,CS)
+  homeTournament: { wins: 1, draws: 1, losses: 1, cleanSheets: 2, goalsScored: 2, goalsConceded: 2 },
+  // EGY: 1-1 BEL (D), 3-1 NZL (W), 1-1 IRN (D) — scored in every group match
+  awayTournament: { wins: 1, draws: 2, losses: 0, cleanSheets: 0, goalsScored: 5, goalsConceded: 3 },
+
+  // AUS: 60%×0.65(PAR) + 30%×0.65(USA) + 10%×1.20(TUR) = 0.70 — attack at floor
+  homeFormMultiplier: 0.70,
+  // EGY: 60%×1.10(IRN) + 30%×1.45(NZL) + 10%×1.15(BEL) = 1.21
+  awayFormMultiplier: 1.21,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 53,           // below noise floor (60) — no compression signal
+    bttsNoScore: 69,             // moderate (60-79) — tier2Conditions valid, Rule 16b condition met
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,          // no AUS AH value markets
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    awayAHBestScore: 71,         // Egypt +1 AH Score=71 — best line, below Rule 14 threshold (83)
+    awayAHBestLine: 1.0,
+    awayAHConsecutiveAbove80: 1,
+
+    homeWinScore: 0,
+    awayWinScore: 37,            // 1X2 Egypt Score=37 — below noise floor
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 1,    // Egypt +1 AH found value
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 21.6,
+    alphaDrawPct: 32.2,
+    alphaAwayWinPct: 46.2,
+
+    leagueBttsPct: 45.0,
+    matchProjectedBttsPct: 35.0,
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 28.0,
+    projectedGoalsPerMatch: 1.86,  // homeλ=0.68 + awayλ=1.18
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 0.68,    // AUS attack suppressed (0 goals last 2 matches)
+    awayAdjustedLambda: 1.18,    // EGY consistent scorer (Salah)
+  },
+};
+// Expected: 0-1 EGY (Tier 2)
+// tier2Conditions: bttsNoScore=69 ≥ 60 → true
+// Rule 14: awayAHBestScore=71 < 83 → NOT triggered
+// Rule 12: awayAHBestScore=71 < 85 → NOT triggered
+// Rule 16a: AUS 1W-1D-1L → draws=1 → NOT perfect → NOT triggered
+// Rule 18: homeλ=0.68 < 1.0 → NOT active
+// Rule 17: awayλ=1.18 > 0.45 → NOT triggered
+// compressTier2({0,2}): away > home, home=0 → {0, 1}
+// Rule 16b: fires (bttsNo=69, λ=1.18, EGY 5 goals) but tier2pick.away=1 already → no change
+// Rule 11b fires (EGY scored in all 3) but no block compression (underSignal invalid)
+// Final: 0-1 EGY [Tier 2]
+
+
+/**
+ * R32-15: Argentina vs Cape Verde — ARG-CPV (July 3, 2026)
+ * PLACEHOLDER — alpha read incomplete, fill in before kickoff.
+ * Model pick TBD. ARG 3W-0D-0L + 2CS + 640 Elo gap → Rule 16a likely fires vs CPV.
+ * CPV profile: 3 draws, attack permanently floored (0-0 ESP, 2-2 URU, 0-0 KSA),
+ *   defense dominant. Rule 9 (0-0 EV high) historically applies to CPV setups.
+ * ARG depth confirmed (Alvarez hat-trick vs JOR without Messi starting).
+ */
+export const arg_cpv: PickJudgeInput = {
+  matchId: 'R32-15',
+  homeTeam: 'ARG',
+  awayTeam: 'CPV',
+  stage: 'knockout',
+
+  modelPick: { home: 2, away: 0 },  // PLACEHOLDER — update with model app read
+  homeElo: 2060,
+  awayElo: 1420,
+
+  // ARG: 3-0 ALG (W,CS), 2-0 AUT (W,CS), 3-1 JOR (W) — 3W-0D-0L
+  homeTournament: { wins: 3, draws: 0, losses: 0, cleanSheets: 2, goalsScored: 8, goalsConceded: 1 },
+  // CPV: 0-0 ESP (D,CS), 2-2 URU (D), 0-0 KSA (D,CS) — 0W-3D-0L
+  awayTournament: { wins: 0, draws: 3, losses: 0, cleanSheets: 2, goalsScored: 2, goalsConceded: 2 },
+
+  // ARG: 60%×1.45(JOR) + 30%×1.22(AUT) + 10%×1.28(ALG) = 1.36
+  homeFormMultiplier: 1.36,
+  // CPV: 60%×0.65(KSA) + 30%×0.65(URU) + 10%×1.25(ESP) = 0.71
+  awayFormMultiplier: 0.71,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {                           // PLACEHOLDER — complete with Alphametrico read before kickoff
+    underTopScore: 0,
+    bttsNoScore: 0,
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    awayAHBestScore: 0,
+    awayAHBestLine: 0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 0,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 78.0,           // placeholder from model projections
+    alphaDrawPct: 14.0,
+    alphaAwayWinPct: 8.0,
+
+    leagueBttsPct: 45.0,
+    matchProjectedBttsPct: 20.0,
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 45.0,
+    projectedGoalsPerMatch: 2.27,    // placeholder: homeλ=1.85 + awayλ=0.42
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 1.85,        // PLACEHOLDER
+    awayAdjustedLambda: 0.42,        // CPV attack floored
+  },
+};
+// NOTE: Alpha placeholders — run CLI again after Alphametrico read.
+// Rule 16a likely: ARG 3W-0D-0L + 2CS + Elo 640 > 100 + CPV fragile (0W-3D) → will fire
+//   if any Tier 3 trigger present. Blocks Tier 3, caps at Tier 2.
+
+
+/**
+ * R32-16: Colombia vs Ghana — COL-GHA (July 3, 2026)
+ * PLACEHOLDER — alpha read incomplete, fill in before kickoff.
+ * Model pick TBD. COL attack depressed by dead-rubber 0-0 vs POR (MD3 recency weight 60%).
+ * GHA defense solid in group (2 CS vs PAN+ENG) but attack limited (0 vs ENG MD2).
+ * Rule 11b awareness: COL hasn't scored in MD3, GHA hasn't scored in MD2.
+ */
+export const col_gha: PickJudgeInput = {
+  matchId: 'R32-16',
+  homeTeam: 'COL',
+  awayTeam: 'GHA',
+  stage: 'knockout',
+
+  modelPick: { home: 2, away: 0 },  // PLACEHOLDER — update with model app read
+  homeElo: 1890,
+  awayElo: 1600,
+
+  // COL: 3-1 UZB (W), 1-0 COD (W,CS), 0-0 POR (D,CS)
+  homeTournament: { wins: 2, draws: 1, losses: 0, cleanSheets: 2, goalsScored: 4, goalsConceded: 1 },
+  // GHA: 1-0 PAN (W,CS), 0-0 ENG (D,CS), 1-2 CRO (L)
+  awayTournament: { wins: 1, draws: 1, losses: 1, cleanSheets: 2, goalsScored: 2, goalsConceded: 2 },
+
+  // COL: 60%×0.65(POR) + 30%×0.76(COD) + 10%×1.25(UZB) = 0.74
+  homeFormMultiplier: 0.74,
+  // GHA: 60%×0.79(CRO) + 30%×0.65(ENG) + 10%×0.92(PAN) = 0.76
+  awayFormMultiplier: 0.76,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {                           // PLACEHOLDER — complete with Alphametrico read before kickoff
+    underTopScore: 0,
+    bttsNoScore: 0,
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    awayAHBestScore: 0,
+    awayAHBestLine: 0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 0,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 55.0,           // placeholder
+    alphaDrawPct: 25.0,
+    alphaAwayWinPct: 20.0,
+
+    leagueBttsPct: 45.0,
+    matchProjectedBttsPct: 35.0,
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 40.0,
+    projectedGoalsPerMatch: 1.82,    // placeholder: homeλ=1.10 + awayλ=0.72
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 1.10,        // PLACEHOLDER — COL depressed by dead-rubber 0-0 MD3
+    awayAdjustedLambda: 0.72,        // PLACEHOLDER
+  },
+};
+// NOTE: Alpha placeholders — run CLI again after Alphametrico read.
+
+
+/**
+ * R16-1: Canada vs Morocco — CAN-MAR (July 4, 2026, 12:00 COT)
+ * NRG Stadium, Houston, USA
+ * Canada: mixed GS (1W1D1L), disciplined R32 win vs South Africa (1-0). Jonathan David key.
+ * Morocco: unbeaten 33 games, exceptional defensive record (0.8 xGA/game in tournament).
+ *   Won R32 vs Netherlands on pens (1-1 AET). Attack multiplier up from Haiti 4-2 win.
+ * Alpha placeholders — fill in before kickoff.
+ */
+export const can_mar: PickJudgeInput = {
+  matchId: 'R16-1',
+  homeTeam: 'Canada',
+  awayTeam: 'Morocco',
+  stage: 'knockout',
+
+  modelPick: { home: 1, away: 1 },  // PLACEHOLDER — update with model app read
+  homeElo: 1720,
+  awayElo: 1760,
+
+  // CAN: 1-1 BIH (D), 6-0 QAT (W,CS), 1-2 SUI (L), 1-0 RSA (W,CS) — 2W1D1L
+  homeTournament: { wins: 2, draws: 1, losses: 1, cleanSheets: 2, goalsScored: 9, goalsConceded: 3 },
+  // MAR: 1-1 BRA (D), 1-0 SCO (W,CS), 4-2 HAI (W), 1-1 NED AET (W pens) — 3W1D0L
+  awayTournament: { wins: 3, draws: 1, losses: 0, cleanSheets: 1, goalsScored: 7, goalsConceded: 4 },
+
+  // CAN: 60%×0.98(RSA) + 30%×1.04(SUI) + 10%×avg(QAT+BIH) ≈ 0.95
+  homeFormMultiplier: 0.95,
+  // MAR: attack ~1.15 per tournament assessment (unbeaten 33 games, exceptional defensive record)
+  awayFormMultiplier: 1.15,
+
+  homeIsCoHost: true,               // Canada is co-host
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {                           // PLACEHOLDER — complete with Alphametrico read before kickoff
+    underTopScore: 0,
+    bttsNoScore: 0,
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    awayAHBestScore: 0,
+    awayAHBestLine: 0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 0,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 30.0,           // placeholder — Morocco slight Elo edge
+    alphaDrawPct: 30.0,
+    alphaAwayWinPct: 40.0,
+
+    leagueBttsPct: 45.0,
+    matchProjectedBttsPct: 45.0,
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 40.0,
+    projectedGoalsPerMatch: 2.20,
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 1.05,        // PLACEHOLDER — CAN attack disciplined but limited
+    awayAdjustedLambda: 1.15,        // PLACEHOLDER — MAR consistent tournament threat
+  },
+};
+// NOTE: Alpha placeholders — run CLI again after Alphametrico read.
+// Rule 16a awareness: CAN co-host but 1W1D1L GS — NOT perfect record, rule may not fire.
+// Morocco Rule 9 risk: drew vs BRA + NED in regulation — 0-0 EV historically high for MAR setups.
+
+
+/**
+ * R16-2: Paraguay vs France — PAR-FRA (July 4, 2026, 16:00 COT)
+ * Lincoln Financial Field, Philadelphia, USA
+ * Paraguay: survived R32 vs Germany on pens (1-1 AET). xG ~0.36/game. Resilient, passive.
+ * France: 4/4 wins, 13 goals in 4 matches. Mbappe dominant. Attack machine (attack λ capped).
+ * Alpha placeholders — fill in before kickoff.
+ */
+export const par_fra: PickJudgeInput = {
+  matchId: 'R16-2',
+  homeTeam: 'Paraguay',
+  awayTeam: 'France',
+  stage: 'knockout',
+
+  modelPick: { home: 0, away: 3 },  // PLACEHOLDER — France massive favorites
+  homeElo: 1620,
+  awayElo: 2015,
+
+  // PAR: 1-4 USA (L), 1-0 TUR (W,CS), 0-0 AUS (D,CS), 1-1 GER AET (W pens) — 2W1D1L
+  homeTournament: { wins: 2, draws: 1, losses: 1, cleanSheets: 2, goalsScored: 3, goalsConceded: 5 },
+  // FRA: 3-1 SEN (W), 3-0 IRQ (W,CS), 2-1 NOR (W), 3-0 SWE (W,CS) — 4W0D0L
+  awayTournament: { wins: 4, draws: 0, losses: 0, cleanSheets: 2, goalsScored: 11, goalsConceded: 2 },
+
+  // PAR: 60%×0.65(GER) + 30%×0.65(AUS) + 10%×avg(TUR+USA) ≈ 0.75
+  homeFormMultiplier: 0.75,
+  // FRA: 60%×1.45(SWE) + 30%×1.45(NOR) + 10%×avg(IRQ+SEN) ≈ 1.40
+  awayFormMultiplier: 1.40,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {                           // PLACEHOLDER — complete with Alphametrico read before kickoff
+    underTopScore: 0,
+    bttsNoScore: 0,
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    awayAHBestScore: 0,
+    awayAHBestLine: 0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 0,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 5.0,            // placeholder — France overwhelming favorites
+    alphaDrawPct: 15.0,
+    alphaAwayWinPct: 80.0,
+
+    leagueBttsPct: 45.0,
+    matchProjectedBttsPct: 25.0,     // PAR attack floored — BTTS unlikely
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 55.0,
+    projectedGoalsPerMatch: 2.60,
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 0.45,        // PLACEHOLDER — PAR xG ~0.36/game across tournament
+    awayAdjustedLambda: 2.15,        // PLACEHOLDER — FRA 3.2 xG vs SWE, consistent dominance
+  },
+};
+// NOTE: Alpha placeholders — run CLI again after Alphametrico read.
+// France Rule 16a likely: 4W-0D-0L + 2CS + Elo gap 395 → if any Tier 3 trigger fires, veto.
+// Paraguay Rule 16b awareness: PAR attack λ ~0.45, scored in 3/4 matches — weak scoring signal.

@@ -1080,6 +1080,20 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.65, // 2 goals conceded, 2.18 xG allowed → floored
     notes: "THRILLER. Portugal 2-1 Croatia R32. 0-0 HT despite POR dominating (0.92 xG vs 0.21 HT). Perisic 53' gave Croatia lead from Stanisic cross. Ronaldo pen 68' (VAR) equalized — oldest scorer in WC KO history. Ramos 90+4 header from Leao cross won it. Gvardiol 'goal' disallowed by VAR (Matanovic offside touch) in 100+'. Controversial end. Croatia eliminated — likely Modric's last WC. POR xG 2.18 vs CRO 1.34 — Portugal clearly better team. Ronaldo substituted off 81' — Martinez bravery rewarded. MODEL NOTE: 2-1 was correct pick (model app). 1-1 (our pick) wrong — Rule 11b gap led to incorrect compression.",
   },
+  // GS-C-5: Morocco 4-2 Haiti (Group C MD3)
+  // Morocco top Group C; Haiti eliminated
+  {
+    matchId: "GS-C-5",
+    date: "2026-06-25",
+    homeTeamId: "MAR", awayTeamId: "HAI",
+    homeGoals: 4, awayGoals: 2,
+    homeAttackMultiplier: 1.40,   // 4 goals — dominant attacking display
+    homeDefenseMultiplier: 0.88,  // 2 goals conceded vs weak Haiti — slight vulnerability
+    awayAttackMultiplier: 1.05,   // Haiti scored 2 — more than expected vs Morocco
+    awayDefenseMultiplier: 0.65,  // 4 goals conceded → floored
+    notes: "Morocco 4-2 Haiti MD3 — Morocco top Group C (7pts). Hakim Ziyech inspired display; Bounou managed late nerves. Haiti 4 goals conceded hurt but they scored 2 — their best attacking performance. Morocco advance unbeaten in GS with best defensive record in tournament (0.8 xGA/game). KEY FORM NOTE: Morocco attack confirmed multi-dimensional — not just counter-attack. Haiti eliminated after 3 group-stage defeats.",
+  },
+
   // R32-13: Switzerland 2-0 Algeria (July 3, 2026)
   {
     matchId: "R32-13",
@@ -1091,6 +1105,32 @@ export const matchInsights: MatchInsight[] = [
     awayAttackMultiplier: 0.65,  // ALG 0 goals, failed to convert — floored
     awayDefenseMultiplier: 0.65, // 2 goals conceded, poor defensive shape — floored
     notes: "Switzerland 2-0 Algeria R32. Embolo 11' (Manzambi assist, counterattack). Ndoye 46' (low shot center box). Switzerland controlled throughout — Algeria struggled to create despite tournament xG of 1.3/game. Manzambi MOTM — 3G+2A in tournament, FIFA Young Player frontrunner. Kobel solid GK, clean sheet. Algeria eliminated — Mahrez contained, Amoura absent (hamstring). SUI xG ~1.8 vs ALG ~0.8 confirmed model app read. MODEL NOTE: Model app correct (2-0 or 1-0). Alpha read misdirected — Alphametrico X thread showed Score 91 for ALG +1 but dashboard (more recent) showed Score 79. Dashboard is authoritative. KEY LESSON: When dashboard and X thread diverge, dashboard wins. Model app λ (SUI 1.8, ALG 0.8) was accurate — Algeria 3-3 AUT was outlier, not form signal.",
+  },
+  // R32-15: Argentina 3-2 Cape Verde AET (July 3, 2026)
+  {
+    matchId: "R32-15",
+    date: "2026-07-03",
+    homeTeamId: "ARG", awayTeamId: "CPV",
+    homeGoals: 3, awayGoals: 2,
+    homeAttackMultiplier: 1.30,   // scored in all 4 matches, won 3 — consistent quality
+    homeDefenseMultiplier: 1.05,  // conceded 2 in AET — acceptable but not elite
+    awayAttackMultiplier: 1.15,   // Cape Verde scored 2 in AET — better than expected
+    awayDefenseMultiplier: 0.80,  // 3 goals conceded vs Argentina
+    notes: "Argentina 3-2 Cape Verde AET — Argentina advance to R16. Tough match: Cape Verde's Vozinha heroics extended into AET. Argentina scored in all 4 tournament matches, won 3. Messi + Lautaro decisive in extra time. Cape Verde showed they can score (2 goals) but defensive limitations exposed across 120 minutes. FORM NOTE: ARG attack steady at ~1.30, defense slightly exposed (1.05) — Cape Verde threat was real. Argentina face Egypt in R16.",
+  },
+
+  // R32-16: Colombia 1-0 Ghana (July 3, 2026)
+  // AUTO-XG: COL 2.19, GHA 0.26
+  {
+    matchId: "R32-16",
+    date: "2026-07-03",
+    homeTeamId: "COL", awayTeamId: "GHA",
+    homeGoals: 1, awayGoals: 0,
+    homeAttackMultiplier: 1.45,   // 2.19/1.35 = 1.62 → capped — Colombia dominant by xG
+    homeDefenseMultiplier: 1.45,  // 1.35/0.26 = 5.19 → capped — Ghana zero shots on target
+    awayAttackMultiplier: 0.65,   // 0.26/1.35 = 0.19 → floored — Ghana created nothing
+    awayDefenseMultiplier: 0.65,  // 1.35/2.19 = 0.62 → floored — Colombia xG dominance
+    notes: "AUTO-XG. Colombia 1-0 Ghana. COL xG 2.19 — dominant possession and chance creation. Ghana xG 0.26 — zero shots on target. Colombia only scored 1 from 2.19 xG (big underperformance of finishing). Key notes: James Rodríguez subbed HT (leggy, fitness concern for R16), Jhon Córdoba injured early (came off 20'). Luis Díaz still key threat — tireless pressing. Colombia advance to R16 vs Switzerland. Ghana eliminated — tournament ended quietly after promising group stage (2 CS, beat Panama).",
   },
 ];
 

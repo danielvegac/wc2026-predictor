@@ -14,19 +14,25 @@ interface DateGroup {
   isToday: boolean;
 }
 
-export function KnockoutSection() {
-  const [collapsed, setCollapsed] = useState(false);
+function RoundSection({
+  title,
+  badge,
+  matches,
+  defaultCollapsed = false,
+}: {
+  title: string;
+  badge: string;
+  matches: KnockoutMatch[];
+  defaultCollapsed?: boolean;
+}) {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const predictions = useModelPredictionStore((s) => s.predictions);
   const todayRef = useRef<HTMLDivElement>(null);
-
-  const r32Matches = useMemo(() => {
-    return knockoutMatches.filter((m) => m.round === "R32");
-  }, []);
 
   const dateGroups = useMemo(() => {
     const today = getTodayCOT();
 
-    const sorted = [...r32Matches].sort((a, b) => {
+    const sorted = [...matches].sort((a, b) => {
       const dateCmp = a.date.localeCompare(b.date);
       if (dateCmp !== 0) return dateCmp;
       return parseKickoffMinutesCOT(a.kickoffCOT) - parseKickoffMinutesCOT(b.kickoffCOT);
@@ -40,37 +46,35 @@ export function KnockoutSection() {
     }
 
     const groups: DateGroup[] = [];
-    for (const [date, matches] of map) {
-      groups.push({ date, label: formatDateLabelCOT(date), matches, isToday: date === today });
+    for (const [date, matchList] of map) {
+      groups.push({ date, label: formatDateLabelCOT(date), matches: matchList, isToday: date === today });
     }
 
     return groups;
-  }, [r32Matches]);
+  }, [matches]);
 
-  // Scroll today's R32 section into view if there are matches today
   useEffect(() => {
     if (todayRef.current) {
       todayRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, []);
 
-  if (r32Matches.length === 0) return null;
+  if (matches.length === 0) return null;
 
   return (
     <div className="mt-10">
-      {/* Section header */}
       <button
         onClick={() => setCollapsed((c) => !c)}
         className="flex items-center gap-3 mb-6 cursor-pointer group w-full"
       >
         <h2 className="text-xl font-bold text-text-primary group-hover:text-accent-gold transition-colors">
-          Round of 32
+          {title}
         </h2>
         <span className="text-[10px] font-bold uppercase tracking-wider bg-accent-gold/10 text-accent-gold px-2.5 py-1 rounded-full">
-          Knockout Stage
+          {badge}
         </span>
         <span className="text-xs text-text-muted">
-          · {r32Matches.length} matches
+          · {matches.length} matches
         </span>
         <span className="ml-auto text-text-muted text-sm">
           {collapsed ? "▸" : "▾"}
@@ -84,7 +88,6 @@ export function KnockoutSection() {
               key={group.date}
               ref={group.isToday ? todayRef : undefined}
             >
-              {/* Date header */}
               <div
                 className={`flex items-center gap-2 mb-3 px-1 ${
                   group.isToday ? "sticky top-[105px] z-[5] bg-bg-secondary py-2 -mx-1 px-2 rounded-lg" : ""
@@ -107,7 +110,6 @@ export function KnockoutSection() {
                 </span>
               </div>
 
-              {/* Match cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 {group.matches.map((ko) => {
                   const homeTeam = teamMap.get(ko.homeTeamId);
@@ -130,5 +132,26 @@ export function KnockoutSection() {
         </div>
       )}
     </div>
+  );
+}
+
+export function KnockoutSection() {
+  const r32Matches = useMemo(() => knockoutMatches.filter((m) => m.round === "R32"), []);
+  const r16Matches = useMemo(() => knockoutMatches.filter((m) => m.round === "R16"), []);
+
+  return (
+    <>
+      <RoundSection
+        title="Round of 16"
+        badge="Knockout Stage"
+        matches={r16Matches}
+      />
+      <RoundSection
+        title="Round of 32"
+        badge="Knockout Stage"
+        matches={r32Matches}
+        defaultCollapsed={true}
+      />
+    </>
   );
 }

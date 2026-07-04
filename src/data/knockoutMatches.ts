@@ -85,9 +85,39 @@ export const knockoutMatches: KnockoutMatch[] = [
   { matchId: "R32-14", round: "R32", date: "2026-07-03", homeTeamId: "AUS", awayTeamId: "EGY",
     venue: "AT&T Stadium, Arlington, TX", kickoffCOT: "1:00 PM", status: "upcoming" },
   { matchId: "R32-15", round: "R32", date: "2026-07-03", homeTeamId: "ARG", awayTeamId: "CPV",
-    venue: "Hard Rock Stadium, Miami Gardens, FL", kickoffCOT: "5:00 PM", status: "upcoming" },
+    venue: "Hard Rock Stadium, Miami Gardens, FL", kickoffCOT: "5:00 PM", status: "completed",
+    homeGoals: 3, awayGoals: 2 },  // AET Argentina advance
   { matchId: "R32-16", round: "R32", date: "2026-07-03", homeTeamId: "COL", awayTeamId: "GHA",
-    venue: "Arrowhead Stadium, Kansas City, MO", kickoffCOT: "8:30 PM", status: "upcoming" },
+    venue: "Arrowhead Stadium, Kansas City, MO", kickoffCOT: "8:30 PM", status: "completed",
+    homeGoals: 1, awayGoals: 0 },
+
+  // ==========================================
+  // ROUND OF 16
+  // ==========================================
+
+  // July 4
+  { matchId: "R16-1", round: "R16", date: "2026-07-04", homeTeamId: "CAN", awayTeamId: "MAR",
+    venue: "NRG Stadium, Houston, USA", kickoffCOT: "12:00 PM", status: "upcoming" },
+  { matchId: "R16-2", round: "R16", date: "2026-07-04", homeTeamId: "PAR", awayTeamId: "FRA",
+    venue: "Lincoln Financial Field, Philadelphia, USA", kickoffCOT: "4:00 PM", status: "upcoming" },
+
+  // July 5
+  { matchId: "R16-3", round: "R16", date: "2026-07-05", homeTeamId: "BRA", awayTeamId: "NOR",
+    venue: "MetLife Stadium, East Rutherford, USA", kickoffCOT: "3:00 PM", status: "upcoming" },
+  { matchId: "R16-4", round: "R16", date: "2026-07-05", homeTeamId: "MEX", awayTeamId: "ENG",
+    venue: "Estadio Azteca, Mexico City, Mexico", kickoffCOT: "7:00 PM", status: "upcoming" },
+
+  // July 6
+  { matchId: "R16-5", round: "R16", date: "2026-07-06", homeTeamId: "POR", awayTeamId: "ESP",
+    venue: "AT&T Stadium, Arlington, USA", kickoffCOT: "2:00 PM", status: "upcoming" },
+  { matchId: "R16-6", round: "R16", date: "2026-07-06", homeTeamId: "USA", awayTeamId: "BEL",
+    venue: "Lumen Field, Seattle, USA", kickoffCOT: "4:00 PM", status: "upcoming" },
+
+  // July 7
+  { matchId: "R16-7", round: "R16", date: "2026-07-07", homeTeamId: "ARG", awayTeamId: "EGY",
+    venue: "Mercedes-Benz Stadium, Atlanta, USA", kickoffCOT: "11:00 AM", status: "upcoming" },
+  { matchId: "R16-8", round: "R16", date: "2026-07-07", homeTeamId: "SUI", awayTeamId: "COL",
+    venue: "BC Place, Vancouver, Canada", kickoffCOT: "3:00 PM", status: "upcoming" },
 ];
 
 /** Get all knockout matches for a specific round */
