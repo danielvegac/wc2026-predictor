@@ -83,7 +83,21 @@ export function calculateFormRankings(
     // Stage progression bonus: teams that played knockout matches get a base bump
     const playedR32 = teamInsights.some((m) => m.matchId.startsWith("R32"));
     const playedR16 = teamInsights.some((m) => m.matchId.startsWith("R16"));
-    const stageBonus = playedR16 ? 0.25 : playedR32 ? 0.15 : 0;
+    const playedQF  = teamInsights.some((m) => m.matchId.startsWith("QF"));
+    const playedSF  = teamInsights.some((m) => m.matchId.startsWith("SF"));
+    const playedFinal = teamInsights.some((m) => m.matchId.startsWith("FIN") || m.matchId === "F");
+
+    // Note: stageBonus rewards reaching each round.
+    // Eliminated teams are handled via formOverrides —
+    // this bonus only fires for teams with actual match data
+    // at that stage (win OR loss, since a loss still means
+    // they played there).
+    const stageBonus = playedFinal ? 0.40
+      : playedSF  ? 0.35
+      : playedQF  ? 0.28
+      : playedR16 ? 0.25
+      : playedR32 ? 0.15
+      : 0;
 
     // Auto composite: xG 35%, result 25%, Elo 25%, stage 15%, scaled 0-100
     // xgPerformanceScore is typically 0.65-1.45 range, normalize to ~0-1:
