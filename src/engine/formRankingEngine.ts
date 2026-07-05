@@ -14,7 +14,7 @@ export interface TeamFormScore {
   resultScore: number;          // W=3, D=1, L=0, normalized 0-1
   eloChangeScore: number;       // Elo gained/lost since tournament start, normalized 0-1
   // Composite
-  autoScore: number;            // weighted: xG 40% + result 30% + Elo 30%, scaled 0-100
+  autoScore: number;            // weighted: xG 35% + result 25% + Elo 25% + stage 15%, scaled 0-100
   // Manual override
   manualOverride?: number;      // 0-100, set manually for qualitative reasons
   manualNote?: string;          // reason for override
@@ -80,12 +80,17 @@ export function calculateFormRankings(
     const eloChangeNorm = Math.max(-0.5, Math.min(0.5, eloDelta / 100));
     const eloChangeScore = eloChangeNorm + 0.5; // now 0-1
 
-    // Auto composite: xG 40%, result 30%, Elo 30%
+    // Stage progression bonus: teams that played knockout matches get a base bump
+    const playedR32 = teamInsights.some((m) => m.matchId.startsWith("R32"));
+    const playedR16 = teamInsights.some((m) => m.matchId.startsWith("R16"));
+    const stageBonus = playedR16 ? 0.25 : playedR32 ? 0.15 : 0;
+
+    // Auto composite: xG 35%, result 25%, Elo 25%, stage 15%, scaled 0-100
     // xgPerformanceScore is typically 0.65-1.45 range, normalize to ~0-1:
     // map [0.65, 1.45] → [0, 1]
     const xgNorm = Math.max(0, Math.min(1, (xgPerformanceScore - 0.65) / 0.80));
 
-    const autoScore = (xgNorm * 0.4 + resultScore * 0.3 + eloChangeScore * 0.3) * 100;
+    const autoScore = Math.min(100, (xgNorm * 0.35 + resultScore * 0.25 + eloChangeScore * 0.25 + stageBonus) * 100);
 
     const override = manualOverrides?.[team.id];
 
