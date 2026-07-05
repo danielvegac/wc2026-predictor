@@ -18,6 +18,7 @@ import { scoreMatch } from "../../utils/scoring";
 import { expertPicks, calculateExpertAccuracy } from "../../data/expertPicks";
 import { getProdeAIPicks } from "../../data/prodeai";
 import { matchInsights, getTeamFormMultipliers } from "../../data/matchInsights";
+import { EngineDiagnosticsPanel } from "./EngineDiagnosticsPanel";
 import { calculateFormRankings } from "../../engine/formRankingEngine";
 import { formOverrides } from "../../data/formOverrides";
 import {
@@ -54,6 +55,7 @@ export function Dashboard() {
       <ExpertAccuracyTracker predictions={predictions} />
       <FormInsights />
       <TournamentFormRankings />
+      <EngineDiagnosticsPanel />
       <ChampionshipComparison
         results={results}
         getGroupStandings={getGroupStandings}
