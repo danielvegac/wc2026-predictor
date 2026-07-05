@@ -273,5 +273,38 @@ export function checkRule17(input: PickJudgeInput): RuleCheck {
   };
 }
 
+/**
+ * Rule 20 — λ Cap Override (Paraguay-France lesson, July 4 2026)
+ * When: either team's adjusted lambda hits or approaches the engine cap (≥3.5),
+ * indicating structural inflation rather than real predictive power, AND the
+ * alpha Under cascade is strong (Score ≥80 on Under 3 or lower).
+ * Effect: Fires BEFORE tier logic. Compresses the model pick so the winning
+ * team's goals are capped at 2 (e.g. 0-3 → 0-2, 0-4 → 0-2). Subsequent Tier 2
+ * compression can still apply on top (e.g. 0-2 → 0-1 if Under signal is active).
+ */
+export function checkRule20(input: PickJudgeInput): RuleCheck {
+  const { alpha, modelPick } = input;
+  const lambdaCapHit =
+    (alpha.homeAdjustedLambda ?? 0) >= 3.5 ||
+    (alpha.awayAdjustedLambda ?? 0) >= 3.5;
+  const underSignalStrong = alpha.underTopScore >= 80;
+  const pickHasHighTotal = modelPick.home + modelPick.away >= 3;
+
+  const triggered = lambdaCapHit && underSignalStrong && pickHasHighTotal;
+
+  const capSide =
+    (alpha.awayAdjustedLambda ?? 0) >= 3.5
+      ? `awayλ=${(alpha.awayAdjustedLambda ?? 0).toFixed(2)}`
+      : `homeλ=${(alpha.homeAdjustedLambda ?? 0).toFixed(2)}`;
+
+  return {
+    ruleId: 'Rule20',
+    triggered,
+    reason: triggered
+      ? `[Rule 20] λ cap detected (${capSide} >= 3.5) + Under Score=${alpha.underTopScore} >= 80 → compressed total to ≤2`
+      : 'Rule 20 not triggered',
+  };
+}
+
 // Exported for engine noise-floor checks (Rule 2).
 export { NOISE_FLOOR };

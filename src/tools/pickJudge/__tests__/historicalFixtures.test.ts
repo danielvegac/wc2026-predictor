@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { judgePickInput } from '../engine';
-import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, esp_aut, por_cro, sui_alg } from './historicalFixtures';
+import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, esp_aut, por_cro, sui_alg, par_fra } from './historicalFixtures';
+import type { PickJudgeInput } from '../types';
 
 describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
 
@@ -230,6 +231,98 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
     it('NEVER outputs Algeria winning', () => {
       const result = judgePickInput(sui_alg);
       expect(result.finalPick.home).toBeGreaterThan(result.finalPick.away);
+    });
+  });
+
+  describe('Rule 20 — λ Cap Override', () => {
+    // Synthetic test: expectedHomeGoals=0.57, expectedAwayGoals=3.8, underScore=84, bttsNoScore=45, modelPick {0,3}
+    const rule20TestInput: PickJudgeInput = {
+      matchId: 'Rule20-test',
+      homeTeam: 'Home',
+      awayTeam: 'Away',
+      stage: 'knockout',
+      modelPick: { home: 0, away: 3 },
+      homeElo: 1620,
+      awayElo: 2015,
+      homeTournament: { wins: 0, draws: 0, losses: 1, cleanSheets: 0, goalsScored: 0, goalsConceded: 3 },
+      awayTournament: { wins: 1, draws: 0, losses: 0, cleanSheets: 1, goalsScored: 1, goalsConceded: 0 },
+      homeFormMultiplier: 0.65,
+      awayFormMultiplier: 1.40,
+      homeIsCoHost: false,
+      awayIsCoHost: false,
+      playingAtIconicHomeStadium: false,
+      hasDocumentedRotation: false,
+      hasDocumentedDemoralization: false,
+      alpha: {
+        underTopScore: 84,
+        bttsNoScore: 45,
+        bttsYesScore: 0,
+        overTopScore: 0,
+        homeAHBestScore: 0,
+        homeAHBestLine: 0,
+        homeAHConsecutiveAbove80: 0,
+        awayAHBestScore: 0,
+        awayAHBestLine: 0,
+        awayAHConsecutiveAbove80: 0,
+        homeWinScore: 0,
+        awayWinScore: 0,
+        homeValueMarketsFound: 0,
+        awayValueMarketsFound: 0,
+        cs00Score: 0,
+        csHomeCleanSheetScore: 0,
+        csAwayCleanSheetScore: 0,
+        csHighScoringHomeScore: 0,
+        alphaHomeWinPct: 5.0,
+        alphaDrawPct: 15.0,
+        alphaAwayWinPct: 80.0,
+        leagueBttsPct: 45.0,
+        matchProjectedBttsPct: 25.0,
+        leagueOver25Pct: 47.0,
+        matchProjectedOver25Pct: 90.0,
+        projectedGoalsPerMatch: 4.37,
+        climateNetFactor: 1.0,
+        homeAdjustedLambda: 0.57,
+        awayAdjustedLambda: 3.8,
+      },
+    };
+
+    it('Rule 20 fires when awayλ=3.8 ≥ 3.5 AND underScore=84 ≥ 80 AND modelPick total=3', () => {
+      const result = judgePickInput(rule20TestInput);
+      expect(result.rulesTriggered).toContain('Rule20');
+    });
+
+    it('pick compressed to total ≤ 2 after Rule 20 + Tier 2', () => {
+      const result = judgePickInput(rule20TestInput);
+      expect(result.finalPick.home + result.finalPick.away).toBeLessThanOrEqual(2);
+    });
+
+    it('away team still wins after compression', () => {
+      const result = judgePickInput(rule20TestInput);
+      expect(result.finalPick.away).toBeGreaterThan(result.finalPick.home);
+    });
+
+    it('Rule 20 fires and pick compressed to {0,2} before Tier 2 further compresses to {0,1}', () => {
+      const result = judgePickInput(rule20TestInput);
+      // Rule 20 fires → workingPick {0,2}; Tier 2 (under=84) further compresses → {0,1}
+      expect(result.finalPick).toEqual({ home: 0, away: 1 });
+      expect(result.tier).toBe(2);
+    });
+
+    it('R16-2 PAR-FRA: Rule 20 fires and final pick is 0-1 France (matches actual result)', () => {
+      const result = judgePickInput(par_fra);
+      expect(result.rulesTriggered).toContain('Rule20');
+      expect(result.finalPick).toEqual({ home: 0, away: 1 });
+      expect(result.tier).toBe(2);
+    });
+
+    it('Rule 20 does NOT fire when awayλ=2.26 < 3.5 (CAN-MAR post-fix)', () => {
+      // Use par_fra as template but with λ below cap
+      const belowCapInput: PickJudgeInput = {
+        ...rule20TestInput,
+        alpha: { ...rule20TestInput.alpha, awayAdjustedLambda: 2.26, homeAdjustedLambda: 0.73 },
+      };
+      const result = judgePickInput(belowCapInput);
+      expect(result.rulesTriggered).not.toContain('Rule20');
     });
   });
 

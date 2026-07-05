@@ -959,6 +959,20 @@ export const matchInsights: MatchInsight[] = [
     notes: "AUTO-XG (regulation score). Germany 1-1 Paraguay AET, Germany win on penalties. GER xG 2.8 — dominated territory and chance creation. PAR xG 0.6 — classic low-block counter approach. Germany's clinical failure in regulation (missed multiple clear chances) echoes their group stage performance at times. Paraguay's lone goal came from a set piece — their only real moment of threat. Germany advance on pens to R16. KEY: Germany attack remains elite by xG but finishing inconsistency noted. Defense solid (only 0.6 conceded against a direct South American side).",
   },
 
+  // GS-C-5: Morocco 4-2 Haiti (Group C MD3)
+  // Morocco top Group C; Haiti eliminated
+  {
+    matchId: "GS-C-5",
+    date: "2026-06-25",
+    homeTeamId: "MAR", awayTeamId: "HAI",
+    homeGoals: 4, awayGoals: 2,
+    homeAttackMultiplier: 1.40,   // 4 goals — dominant attacking display
+    homeDefenseMultiplier: 0.88,  // 2 goals conceded vs weak Haiti — slight vulnerability
+    awayAttackMultiplier: 1.05,   // Haiti scored 2 — more than expected vs Morocco
+    awayDefenseMultiplier: 0.65,  // 4 goals conceded → floored
+    notes: "Morocco 4-2 Haiti MD3 — Morocco top Group C (7pts). Hakim Ziyech inspired display; Bounou managed late nerves. Haiti 4 goals conceded hurt but they scored 2 — their best attacking performance. Morocco advance unbeaten in GS with best defensive record in tournament (0.8 xGA/game). KEY FORM NOTE: Morocco attack confirmed multi-dimensional — not just counter-attack. Haiti eliminated after 3 group-stage defeats.",
+  },
+
   // R32-04: Netherlands 1-1 AET Morocco (Morocco win on penalties, regulation score used)
   // AUTO-XG: NED 2.1, MAR 0.9
   {
@@ -1080,20 +1094,6 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.65, // 2 goals conceded, 2.18 xG allowed → floored
     notes: "THRILLER. Portugal 2-1 Croatia R32. 0-0 HT despite POR dominating (0.92 xG vs 0.21 HT). Perisic 53' gave Croatia lead from Stanisic cross. Ronaldo pen 68' (VAR) equalized — oldest scorer in WC KO history. Ramos 90+4 header from Leao cross won it. Gvardiol 'goal' disallowed by VAR (Matanovic offside touch) in 100+'. Controversial end. Croatia eliminated — likely Modric's last WC. POR xG 2.18 vs CRO 1.34 — Portugal clearly better team. Ronaldo substituted off 81' — Martinez bravery rewarded. MODEL NOTE: 2-1 was correct pick (model app). 1-1 (our pick) wrong — Rule 11b gap led to incorrect compression.",
   },
-  // GS-C-5: Morocco 4-2 Haiti (Group C MD3)
-  // Morocco top Group C; Haiti eliminated
-  {
-    matchId: "GS-C-5",
-    date: "2026-06-25",
-    homeTeamId: "MAR", awayTeamId: "HAI",
-    homeGoals: 4, awayGoals: 2,
-    homeAttackMultiplier: 1.40,   // 4 goals — dominant attacking display
-    homeDefenseMultiplier: 0.88,  // 2 goals conceded vs weak Haiti — slight vulnerability
-    awayAttackMultiplier: 1.05,   // Haiti scored 2 — more than expected vs Morocco
-    awayDefenseMultiplier: 0.65,  // 4 goals conceded → floored
-    notes: "Morocco 4-2 Haiti MD3 — Morocco top Group C (7pts). Hakim Ziyech inspired display; Bounou managed late nerves. Haiti 4 goals conceded hurt but they scored 2 — their best attacking performance. Morocco advance unbeaten in GS with best defensive record in tournament (0.8 xGA/game). KEY FORM NOTE: Morocco attack confirmed multi-dimensional — not just counter-attack. Haiti eliminated after 3 group-stage defeats.",
-  },
-
   // R32-13: Switzerland 2-0 Algeria (July 3, 2026)
   {
     matchId: "R32-13",
@@ -1131,6 +1131,38 @@ export const matchInsights: MatchInsight[] = [
     awayAttackMultiplier: 0.65,   // 0.26/1.35 = 0.19 → floored — Ghana created nothing
     awayDefenseMultiplier: 0.65,  // 1.35/2.19 = 0.62 → floored — Colombia xG dominance
     notes: "AUTO-XG. Colombia 1-0 Ghana. COL xG 2.19 — dominant possession and chance creation. Ghana xG 0.26 — zero shots on target. Colombia only scored 1 from 2.19 xG (big underperformance of finishing). Key notes: James Rodríguez subbed HT (leggy, fitness concern for R16), Jhon Córdoba injured early (came off 20'). Luis Díaz still key threat — tireless pressing. Colombia advance to R16 vs Switzerland. Ghana eliminated — tournament ended quietly after promising group stage (2 CS, beat Panama).",
+  },
+
+  // ==========================================
+  // ROUND OF 16 — COMPLETED MATCHES
+  // ==========================================
+
+  // R16-1: Canada 0-3 Morocco (July 4, 2026)
+  // Real xG: MAR 0.85 / CAN 0.78 — Morocco scored 3 from 0.85 xG (high conversion via counterattacks + set pieces)
+  {
+    matchId: "R16-1",
+    date: "2026-07-04",
+    homeTeamId: "CAN", awayTeamId: "MAR",
+    homeGoals: 0, awayGoals: 3,
+    homeAttackMultiplier: 0.65,   // 0.78/1.35 = 0.58 → floored — Canada created but didn't convert
+    homeDefenseMultiplier: 0.65,  // 1.35/0.85 = 1.59 → but 3 goals conceded, extreme overperformance — floored
+    awayAttackMultiplier: 0.65,   // 0.85/1.35 = 0.63 → floored — Morocco's 3 goals were conversion outlier, not xG dominance
+    awayDefenseMultiplier: 1.45,  // 1.35/0.78 = 1.73 → capped — Morocco defense held Canada to 0 goals
+    notes: "Morocco 3-0 Canada. Real xG: MAR 0.85 / CAN 0.78 — essentially even xG, result was a high-conversion outlier for Morocco (3 goals from 0.85 xG via counterattacks and set pieces in final 12 minutes + stoppage time). Under Score 87 was correct about volume; the 3-0 scoreline was driven by conversion not sustained pressure. Morocco attack multiplier floored — xG doesn't support 3-goal attack rating. Morocco defense UP (capped) — held Canada completely scoreless despite even xG. KEY: Tier 2 engine (0-0) was too conservative on direction; model app (0-2 Morocco) was closer. Lambda correction from 0.96 → 2.26 would have changed engine output significantly.",
+  },
+
+  // R16-2: Paraguay 0-1 France (July 4, 2026)
+  // Real xG: FRA 1.36 / PAR 0.15 — France generated only 1.36 xG despite λ model of 4.0
+  {
+    matchId: "R16-2",
+    date: "2026-07-04",
+    homeTeamId: "PAR", awayTeamId: "FRA",
+    homeGoals: 0, awayGoals: 1,
+    homeAttackMultiplier: 0.65,   // 0.15/1.35 = 0.11 → floored — Paraguay 0 goals, pure defensive block
+    homeDefenseMultiplier: 1.00,  // 1.35/1.36 = 0.99 → ~1.00 — Paraguay held France to 1.36 xG (block worked)
+    awayAttackMultiplier: 1.00,   // 1.36/1.35 = 1.007 → ~1.00 — France generated only 1.36 xG vs 5-man block
+    awayDefenseMultiplier: 0.65,  // 1.35/0.15 = 9.0 → capped then... Paraguay 0 goals → 0.65 floor for consistency
+    notes: "France 1-0 Paraguay. Real xG: FRA 1.36 / PAR 0.15. Paraguay played 5-man block, systematic fouling, zero shots on target in first half (only 3rd KO match since 1966 with no first-half SoT). France's λ model of 4.0 was structurally inflated — actual xG was 1.36, not 4.0. Single goal: Mbappe penalty 70' (sub Mbappe entered 61'). CRITICAL LESSON: France awayAttackMultiplier drops from 1.45 to 1.00 — they generated only 1.36 xG against a compact block. This correctly reduces France's projected λ vs Morocco R16-2 (similar defensive setup likely). Rule 20 (λ Cap Override) validated: Under Score 84-85 with λ=4.0 cap → model should compress 0-3 → 0-2 → 0-1 via Tier 2 cascade. Alpha read was correct; model λ was the outlier.",
   },
 ];
 

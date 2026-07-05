@@ -3,7 +3,7 @@ import {
   checkRule16a, checkRule16b, checkRule15,
   checkRule14, checkRule12,
   checkRule13, checkRule11b, checkRule9, checkRule7,
-  checkRule17,
+  checkRule17, checkRule20,
   NOISE_FLOOR
 } from './rules';
 
@@ -52,6 +52,23 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
   reasoning.push(`Elo: ${input.homeTeam} ${input.homeElo} vs ${input.awayTeam} ${input.awayElo} (diff: ${input.homeElo - input.awayElo > 0 ? '+' : ''}${input.homeElo - input.awayElo})`);
   reasoning.push(`Form: ${input.homeTeam} ×${input.homeFormMultiplier} | ${input.awayTeam} ×${input.awayFormMultiplier}`);
 
+  // ── PRE-TIER: Rule 20 — λ Cap Override (fires before all tier logic) ──
+  const rule20 = checkRule20(input);
+  let workingPick = { ...input.modelPick };
+  if (rule20.triggered) {
+    // Cap the higher goal total at 2, preserving the lower (direction stays same)
+    if (workingPick.home >= workingPick.away) {
+      workingPick = { home: 2, away: workingPick.away };
+    } else {
+      workingPick = { home: workingPick.home, away: 2 };
+    }
+    rulesTriggered.push('Rule20');
+    reasoning.push(
+      `[Rule 20 — λ Cap Override] ${rule20.reason}. ` +
+      `Model pick ${input.modelPick.home}-${input.modelPick.away} → ${workingPick.home}-${workingPick.away}.`
+    );
+  }
+
   // A Tier 3 alpha override = Rule 14 (direction flip) or Rule 12 (draw primary).
   const tier3TriggerPresent = rule14.triggered || rule12.triggered;
 
@@ -63,7 +80,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     const tierWouldHaveBeen: 3 = 3; // Rule 14 / Rule 12 would have pushed to Tier 3
 
     // Apply Tier 2 compression
-    let tier2pick = compressTier2(input.modelPick);
+    let tier2pick = compressTier2(workingPick);
 
     // Rule 16b takes priority over Rule 13: genuine away threat → BTTS compression
     if (rule16b.triggered) {
@@ -80,8 +97,8 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
           const total = compressed.home + compressed.away;
           if (total >= 2) {
             tier2pick = { home: Math.ceil(total / 2), away: Math.floor(total / 2) };
-            // Ensure direction matches model
-            if (input.modelPick.home >= input.modelPick.away && tier2pick.home < tier2pick.away) {
+            // Ensure direction matches working pick
+            if (workingPick.home >= workingPick.away && tier2pick.home < tier2pick.away) {
               tier2pick = { home: tier2pick.away, away: tier2pick.home };
             }
           }
@@ -90,7 +107,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
       }
     }
 
-    reasoning.push(`STEP 3 — Tier 2 compression: ${input.modelPick.home}-${input.modelPick.away} → ${tier2pick.home}-${tier2pick.away}`);
+    reasoning.push(`STEP 3 — Tier 2 compression: ${workingPick.home}-${workingPick.away} → ${tier2pick.home}-${tier2pick.away}`);
     reasoning.push(`FINAL PICK: ${input.homeTeam} ${tier2pick.home}-${tier2pick.away} ${input.awayTeam} [Tier 2]`);
 
     return {
@@ -133,9 +150,9 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
         `on tight line ≤+1.0 with 2+ consecutive). ` +
         `Form anchor enforced → Tier 1: follow model pick.`
       );
-      reasoning.push(`FINAL PICK: ${input.homeTeam} ${input.modelPick.home}-${input.modelPick.away} ${input.awayTeam} [Tier 1, Rule 18]`);
+      reasoning.push(`FINAL PICK: ${input.homeTeam} ${workingPick.home}-${workingPick.away} ${input.awayTeam} [Tier 1, Rule 18]`);
       return {
-        finalPick: { ...input.modelPick },
+        finalPick: { ...workingPick },
         tier: 1,
         rulesTriggered,
         reasoning,
@@ -191,7 +208,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     reasoning.push(`Rule 11b is BLOCKED by Rule 15. Model clean sheet confirmed.`);
 
     const highScoringSignal = input.alpha.bttsYesScore >= 60 || input.alpha.overTopScore >= 60;
-    const finalPick = { ...input.modelPick };
+    const finalPick = { ...workingPick };
 
     if (highScoringSignal && input.alpha.projectedGoalsPerMatch > 3.0) {
       // High-scoring projection means the model's clean-sheet-with-high-total anchor
@@ -213,10 +230,10 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
   // Conditions: away λ ≤ 0.45 + goal dist 0-peak ≥ 35% + home win% ≥ 55%
   // Takes priority over Rule 13 (BTTS context). Does NOT override Rule 12 / Rule 14.
   if (rule17.triggered) {
-    let tier2pick = compressTier2(input.modelPick);
+    let tier2pick = compressTier2(workingPick);
     tier2pick = { home: tier2pick.home, away: 0 };
     reasoning.push(`STEP 5b — Rule 17 fired: away λ ≤0.45 + goal dist 0-peak ≥35% + home win% ≥55% → clean sheet override, BTTS league context invalid`);
-    reasoning.push(`Tier 2 compression: ${input.modelPick.home}-${input.modelPick.away} → ${tier2pick.home}-${tier2pick.away} (clean sheet forced)`);
+    reasoning.push(`Tier 2 compression: ${workingPick.home}-${workingPick.away} → ${tier2pick.home}-${tier2pick.away} (clean sheet forced)`);
     reasoning.push(`FINAL PICK: ${input.homeTeam} ${tier2pick.home}-${tier2pick.away} ${input.awayTeam} [Tier 2]`);
     return {
       finalPick: tier2pick,
@@ -236,7 +253,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
       underSubthreshold &&
       rule11b.triggered &&
       input.alpha.alphaHomeWinPct >= 60 &&
-      input.modelPick.away >= 1;
+      workingPick.away >= 1;
 
     if (rule11bBlocksCompression) {
       reasoning.push(
@@ -244,9 +261,9 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
         `home dominant (${input.alpha.alphaHomeWinPct}%) + model already has away goal → ` +
         `no compression, Tier 1.`
       );
-      reasoning.push(`FINAL PICK: ${input.homeTeam} ${input.modelPick.home}-${input.modelPick.away} ${input.awayTeam} [Tier 1]`);
+      reasoning.push(`FINAL PICK: ${input.homeTeam} ${workingPick.home}-${workingPick.away} ${input.awayTeam} [Tier 1]`);
       return {
-        finalPick: { ...input.modelPick },
+        finalPick: { ...workingPick },
         tier: 1,
         rulesTriggered,
         reasoning,
@@ -255,7 +272,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     }
 
     reasoning.push(`STEP 4 — Tier 2: Under/BTTS No signals valid. Compressing model pick total by 1 goal.`);
-    let tier2pick = compressTier2(input.modelPick);
+    let tier2pick = compressTier2(workingPick);
 
     // Rule 16b takes priority over Rule 13: genuine away threat → BTTS compression
     if (rule16b.triggered) {
@@ -273,7 +290,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
               home: Math.ceil(total / 2),
               away: Math.floor(total / 2)
             };
-            if (input.modelPick.home >= input.modelPick.away && bttsVersion.home < bttsVersion.away) {
+            if (workingPick.home >= workingPick.away && bttsVersion.home < bttsVersion.away) {
               tier2pick = { home: bttsVersion.away, away: bttsVersion.home };
             } else {
               tier2pick = bttsVersion;
@@ -296,9 +313,9 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
 
   // ── STEP 7: Tier 1 — follow the model ────────────────────────────
   reasoning.push(`STEP 4 — No qualifying alpha signals. Tier 1: follow model pick.`);
-  reasoning.push(`FINAL PICK: ${input.homeTeam} ${input.modelPick.home}-${input.modelPick.away} ${input.awayTeam} [Tier 1]`);
+  reasoning.push(`FINAL PICK: ${input.homeTeam} ${workingPick.home}-${workingPick.away} ${input.awayTeam} [Tier 1]`);
   return {
-    finalPick: { ...input.modelPick },
+    finalPick: { ...workingPick },
     tier: 1,
     rulesTriggered,
     reasoning,
