@@ -711,7 +711,7 @@ function UserGuessCell({
   const awayVal = draft?.away ?? (storedAway !== null ? String(storedAway) : "");
 
   const inputClass =
-    "font-mono text-sm bg-bg-secondary rounded px-1.5 py-0.5 w-10 text-center border border-border focus:border-accent-gold focus:outline-none";
+    "font-mono text-xs text-center bg-transparent border-b border-border w-7 outline-none focus:border-accent-gold transition-colors";
 
   function handleBlur(side: "home" | "away", value: string, otherValue: string) {
     const parsed = parseInt(value, 10);
@@ -723,60 +723,31 @@ function UserGuessCell({
     onCommit(finalHome, finalAway);
   }
 
-  const hasPred = storedHome !== null || draft !== undefined;
-
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="flex items-center gap-1">
-        <input
-          type="number"
-          min={0}
-          max={9}
-          value={homeVal}
-          placeholder="–"
-          className={inputClass}
-          onChange={(e) => onDraftChange(e.target.value, awayVal)}
-          onBlur={(e) => handleBlur("home", e.target.value, awayVal)}
-          aria-label={`Home goals for ${matchId}`}
-        />
-        <span className="text-text-muted text-xs">–</span>
-        <input
-          type="number"
-          min={0}
-          max={9}
-          value={awayVal}
-          placeholder="–"
-          className={inputClass}
-          onChange={(e) => onDraftChange(homeVal, e.target.value)}
-          onBlur={(e) => handleBlur("away", homeVal, e.target.value)}
-          aria-label={`Away goals for ${matchId}`}
-        />
-      </div>
-      {hasPred && storedHome !== null && (
-        <div className="flex items-center gap-0.5">
-          {userIsExact ? (
-            <span className="text-accent-gold text-xs">⭐</span>
-          ) : userIsResult ? (
-            <span className="text-accent-green text-xs">✓</span>
-          ) : (
-            <span className="text-accent-red text-xs">✗</span>
-          )}
-          {userPts !== 9 && (
-            <span
-              className={`font-mono text-xs font-bold ${
-                userIsExact
-                  ? "text-accent-gold"
-                  : userIsResult
-                  ? "text-accent-green"
-                  : "text-accent-red"
-              }`}
-              title={userBreakdown || undefined}
-            >
-              {userPts}
-            </span>
-          )}
-        </div>
-      )}
+    <div className="flex items-center gap-1">
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]"
+        value={homeVal}
+        placeholder="–"
+        className={inputClass}
+        onChange={(e) => onDraftChange(e.target.value, awayVal)}
+        onBlur={(e) => handleBlur("home", e.target.value, awayVal)}
+        aria-label={`Home goals for ${matchId}`}
+      />
+      <span className="text-text-muted text-xs">–</span>
+      <input
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]"
+        value={awayVal}
+        placeholder="–"
+        className={inputClass}
+        onChange={(e) => onDraftChange(homeVal, e.target.value)}
+        onBlur={(e) => handleBlur("away", homeVal, e.target.value)}
+        aria-label={`Away goals for ${matchId}`}
+      />
     </div>
   );
 }
