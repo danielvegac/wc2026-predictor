@@ -96,6 +96,7 @@ interface PredictionState {
 
   // Actions
   setPrediction: (matchId: string, homeGoals: number, awayGoals: number) => void;
+  overridePrediction: (matchId: string, homeGoals: number, awayGoals: number) => void;
   clearPrediction: (matchId: string) => void;
   clearAllPredictions: () => void;
   lockPredictions: () => void;
@@ -125,6 +126,15 @@ export const usePredictionStore = create<PredictionState>()(
               awayGoals,
               source: "user" as const,
             },
+          },
+        }));
+      },
+
+      overridePrediction: (matchId, homeGoals, awayGoals) => {
+        set((state) => ({
+          predictions: {
+            ...state.predictions,
+            [matchId]: { matchId, homeGoals, awayGoals, source: "user" as const },
           },
         }));
       },

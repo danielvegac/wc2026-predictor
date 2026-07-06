@@ -684,6 +684,103 @@ function FormInsights() {
 
 // ─── Section 0: Model Track Record ─────────────────────────
 
+function UserGuessCell({
+  matchId,
+  storedHome,
+  storedAway,
+  userIsExact,
+  userIsResult,
+  userPts,
+  userBreakdown,
+  draft,
+  onDraftChange,
+  onCommit,
+}: {
+  matchId: string;
+  storedHome: number | null;
+  storedAway: number | null;
+  userIsExact: boolean;
+  userIsResult: boolean;
+  userPts: number;
+  userBreakdown: string;
+  draft: { home: string; away: string } | undefined;
+  onDraftChange: (home: string, away: string) => void;
+  onCommit: (home: number, away: number) => void;
+}) {
+  const homeVal = draft?.home ?? (storedHome !== null ? String(storedHome) : "");
+  const awayVal = draft?.away ?? (storedAway !== null ? String(storedAway) : "");
+
+  const inputClass =
+    "font-mono text-sm bg-bg-secondary rounded px-1.5 py-0.5 w-10 text-center border border-border focus:border-accent-gold focus:outline-none";
+
+  function handleBlur(side: "home" | "away", value: string, otherValue: string) {
+    const parsed = parseInt(value, 10);
+    const otherParsed = parseInt(otherValue, 10);
+    const clamped = isNaN(parsed) ? (storedHome !== null ? (side === "home" ? storedHome : storedAway!) : 0) : Math.min(9, Math.max(0, parsed));
+    const otherClamped = isNaN(otherParsed) ? (storedAway !== null ? (side === "away" ? storedAway : storedHome!) : 0) : Math.min(9, Math.max(0, otherParsed));
+    const finalHome = side === "home" ? clamped : otherClamped;
+    const finalAway = side === "away" ? clamped : otherClamped;
+    onCommit(finalHome, finalAway);
+  }
+
+  const hasPred = storedHome !== null || draft !== undefined;
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="flex items-center gap-1">
+        <input
+          type="number"
+          min={0}
+          max={9}
+          value={homeVal}
+          placeholder="–"
+          className={inputClass}
+          onChange={(e) => onDraftChange(e.target.value, awayVal)}
+          onBlur={(e) => handleBlur("home", e.target.value, awayVal)}
+          aria-label={`Home goals for ${matchId}`}
+        />
+        <span className="text-text-muted text-xs">–</span>
+        <input
+          type="number"
+          min={0}
+          max={9}
+          value={awayVal}
+          placeholder="–"
+          className={inputClass}
+          onChange={(e) => onDraftChange(homeVal, e.target.value)}
+          onBlur={(e) => handleBlur("away", homeVal, e.target.value)}
+          aria-label={`Away goals for ${matchId}`}
+        />
+      </div>
+      {hasPred && storedHome !== null && (
+        <div className="flex items-center gap-0.5">
+          {userIsExact ? (
+            <span className="text-accent-gold text-xs">⭐</span>
+          ) : userIsResult ? (
+            <span className="text-accent-green text-xs">✓</span>
+          ) : (
+            <span className="text-accent-red text-xs">✗</span>
+          )}
+          {userPts !== 9 && (
+            <span
+              className={`font-mono text-xs font-bold ${
+                userIsExact
+                  ? "text-accent-gold"
+                  : userIsResult
+                  ? "text-accent-green"
+                  : "text-accent-red"
+              }`}
+              title={userBreakdown || undefined}
+            >
+              {userPts}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ModelTrackRecord({
   predictions,
 }: {
@@ -692,7 +789,11 @@ function ModelTrackRecord({
   const results = useResultsStore((s) => s.results);
   const getResult = useResultsStore((s) => s.getResultForMatch);
   const modelPredictions = useModelPredictionStore((s) => s.predictions);
+  const overridePrediction = usePredictionStore((s) => s.overridePrediction);
   const teamMap = getTeamMap();
+
+  // Local draft state for inputs while typing
+  const [drafts, setDrafts] = useState<Record<string, { home: string; away: string }>>({});
 
   const rows = useMemo(() => {
     const out: Array<{
@@ -975,8 +1076,28 @@ function ModelTrackRecord({
                       <span className={`${getFlagClass(r.awayTeamId)} text-sm`} />
                     </div>
                   </td>
-                  <td className="py-2 px-2 text-center font-mono text-xs">
-                    {r.userHome !== null ? `${r.userHome}–${r.userAway}` : "—"}
+                  <td className="py-2 px-2 text-center">
+                    <UserGuessCell
+                      matchId={r.matchId}
+                      storedHome={r.userHome}
+                      storedAway={r.userAway}
+                      userIsExact={r.userIsExact}
+                      userIsResult={r.userIsResult}
+                      userPts={r.userPts}
+                      userBreakdown={r.userBreakdown}
+                      draft={drafts[r.matchId]}
+                      onDraftChange={(home, away) =>
+                        setDrafts((prev) => ({ ...prev, [r.matchId]: { home, away } }))
+                      }
+                      onCommit={(home, away) => {
+                        overridePrediction(r.matchId, home, away);
+                        setDrafts((prev) => {
+                          const next = { ...prev };
+                          delete next[r.matchId];
+                          return next;
+                        });
+                      }}
+                    />
                   </td>
                   <td className="py-2 px-2 text-center font-mono text-xs text-blue-500">
                     {r.modelHome}–{r.modelAway}
