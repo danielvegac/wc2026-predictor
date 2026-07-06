@@ -712,8 +712,8 @@ function UserGuessCell({
   function handleBlur(side: "home" | "away", value: string, otherValue: string) {
     const parsed = parseInt(value, 10);
     const otherParsed = parseInt(otherValue, 10);
-    const clamped = isNaN(parsed) ? (storedHome !== null ? (side === "home" ? storedHome : storedAway!) : 0) : Math.min(9, Math.max(0, parsed));
-    const otherClamped = isNaN(otherParsed) ? (storedAway !== null ? (side === "away" ? storedAway : storedHome!) : 0) : Math.min(9, Math.max(0, otherParsed));
+    const clamped = isNaN(parsed) ? (side === "home" ? (storedHome ?? 0) : (storedAway ?? 0)) : Math.min(9, Math.max(0, parsed));
+    const otherClamped = isNaN(otherParsed) ? (side === "home" ? (storedAway ?? 0) : (storedHome ?? 0)) : Math.min(9, Math.max(0, otherParsed));
     const finalHome = side === "home" ? clamped : otherClamped;
     const finalAway = side === "away" ? clamped : otherClamped;
     onCommit(finalHome, finalAway);
@@ -741,7 +741,7 @@ function UserGuessCell({
         placeholder="–"
         className={inputClass}
         onChange={(e) => onDraftChange(homeVal, e.target.value)}
-        onBlur={(e) => handleBlur("away", homeVal, e.target.value)}
+        onBlur={(e) => handleBlur("away", e.target.value, homeVal)}
         aria-label={`Away goals for ${matchId}`}
       />
     </div>
