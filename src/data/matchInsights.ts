@@ -1200,6 +1200,21 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.96,
     notes: "Mexico 2-3 England. Bellingham brace (36', 38'), Quiñones volley (42'), Kane pen (60'), Jiménez pen (69'). England 10 men from 54' (Quansah red, VAR). MEX xG 1.94 (pen-inflated, open-play ~1.4). ENG xG 1.55 (Bellingham goals were individual quality, open-play ~0.8). Mexico perfect group record ended. England advance to QF vs Norway (Jul 11, Miami). Pickford 17 saves (WC record). 33% possession, 49 clearances for England.",
   },
+
+  // R16-5: Portugal 0-1 Spain (July 6, 2026, AT&T Stadium, Arlington)
+  {
+    matchId: "R16-5",
+    date: "2026-07-06",
+    homeTeamId: "POR",
+    awayTeamId: "ESP",
+    homeGoals: 0,
+    awayGoals: 1,
+    homeAttackMultiplier: 0.65,
+    homeDefenseMultiplier: 1.31,
+    awayAttackMultiplier: 1.31,
+    awayDefenseMultiplier: 0.65,
+    notes: "Portugal 0-1 Spain R16. Merino 90+1' sub winner (Torres assist). POR xG 0.60 — 0 shots on target 2nd half. Ronaldo's likely final WC match. ESP xG 1.77 — controlled throughout, Oyarzabal missed early (8'). Spain: 6 consecutive WC clean sheets, 10h+ without conceding — historically elite defense. POR attack floored: 0.44 raw, worst attacking output this tournament. ESP defense floored: allowed only 0.60 xG. Portugal ELIMINATED. Spain advance QF vs USA/BEL. ALPHA LESSON: Alphametrico implied xG (1.09 vs 1.26) was far more accurate than model λ (1.94 vs 2.72). Lambda divergence >50% between systems flags compression ceiling revision — proposed Rule 23.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
