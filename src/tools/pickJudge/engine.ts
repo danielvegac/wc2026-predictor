@@ -274,6 +274,34 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     reasoning.push(`STEP 4 — Tier 2: Under/BTTS No signals valid. Compressing model pick total by 1 goal.`);
     let tier2pick = compressTier2(workingPick);
 
+    // Rule 11b post-compression guard: if compression lands on a clean sheet but the
+    // shut-out team scored in every tournament match AND BTTS No < 80, revert.
+    const awayMatchesPlayed2 = input.awayTournament.wins + input.awayTournament.draws + input.awayTournament.losses;
+    const awayScoredEveryMatch2 = awayMatchesPlayed2 > 0 && input.awayTournament.goalsScored >= awayMatchesPlayed2;
+    if (
+      tier2pick.away === 0 &&
+      awayScoredEveryMatch2 &&
+      input.alpha.bttsNoScore < 80
+    ) {
+      tier2pick = { ...workingPick };
+      reasoning.push(
+        `Rule 11b blocks Tier 2 compression to clean sheet: away team scored in every match, BTTS No Score ${input.alpha.bttsNoScore} < 80. Reverting to pre-compression pick.`
+      );
+    }
+
+    const homeMatchesPlayed2 = input.homeTournament.wins + input.homeTournament.draws + input.homeTournament.losses;
+    const homeScoredEveryMatch2 = homeMatchesPlayed2 > 0 && input.homeTournament.goalsScored >= homeMatchesPlayed2;
+    if (
+      tier2pick.home === 0 &&
+      homeScoredEveryMatch2 &&
+      input.alpha.bttsNoScore < 80
+    ) {
+      tier2pick = { ...workingPick };
+      reasoning.push(
+        `Rule 11b blocks Tier 2 compression to clean sheet: home team scored in every match, BTTS No Score ${input.alpha.bttsNoScore} < 80. Reverting to pre-compression pick.`
+      );
+    }
+
     // Rule 16b takes priority over Rule 13: genuine away threat → BTTS compression
     if (rule16b.triggered) {
       if (tier2pick.away === 0) {

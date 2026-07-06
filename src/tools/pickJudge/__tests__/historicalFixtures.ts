@@ -1205,3 +1205,174 @@ export const par_fra: PickJudgeInput = {
 // Rule 11b: FRA scored in all 4 matches (11 goals, 4 games, 11≥4 ✓) + bttsNo=0 < 80 + leagueBtts=45%≥35%
 //   → Rule 11b fires but finalPick.away=1 > 0 already → no further action
 // Final: 0-1 FRA [Tier 2]. Actual: 0-1 France ✓
+
+/**
+ * R16-4: Mexico vs England — MEX-ENG (July 5, 2026)
+ * Estadio Azteca, Mexico City. MEX co-host, perfect 4W-0D-0L.
+ * ENG away: 2W1D1L, 2 CS, scored in every tournament match.
+ * Model pick: 1-3 ENG. λ: MEX 1.35, ENG 3.02.
+ *
+ * Engine trace:
+ * Rule 20: max(1.35, 3.02)=3.02 < 3.5 → NOT triggered
+ * Rule 16a: MEX 4W-0D-0L + 4CS + co-host + Azteca → fires but no Tier 3 trigger (cascade 26 < 83)
+ * Rule 14: awayAHBestScore=26 < 83 → NOT triggered
+ * Rule 12: drawPct=16 < 28 → NOT triggered (drawSubstantial fails)
+ * Rule 17: awayλ=3.02 > 0.45 → NOT triggered
+ * tier2Conditions: underScore=78 ≥ 60 → true
+ * underSubthreshold=true (78 < 80). rule11bBlocksCompression: homeWin%=14 < 60 → false
+ * compressTier2({1,3}): away>home, home>0 → {0,3}
+ * Rule 11b post-compression guard: home=0 + MEX scored in all 4 matches + bttsNo=69<80 → fires
+ *   → revert to workingPick {1,3}
+ * Rule 16b: bttsNo=69 (60-79) + λ=3.02 > 0.45 + ENG scored 9 goals → fires, but away=3≠0 → no change
+ * Expected: 1-3 ENG [Tier 2]
+ */
+export const mex_eng: PickJudgeInput = {
+  matchId: 'R16-4',
+  homeTeam: 'MEX',
+  awayTeam: 'ENG',
+  stage: 'knockout',
+
+  modelPick: { home: 1, away: 3 },
+  homeElo: 1810,
+  awayElo: 1980,
+
+  // MEX: 2-0 RSA (W,CS), 1-0 KOR (W,CS), 3-0 CZE (W,CS), 2-0 ECU (W,CS) — 4W0D0L
+  homeTournament: { wins: 4, draws: 0, losses: 0, cleanSheets: 4, goalsScored: 8, goalsConceded: 0 },
+  // ENG: 4-2 CRO (W), 0-0 GHA (D), 3-0 PAN (W), 2-1 COD (W) — 2W1D1L per fixture
+  awayTournament: { wins: 2, draws: 1, losses: 1, cleanSheets: 2, goalsScored: 9, goalsConceded: 5 },
+
+  homeFormMultiplier: 1.36,
+  awayFormMultiplier: 0.92,
+
+  homeIsCoHost: true,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: true,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 78,              // valid (≥60), subthreshold (<80)
+    bttsNoScore: 69,                // moderate (60-79) — tier2Conditions valid, Rule 16b condition met
+
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    awayAHBestScore: 26,            // ENG cascade Score=26 — well below Rule 14 threshold (83)
+    awayAHBestLine: 1.0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 0,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 14.0,
+    alphaDrawPct: 16.0,
+    alphaAwayWinPct: 70.0,
+
+    leagueBttsPct: 45.0,
+    matchProjectedBttsPct: 45.0,
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 75.0,
+    projectedGoalsPerMatch: 4.37,   // 1.35 + 3.02
+
+    climateNetFactor: 0.85,
+    homeAdjustedLambda: 1.35,
+    awayAdjustedLambda: 3.02,
+  },
+};
+// Expected: 1-3 ENG [Tier 2, Rule 11b guard reverts MEX shutout compression]
+
+/**
+ * R16-3: Brazil vs Norway (July 5, 2026)
+ * BRA home AH cascade: Score 89, direction home. Under Score 82.
+ * Alpha match outcome: BRA 79.0% / Draw 13.4% / NOR 7.6%.
+ * Model pick: 2-1 BRA. λ: BRA 2.58, NOR 1.42.
+ *
+ * Engine trace:
+ * Rule 20: max(2.58,1.42)=2.58 < 3.5 → NOT triggered
+ * Rule 16a: BRA has 1 draw (draws≠0) → NOT triggered
+ * Rule 18: awayλ=1.42 ≥ 1.0 → NOT active
+ * Rule 14: awayAHBestScore=0 < 83 → NOT triggered
+ * Rule 12: awayWinPct(7.6) < homeWinPct(79.0) → NOT triggered
+ * Rule 11b: NOR 8 goals in 4 matches (8≥4 ✓) + bttsNo=44 < 80 + leagueBtts=45%≥35% → FIRES
+ * Under 82 ≥ 80 → tier2Conditions=true; underSubthreshold=false → rule11bBlocksCompression=false
+ * compressTier2({2,1}): home>away, away>0 → {2, 0}
+ * Rule 16b: bttsNo=44 < 60 → NOT triggered
+ * Rule 13: bttsNo=44 < 60 → NOT triggered
+ * Expected: 2-0 BRA [Tier 2, MEDIUM confidence]
+ */
+export const bra_nor: PickJudgeInput = {
+  matchId: 'R16-3',
+  homeTeam: 'BRA',
+  awayTeam: 'NOR',
+  stage: 'knockout',
+
+  modelPick: { home: 2, away: 1 },
+  homeElo: 1970,
+  awayElo: 1720,
+
+  // BRA: 1-1 MAR (D), 3-0 HAI (W,CS), 3-0 SCO (W,CS), 2-0 JPN (W,CS) — 3W1D0L
+  homeTournament: { wins: 3, draws: 1, losses: 0, cleanSheets: 3, goalsScored: 9, goalsConceded: 1 },
+  // NOR: 4-1 IRQ (W), 1-1 ??? (D), 1-2 FRA (L), 2-0 CIV (W,CS) — 2W1D1L
+  awayTournament: { wins: 2, draws: 1, losses: 1, cleanSheets: 1, goalsScored: 8, goalsConceded: 4 },
+
+  homeFormMultiplier: 1.35,
+  awayFormMultiplier: 1.20,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 82,
+    bttsNoScore: 44,
+
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    // BRA home AH cascade — Score 89 on tight lines (direction: home)
+    homeAHBestScore: 89,
+    homeAHBestLine: -0.75,
+    homeAHConsecutiveAbove80: 3,
+
+    awayAHBestScore: 0,
+    awayAHBestLine: 0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 5,
+    awayValueMarketsFound: 0,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 33,   // correctScoreEV for 2-1 BRA market
+
+    alphaHomeWinPct: 79.0,
+    alphaDrawPct: 13.4,
+    alphaAwayWinPct: 7.6,
+
+    leagueBttsPct: 45.0,
+    matchProjectedBttsPct: 70.0,
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 90.0,
+    projectedGoalsPerMatch: 4.0,  // 2.58 + 1.42
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 2.58,
+    awayAdjustedLambda: 1.42,
+  },
+};

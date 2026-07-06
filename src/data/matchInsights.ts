@@ -1164,6 +1164,23 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.65,  // 1.35/0.15 = 9.0 → capped then... Paraguay 0 goals → 0.65 floor for consistency
     notes: "France 1-0 Paraguay. Real xG: FRA 1.36 / PAR 0.15. Paraguay played 5-man block, systematic fouling, zero shots on target in first half (only 3rd KO match since 1966 with no first-half SoT). France's λ model of 4.0 was structurally inflated — actual xG was 1.36, not 4.0. Single goal: Mbappe penalty 70' (sub Mbappe entered 61'). CRITICAL LESSON: France awayAttackMultiplier drops from 1.45 to 1.00 — they generated only 1.36 xG against a compact block. This correctly reduces France's projected λ vs Morocco R16-2 (similar defensive setup likely). Rule 20 (λ Cap Override) validated: Under Score 84-85 with λ=4.0 cap → model should compress 0-3 → 0-2 → 0-1 via Tier 2 cascade. Alpha read was correct; model λ was the outlier.",
   },
+
+  // R16-3: Brazil 1-2 Norway (July 5, 2026)
+  // xG: BRA 2.73 (penalty-inflated — 2 pens awarded, 1 missed), NOR 0.84 (clean counter-attack xG)
+  // Open-play adjusted xG: BRA ~1.30 (subtract ~1.43 for two pen xG at ~0.76 each), NOR 0.84
+  // Multipliers: BRA attack 1.30/1.35=0.963→0.96, BRA defense 1.35/0.84=1.607→capped 1.45
+  //              NOR attack 0.84/1.35=0.622→floored 0.65, NOR defense 1.35/1.30=1.038→1.04
+  {
+    matchId: "R16-3",
+    date: "2026-07-05",
+    homeTeamId: "BRA", awayTeamId: "NOR",
+    homeGoals: 1, awayGoals: 2,
+    homeAttackMultiplier: 0.96,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 1.04,
+    notes: "Brazil 1-2 Norway. Haaland brace (clinical headers/finishes in 2nd half). Neymar consolation penalty 90+. Nyland saved Bruno Guimarães penalty in 1st half. Brazil xG 2.73 (heavily penalty-inflated — 2 penalties awarded, 1 missed); open-play adjusted xG ~1.30. Norway xG 0.84 (clean counter-attack quality). Model picked 2-0 BRA (Tier 2 compression), actual 1-2 NOR — major upset. Rule 11b post-compression guard now blocks clean sheet vs NOR (scored in every match). Brazil ELIMINATED.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
