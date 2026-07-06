@@ -60,4 +60,52 @@ if (result.tierWouldHaveBeen) console.log(`  Would have been: Tier ${result.tier
 console.log('\n🎯 FINAL PICK: ' +
   `${input.homeTeam} ${result.finalPick.home}-${result.finalPick.away} ${input.awayTeam} ` +
   `[Tier ${result.tier}] [Confidence: ${result.confidence}]`);
+console.log('═'.repeat(56));
+
+// ── RULE 21 (HSCM): High-Scoring Competitive Match flag ──────────
+const homeMatchesPlayed = input.homeTournament.wins + input.homeTournament.draws + input.homeTournament.losses;
+const awayMatchesPlayed = input.awayTournament.wins + input.awayTournament.draws + input.awayTournament.losses;
+
+const homeScoredEveryMatch = homeMatchesPlayed > 0 && input.homeTournament.goalsScored >= homeMatchesPlayed;
+const awayScoredEveryMatch = awayMatchesPlayed > 0 && input.awayTournament.goalsScored >= awayMatchesPlayed;
+
+const rule21_bothScoredEveryMatch = homeScoredEveryMatch && awayScoredEveryMatch;
+const rule21_competitiveElo = Math.abs(input.homeElo - input.awayElo) <= 200;
+const lambdaTotal = (input.alpha.homeAdjustedLambda ?? 0) + (input.alpha.awayAdjustedLambda ?? 0);
+const rule21_highLambda = lambdaTotal >= 3.5;
+const rule21_awayTeamRecentlyScored = (input.awayTournament.wins + input.awayTournament.draws) >= 2;
+// Recency-adjusted: even teams with strong overall CS records trigger after 4+ matches played
+const rule21_homeDefenseVulnerable = input.homeTournament.cleanSheets <= 2 || homeMatchesPlayed >= 4;
+
+const rule21Fires =
+  rule21_bothScoredEveryMatch &&
+  rule21_competitiveElo &&
+  rule21_highLambda &&
+  rule21_awayTeamRecentlyScored &&
+  rule21_homeDefenseVulnerable;
+
+console.log('\n🧪 RULE 21 TRACE (HSCM)');
+console.log(`  bothScoredEveryMatch:    ${rule21_bothScoredEveryMatch} (${input.homeTeam} ${input.homeTournament.goalsScored}G/${homeMatchesPlayed}M, ${input.awayTeam} ${input.awayTournament.goalsScored}G/${awayMatchesPlayed}M)`);
+console.log(`  competitiveElo:          ${rule21_competitiveElo} (gap ${Math.abs(input.homeElo - input.awayElo)} ≤ 200)`);
+console.log(`  highLambda:              ${rule21_highLambda} (λ total ${lambdaTotal.toFixed(2)} ≥ 3.5)`);
+console.log(`  awayTeamRecentlyScored:  ${rule21_awayTeamRecentlyScored} (${input.awayTeam} ${input.awayTournament.wins}W+${input.awayTournament.draws}D ≥ 2)`);
+console.log(`  homeDefenseVulnerable:   ${rule21_homeDefenseVulnerable} (${input.homeTournament.cleanSheets} CS, ${homeMatchesPlayed} matches — fires if CS≤2 OR matches≥4)`);
+console.log(`  ─────────────────────────────────────────────────`);
+console.log(`  RULE 21 FIRES:           ${rule21Fires}`);
+
+if (rule21Fires) {
+  const primaryPick = result.finalPick;
+  // HSCM candidate: same winner, higher scoring. If away wins → add 1 to home (close gap).
+  // If home wins or draw → add 1 to each (maintain margin, more goals).
+  const hscmPick = primaryPick.away > primaryPick.home
+    ? { home: primaryPick.home + 1, away: primaryPick.away }
+    : { home: primaryPick.home + 1, away: primaryPick.away + 1 };
+
+  const eloDiff = Math.abs(input.homeElo - input.awayElo);
+  console.log('\n⚠️  RULE 21 (HSCM): High-Scoring Competitive Match flag fired.');
+  console.log(`    Primary pick:   ${input.homeTeam} ${primaryPick.home}-${primaryPick.away} ${input.awayTeam}`);
+  console.log(`    HSCM candidate: ${input.homeTeam} ${hscmPick.home}-${hscmPick.away} ${input.awayTeam}`);
+  console.log(`    Conditions: both teams scored every match, Elo gap ${eloDiff}, λ total ${lambdaTotal.toFixed(2)}, home defense vulnerable (${input.homeTournament.cleanSheets} CS in ${homeMatchesPlayed} matches)`);
+  console.log(`    → Evaluate both. HSCM candidate favored when both teams have elite individual attackers.`);
+}
 console.log('═'.repeat(56) + '\n');

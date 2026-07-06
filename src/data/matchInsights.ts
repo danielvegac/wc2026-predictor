@@ -1181,6 +1181,25 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 1.04,
     notes: "Brazil 1-2 Norway. Haaland brace (clinical headers/finishes in 2nd half). Neymar consolation penalty 90+. Nyland saved Bruno Guimarães penalty in 1st half. Brazil xG 2.73 (heavily penalty-inflated — 2 penalties awarded, 1 missed); open-play adjusted xG ~1.30. Norway xG 0.84 (clean counter-attack quality). Model picked 2-0 BRA (Tier 2 compression), actual 1-2 NOR — major upset. Rule 11b post-compression guard now blocks clean sheet vs NOR (scored in every match). Brazil ELIMINATED.",
   },
+
+  // R16-4: Mexico 2-3 England (July 6, 2026, Estadio Azteca)
+  // xG: MEX 1.94, ENG 1.55 (both penalty-inflated)
+  // Open-play adjusted: MEX ~1.4, ENG ~0.8
+  // Multipliers: MEX attack 1.4/1.35=1.037→1.04, MEX defense 1.35/0.8=1.687→capped 1.45
+  //              ENG attack 0.8/1.35=0.593→floored 0.65, ENG defense 1.35/1.4=0.964→0.96
+  {
+    matchId: "R16-4",
+    date: "2026-07-06",
+    homeTeamId: "MEX",
+    awayTeamId: "ENG",
+    homeGoals: 2,
+    awayGoals: 3,
+    homeAttackMultiplier: 1.04,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.96,
+    notes: "Mexico 2-3 England. Bellingham brace (36', 38'), Quiñones volley (42'), Kane pen (60'), Jiménez pen (69'). England 10 men from 54' (Quansah red, VAR). MEX xG 1.94 (pen-inflated, open-play ~1.4). ENG xG 1.55 (Bellingham goals were individual quality, open-play ~0.8). Mexico perfect group record ended. England advance to QF vs Norway (Jul 11, Miami). Pickford 17 saves (WC record). 33% possession, 49 clearances for England.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
