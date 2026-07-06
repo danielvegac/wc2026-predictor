@@ -108,4 +108,97 @@ if (rule21Fires) {
   console.log(`    Conditions: both teams scored every match, Elo gap ${eloDiff}, λ total ${lambdaTotal.toFixed(2)}, home defense vulnerable (${input.homeTournament.cleanSheets} CS in ${homeMatchesPlayed} matches)`);
   console.log(`    → Evaluate both. HSCM candidate favored when both teams have elite individual attackers.`);
 }
+
+// ── RULE 22 (Individual Ceiling): Single-player ceiling stress test ───────
+const rule22Qualifying = (input.highCeilingPlayers ?? []).filter(
+  p => p.tournamentGoals >= 5 || p.singleMatchBrace === true
+);
+const rule22Fires = rule22Qualifying.length > 0;
+
+if (rule22Fires) {
+  const primaryPick = result.finalPick;
+  const isDual = rule22Qualifying.length >= 2;
+  const rule22Header = isDual
+    ? 'RULE 22 (Individual Ceiling — DUAL)'
+    : 'RULE 22 (Individual Ceiling)';
+
+  console.log(`\n⚠️  ${rule22Header}:`);
+
+  type Candidate = { home: number; away: number; desc: string };
+  const allCandidates: Candidate[] = [];
+
+  for (const player of rule22Qualifying) {
+    const playerTeam = player.teamId === 'home' ? input.homeTeam : input.awayTeam;
+    const oppTeam   = player.teamId === 'home' ? input.awayTeam  : input.homeTeam;
+    const braceNote = player.singleMatchBrace ? ', scored 2 in 1 match' : '';
+    console.log(`    ${player.playerName} (${playerTeam}): ${player.tournamentGoals} tournament goals${braceNote}`);
+
+    const H = primaryPick.home;
+    const A = primaryPick.away;
+    const onHome = player.teamId === 'home';
+    const playerWins = onHome ? H > A : A > H;
+
+    if (!playerWins) {
+      // Player is on the underdog/drawing side → upset candidates
+      // Tighten: player's team scores 1 more, opponent stays
+      allCandidates.push({
+        home: onHome ? H + 1 : H,
+        away: onHome ? A     : A + 1,
+        desc: `${player.playerName} scores — ${oppTeam} still leads (margin −1)`,
+      });
+      // Flip: underdog wins by 1 goal
+      allCandidates.push({
+        home: onHome ? Math.max(0, A)     : Math.max(0, H - 1),
+        away: onHome ? Math.max(0, A - 1) : Math.max(0, H),
+        desc: `${player.playerName} + ${oppTeam} lapse → ${playerTeam} wins by 1`,
+      });
+      // Brace flip: underdog wins by 2 goals
+      if (player.singleMatchBrace) {
+        allCandidates.push({
+          home: onHome ? Math.max(0, A + 1) : Math.max(0, H - 1),
+          away: onHome ? Math.max(0, A - 1) : Math.max(0, H + 1),
+          desc: `${player.playerName} brace → ${playerTeam} wins by 2`,
+        });
+      }
+    } else {
+      // Player is on the winning side → confirms pick + adjacent variants
+      // Primary confirmation
+      allCandidates.push({
+        home: H,
+        away: A,
+        desc: `${player.playerName}'s ceiling makes primary the likely floor`,
+      });
+      // Tighten: opponent also scores (high ceiling = more open game)
+      allCandidates.push({
+        home: onHome ? H     : H + 1,
+        away: onHome ? A + 1 : A,
+        desc: `${player.playerName}'s runs open space — ${oppTeam} also capitalizes`,
+      });
+      // Brace extend: winner scores one more
+      if (player.singleMatchBrace) {
+        allCandidates.push({
+          home: onHome ? H + 1 : H,
+          away: onHome ? A     : A + 1,
+          desc: `${player.playerName} brace potential — ${playerTeam} extends lead`,
+        });
+      }
+    }
+  }
+
+  // Deduplicate by scoreline
+  const seen = new Set<string>();
+  const uniqueCandidates = allCandidates.filter(c => {
+    const key = `${c.home}-${c.away}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  console.log(`    Stress-test candidates:`);
+  for (const c of uniqueCandidates) {
+    console.log(`      → ${input.homeTeam} ${c.home}-${c.away} ${input.awayTeam}  (${c.desc})`);
+  }
+  console.log(`    Note: Primary pick stands. Evaluate before entering quiniela pick.`);
+}
+
 console.log('═'.repeat(56) + '\n');

@@ -1289,6 +1289,21 @@ export const mex_eng: PickJudgeInput = {
     homeAdjustedLambda: 1.35,
     awayAdjustedLambda: 3.02,
   },
+
+  highCeilingPlayers: [
+    {
+      teamId: 'away',
+      playerName: 'Bellingham',
+      tournamentGoals: 5,
+      singleMatchBrace: true,  // scored twice vs Mexico in R16
+    },
+    {
+      teamId: 'away',
+      playerName: 'Kane',
+      tournamentGoals: 6,
+      singleMatchBrace: false,
+    },
+  ],
 };
 // Expected: 1-3 ENG [Tier 2, Rule 11b guard reverts MEX shutout compression]
 
@@ -1375,4 +1390,13 @@ export const bra_nor: PickJudgeInput = {
     homeAdjustedLambda: 2.58,
     awayAdjustedLambda: 1.42,
   },
+
+  highCeilingPlayers: [
+    {
+      teamId: 'away',
+      playerName: 'Haaland',
+      tournamentGoals: 7,
+      singleMatchBrace: true,  // scored twice vs Senegal in group stage
+    },
+  ],
 };

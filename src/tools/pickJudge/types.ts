@@ -95,6 +95,14 @@ export interface PickJudgeInput {
   // FIELD CONSENSUS (optional tiebreaker)
   fieldTopPick?: { home: number; away: number };
   fieldTopPickPct?: number;     // % of field on that pick (e.g. 0.31 for 31%)
+
+  // INDIVIDUAL CEILING (Rule 22)
+  highCeilingPlayers?: {
+    teamId: 'home' | 'away';
+    playerName: string;
+    tournamentGoals: number;
+    singleMatchBrace?: boolean; // true if scored 2+ goals in any single match
+  }[];
 }
 
 export interface RuleCheck {
