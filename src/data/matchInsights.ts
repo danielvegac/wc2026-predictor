@@ -1215,6 +1215,20 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.65,
     notes: "Portugal 0-1 Spain R16. Merino 90+1' sub winner (Torres assist). POR xG 0.60 — 0 shots on target 2nd half. Ronaldo's likely final WC match. ESP xG 1.77 — controlled throughout, Oyarzabal missed early (8'). Spain: 6 consecutive WC clean sheets, 10h+ without conceding — historically elite defense. POR attack floored: 0.44 raw, worst attacking output this tournament. ESP defense floored: allowed only 0.60 xG. Portugal ELIMINATED. Spain advance QF vs USA/BEL. ALPHA LESSON: Alphametrico implied xG (1.09 vs 1.26) was far more accurate than model λ (1.94 vs 2.72). Lambda divergence >50% between systems flags compression ceiling revision — proposed Rule 23.",
   },
+  // R16-6: USA 1-4 Belgium (July 6, 2026, Lumen Field, Seattle)
+  {
+    matchId: "R16-6",
+    date: "2026-07-06",
+    homeTeamId: "USA",
+    awayTeamId: "BEL",
+    homeGoals: 1,
+    awayGoals: 4,
+    homeAttackMultiplier: 0.65,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 1.45,
+    awayDefenseMultiplier: 0.65,
+    notes: "USA 1-4 Belgium R16. De Ketelaere 8' (Lukébakio diagonal → Trossard cross), Tillman 31' free kick deflected (USA), De Ketelaere 33' brace (far-post header off Trossard, 61 seconds after equalizer), Vanaken 57' (Freese goalkeeper error — giveaway outside penalty area), Lukaku 90+3' (Vanaken press). xG USA 0.67 (7 shots) / BEL 2.15 (15 shots). Belgium played without Doku and De Bruyne (bench). De Ketelaere: first Belgian ever with 2G+1A in single WC match. Trossard: 0G+2A. Pulisic injured 52' (right foot, contact Tielemans). Balogun played but 0 goals (Courtois 1v1 save). Freese error directly caused 3rd goal — USA defensive fragility exposed throughout. USA eliminated. Belgium advance QF vs Spain. MODEL LESSON: BEL formOverride was stale (score 25, written after Iran 0-0, never updated after SEN 3-2 AET). Correct value should have been ~70. Stale override suppressed BEL λ. Cumulative Belgium-wins matrix probability (~37%) exceeded draw cluster (~22%) — should have shifted pick to 1-2 BEL rather than anchoring on modal draw cell.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
