@@ -5,6 +5,7 @@ import type { ModelPrediction } from "../../store/modelPredictionStore";
 import { getFlagClass } from "../../data/flags";
 import { ScoreInput } from "./ScoreInput";
 import { usePredictionStore } from "../../store/predictionStore";
+import { useResultsStore } from "../../store/resultsStore";
 import { ScorelineMatrix } from "./ScorelineMatrix";
 
 interface KnockoutMatchCardProps {
@@ -27,13 +28,18 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
   const prediction = usePredictionStore((s) => s.predictions[ko.matchId]);
   const setPrediction = usePredictionStore((s) => s.setPrediction);
   const locked = usePredictionStore((s) => s.locked);
+  const liveResult = useResultsStore((s) => s.getResultForMatch(ko.matchId));
 
   const showMatrixToggle = modelPred?.expectedHomeGoals != null && modelPred?.expectedAwayGoals != null;
   const [matrixOpen, setMatrixOpen] = useState(false);
 
   const homeGoals = prediction?.homeGoals ?? null;
   const awayGoals = prediction?.awayGoals ?? null;
-  const isCompleted = ko.status === "completed";
+
+  // Live result takes priority over static data
+  const isCompleted = ko.status === "completed" || liveResult?.completed === true;
+  const displayHomeGoals = liveResult?.completed ? liveResult.homeScore : ko.homeGoals;
+  const displayAwayGoals = liveResult?.completed ? liveResult.awayScore : ko.awayGoals;
 
   const handleHomeChange = (goals: number) => {
     setPrediction(ko.matchId, goals, awayGoals ?? 0);
@@ -148,13 +154,13 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
       )}
 
       {/* Actual result (completed matches) */}
-      {isCompleted && ko.homeGoals != null && ko.awayGoals != null && (
+      {isCompleted && displayHomeGoals != null && displayAwayGoals != null && (
         <div className="mt-1.5 pt-1.5 border-t border-border/50 flex items-center justify-center gap-2">
           <span className="text-[10px] uppercase tracking-wider text-text-muted font-medium">
             Final
           </span>
           <span className="font-mono text-sm font-bold text-text-primary">
-            {ko.homeGoals} – {ko.awayGoals}
+            {displayHomeGoals} – {displayAwayGoals}
           </span>
         </div>
       )}

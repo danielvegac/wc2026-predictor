@@ -97,21 +97,27 @@ export const knockoutMatches: KnockoutMatch[] = [
 
   // July 4
   { matchId: "R16-1", round: "R16", date: "2026-07-04", homeTeamId: "CAN", awayTeamId: "MAR",
-    venue: "NRG Stadium, Houston, USA", kickoffCOT: "12:00 PM", status: "upcoming" },
+    venue: "NRG Stadium, Houston, USA", kickoffCOT: "12:00 PM", status: "completed",
+    homeGoals: 0, awayGoals: 3 },
   { matchId: "R16-2", round: "R16", date: "2026-07-04", homeTeamId: "PAR", awayTeamId: "FRA",
-    venue: "Lincoln Financial Field, Philadelphia, USA", kickoffCOT: "4:00 PM", status: "upcoming" },
+    venue: "Lincoln Financial Field, Philadelphia, USA", kickoffCOT: "4:00 PM", status: "completed",
+    homeGoals: 0, awayGoals: 2 },
 
   // July 5
   { matchId: "R16-3", round: "R16", date: "2026-07-05", homeTeamId: "BRA", awayTeamId: "NOR",
-    venue: "MetLife Stadium, East Rutherford, USA", kickoffCOT: "3:00 PM", status: "upcoming" },
+    venue: "MetLife Stadium, East Rutherford, USA", kickoffCOT: "3:00 PM", status: "completed",
+    homeGoals: 1, awayGoals: 2 },
   { matchId: "R16-4", round: "R16", date: "2026-07-05", homeTeamId: "MEX", awayTeamId: "ENG",
-    venue: "Estadio Azteca, Mexico City, Mexico", kickoffCOT: "7:00 PM", status: "upcoming" },
+    venue: "Estadio Azteca, Mexico City, Mexico", kickoffCOT: "7:00 PM", status: "completed",
+    homeGoals: 2, awayGoals: 3 },
 
   // July 6
   { matchId: "R16-5", round: "R16", date: "2026-07-06", homeTeamId: "POR", awayTeamId: "ESP",
-    venue: "AT&T Stadium, Arlington, USA", kickoffCOT: "2:00 PM", status: "upcoming" },
+    venue: "AT&T Stadium, Arlington, USA", kickoffCOT: "2:00 PM", status: "completed",
+    homeGoals: 0, awayGoals: 1 },
   { matchId: "R16-6", round: "R16", date: "2026-07-06", homeTeamId: "USA", awayTeamId: "BEL",
-    venue: "Lumen Field, Seattle, USA", kickoffCOT: "4:00 PM", status: "upcoming" },
+    venue: "Lumen Field, Seattle, USA", kickoffCOT: "4:00 PM", status: "completed",
+    homeGoals: 1, awayGoals: 4 },
 
   // July 7
   { matchId: "R16-7", round: "R16", date: "2026-07-07", homeTeamId: "ARG", awayTeamId: "EGY",
