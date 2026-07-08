@@ -1400,3 +1400,95 @@ export const bra_nor: PickJudgeInput = {
     },
   ],
 };
+
+/**
+ * R16-8: Switzerland vs Colombia
+ * Alphametrico Score: 85 | Match Score: HIGH confidence
+ * Alpha signals: Over 2 Score 80 (strongest), COL cascade max Score 71,
+ *                SUI Result zero value markets, Low Scoring zero value markets
+ * Alpha implied total: ~2.1–2.2 (ceiling); Over 2 Score 80 = floor de 3 goles en pick
+ * Model λ: SUI 2.17 / COL 2.44 → Rule 23 divergence: ~54% total (4.61 vs ~2.1)
+ * Rules fired: Rule 23 (manual, 54% divergence), Over 2 Score 80,
+ *              COL cascade (Score 71), SUI zero value, Rule 11b SUI, Rule 14 adj
+ * Pick Judge output: 1-2 Colombia (Tier 2)
+ */
+export const sui_col: PickJudgeInput = {
+  matchId: 'R16-8',
+  homeTeam: 'Switzerland',
+  awayTeam: 'Colombia',
+  stage: 'knockout',
+
+  modelPick: { home: 2, away: 2 },
+  homeElo: 1800,
+  awayElo: 1890,
+
+  homeTournament: {
+    wins: 3, draws: 1, losses: 0,
+    cleanSheets: 1,
+    goalsConceded: 2,
+    goalsScored: 9
+  },
+  awayTournament: {
+    wins: 3, draws: 1, losses: 0,
+    cleanSheets: 3,
+    goalsConceded: 1,
+    goalsScored: 5
+  },
+  homeFormMultiplier: 1.05,
+  awayFormMultiplier: 1.10,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 0,
+    bttsNoScore: 0,
+
+    bttsYesScore: 36,
+    overTopScore: 80,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    awayAHBestScore: 71,
+    awayAHBestLine: 0.0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,
+    awayWinScore: 61,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 3,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 35.0,
+    alphaDrawPct: 21.0,
+    alphaAwayWinPct: 45.0,
+
+    leagueBttsPct: 52.0,
+    matchProjectedBttsPct: 60.0,
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 55.0,
+    projectedGoalsPerMatch: 2.2,
+
+    climateNetFactor: 1.0,
+  },
+
+  fieldTopPick: { home: 1, away: 2 },
+  fieldTopPickPct: 0.22,
+};
+// Expected: 1-2 Colombia (Tier 2)
+// Rule 23 (manual): total modelo 4.61 vs alpha implied ~2.1 → 54% divergencia → compresión
+// Over 2 Score 80: total ≥ 3 en el pick (Over es el piso, no el ceiling)
+// COL cascade Score 71 (AH 0): Colombia gana en margen de 1 gol
+// SUI Result zero value: sin respaldo para SUI win
+// Rule 11b SUI: anotó en todos sus partidos → no forzar primer partido sin gol
+// Rule 14 adj: SUI zero + COL cascade moderado → 1-2 COL (no el empate modal del modelo)
+// Model modal: 2-2 (7.0%) → overrideado por alpha dirección Colombia
