@@ -1229,6 +1229,38 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 0.65,
     notes: "USA 1-4 Belgium R16. De Ketelaere 8' (Lukébakio diagonal → Trossard cross), Tillman 31' free kick deflected (USA), De Ketelaere 33' brace (far-post header off Trossard, 61 seconds after equalizer), Vanaken 57' (Freese goalkeeper error — giveaway outside penalty area), Lukaku 90+3' (Vanaken press). xG USA 0.67 (7 shots) / BEL 2.15 (15 shots). Belgium played without Doku and De Bruyne (bench). De Ketelaere: first Belgian ever with 2G+1A in single WC match. Trossard: 0G+2A. Pulisic injured 52' (right foot, contact Tielemans). Balogun played but 0 goals (Courtois 1v1 save). Freese error directly caused 3rd goal — USA defensive fragility exposed throughout. USA eliminated. Belgium advance QF vs Spain. MODEL LESSON: BEL formOverride was stale (score 25, written after Iran 0-0, never updated after SEN 3-2 AET). Correct value should have been ~70. Stale override suppressed BEL λ. Cumulative Belgium-wins matrix probability (~37%) exceeded draw cluster (~22%) — should have shifted pick to 1-2 BEL rather than anchoring on modal draw cell.",
   },
+
+  // ==========================================
+  // ROUND OF 16 — COMPLETED MATCHES
+  // ==========================================
+
+  // R16-7: Argentina 3-2 Egypt (July 7, Atlanta)
+  // xG: ARG 2.76 / EGY 0.97
+  {
+    matchId: "R16-7",
+    date: "2026-07-07",
+    homeTeamId: "ARG", awayTeamId: "EGY",
+    homeGoals: 3, awayGoals: 2,
+    homeAttackMultiplier: 1.45,   // 2.76/1.35 = 2.04 → capped. 3 goles reales. Messi 8vo gol torneo (21 WC total). Fernández 90+2' 3000th WC goal
+    homeDefenseMultiplier: 0.78,  // Concedieron 2 con EGY xG 0.97 — segundo partido consecutivo cediendo 2 goles. Defensa expuesta sistemáticamente
+    awayAttackMultiplier: 0.72,   // 0.97/1.35 = 0.72. EGY anotó 2 con solo 0.97 xG — alta eficiencia. Ibrahim (15') + Zico (67')
+    awayDefenseMultiplier: 0.65,  // 1.35/2.76 = 0.49 → floored. Shobeir heroico (2 penaltis atajados) pero concedieron 3
+    notes: "REMONTADA HISTÓRICA. Argentina 3-2 Egypt. Más tardía remontada de 2 goles en WC sin tiempo extra (79'). Ibrahim header 15' → 0-1. Messi penalti atajado por Shobeir (heroico: ata 2/4 penaltis del torneo). Zico 67' → 0-2. Romero 79' (asistencia Messi) → 1-2. Messi 83' → 2-2. Fernández 90+2' → 3-2 (3000° gol en historia del WC). ARG xG 2.76 (19 tiros, 7 on target), EGY xG 0.97 (5 tiros). Argentina 64% posesión. PICK: 2-0 ARG → WRONG (direction OK, EGY anotó 2). LECCIÓN: Patrón ARG 3-X confirmado (3° partido con 3 goles en 5 jugados: 3-0 ALG, 3-0 JOR, 3-2 CPV, 3-2 EGY). Rule 20 comprimió agresivamente el total a ≤2 pero ARG sobreperforma λ sistemáticamente cuando Messi juega vs rival con resistencia. EGY también sobreperformó su xG (0.97 → 2 goles). Argentina defense DOWN marcadamente — 2 goles concedidos por 2do partido seguido, solo 5 tiros de Egypt. Shobeir fue la figura defensiva — no la defensa argentina. Argentina QF vs Switzerland (Kansas City, July 11/12).",
+  },
+
+  // R16-8: Switzerland 0-0 Colombia AET (SUI 4-3 PKs) — July 7, Vancouver BC Place
+  // xG 90': SUI 0.29 / COL 0.42. xG total (120'): SUI ~0.35 / COL ~1.03
+  {
+    matchId: "R16-8",
+    date: "2026-07-07",
+    homeTeamId: "SUI", awayTeamId: "COL",
+    homeGoals: 0, awayGoals: 0,
+    homeAttackMultiplier: 0.65,   // 0.29/1.35 = 0.21 → floored. Manzambi ausente. Peor salida ofensiva del torneo en 90'
+    homeDefenseMultiplier: 1.45,  // 1.35/0.42 = 3.21 → capped. Kobel heroico de nuevo. Colombia no pudo con la organización suiza
+    awayAttackMultiplier: 0.65,   // 0.42/1.35 = 0.31 → floored. COL tuvo más xG que SUI pero Lucumí travesaño, Campaz falló chance clara ET 115'. Sin goles en 120'
+    awayDefenseMultiplier: 1.45,  // 1.35/0.29 = 4.66 → capped. Colombia defensiva ejemplar. Solo 0.29 xG concedido en 90'
+    notes: "Switzerland 0-0 Colombia (SUI 4-3 PKs). xG más bajo en tiempo normal de cualquier partido del torneo (0.71 combinado en 90'). Kobel salvó a Cucho Hernández en penales. Vargas R. anotó el penal definitivo. COL tuvo el mejor xG total (1.03 vs 0.35 en 120') — más peligrosos en ET. Lucumí dio en travesaño. Campaz falló la mejor ocasión del partido (115'). Manzambi no jugó. Penales SUI: Xhaka (in), Amdouni (in), Itten (in), Akanji (out), Vargas R. (in). Penales COL: Quintero (in), D.Sánchez (travesaño), Campaz (in), Hernández Cucho (atajado). PICK: 1-2 COL → WRONG (0-0 AET, SUI eliminó COL en penales). LECCIÓN: Partido del 3er xG más bajo en historia WC en tiempo normal. Alpha Over 2 Score 81 tenía razón en que los equipos generarían pero el 0.71 total xG desmiente eso — hubo bloqueo táctico mutuo total. Colombia 3ra eliminación consecutiva en prórroga/penales en WC (2018 vs ENG PKs, 2026). SUI advance to QF vs Argentina (Kansas City, July 11/12).",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

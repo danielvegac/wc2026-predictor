@@ -121,9 +121,11 @@ export const knockoutMatches: KnockoutMatch[] = [
 
   // July 7
   { matchId: "R16-7", round: "R16", date: "2026-07-07", homeTeamId: "ARG", awayTeamId: "EGY",
-    venue: "Mercedes-Benz Stadium, Atlanta, USA", kickoffCOT: "11:00 AM", status: "upcoming" },
+    venue: "Mercedes-Benz Stadium, Atlanta, USA", kickoffCOT: "11:00 AM", status: "completed",
+    homeGoals: 3, awayGoals: 2 },
   { matchId: "R16-8", round: "R16", date: "2026-07-07", homeTeamId: "SUI", awayTeamId: "COL",
-    venue: "BC Place, Vancouver, Canada", kickoffCOT: "3:00 PM", status: "upcoming" },
+    venue: "BC Place, Vancouver, Canada", kickoffCOT: "3:00 PM", status: "completed",
+    homeGoals: 0, awayGoals: 0 },
 ];
 
 /** Get all knockout matches for a specific round */
