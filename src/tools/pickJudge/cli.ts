@@ -3,6 +3,7 @@
 import { judgePickInput } from './engine';
 import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, usa_bih, esp_aut, por_cro, sui_alg, aus_egy, arg_cpv, col_gha, can_mar, par_fra, mex_eng, bra_nor, sui_col } from './__tests__/historicalFixtures';
 import type { PickJudgeInput } from './types';
+import { signalAccuracyData, getSignalAccuracySummary } from '../../data/signalAccuracy';
 
 const fixtures: Record<string, PickJudgeInput> = {
   'R32-05': civ_nor,
@@ -23,6 +24,68 @@ const fixtures: Record<string, PickJudgeInput> = {
   'R16-4': mex_eng,
   'R16-8': sui_col,
 };
+
+// ── Accuracy CLI flags ────────────────────────────────────────────────
+const cliFlag = process.argv[2] ?? '';
+
+if (cliFlag === '--accuracy-summary') {
+  const s = getSignalAccuracySummary();
+  console.log('\n' + '═'.repeat(56));
+  console.log('  SIGNAL ACCURACY SUMMARY — Alpha vs Model');
+  console.log('═'.repeat(56));
+  console.log(`\n📊 TOTALS`);
+  console.log(`  Total matches tracked:   ${s.totalMatches}`);
+  console.log(`  Comparable (no AET):     ${s.comparableMatches}`);
+  console.log(`  Excluded (AET chaos):    ${s.aetExcluded}`);
+  console.log(`\n🏆 SIGNAL SCORECARD`);
+  console.log(`  Alpha closer:            ${s.alphaCloser}`);
+  console.log(`  Model closer:            ${s.modelCloser}`);
+  console.log(`  Tie:                     ${s.tie}`);
+  console.log(`\n⚠️  RULE 23 (Lambda Disagreement)`);
+  console.log(`  Triggered:               ${s.rule23TriggeredCount}x`);
+  console.log(`  Alpha win rate:          ${s.rule23AlphaWinRate !== null ? (s.rule23AlphaWinRate * 100).toFixed(0) + '%' : 'N/A'}`);
+  console.log('═'.repeat(56) + '\n');
+  process.exit(0);
+}
+
+if (cliFlag === '--accuracy') {
+  const targetId = process.argv[3];
+  if (!targetId) {
+    console.error('Usage: --accuracy <matchId>  (e.g. --accuracy R16-02)');
+    console.error('Available: ' + signalAccuracyData.map(e => e.matchId).join(', '));
+    process.exit(1);
+  }
+  const entry = signalAccuracyData.find(e => e.matchId === targetId);
+  if (!entry) {
+    console.error(`Unknown matchId: ${targetId}`);
+    console.error('Available: ' + signalAccuracyData.map(e => e.matchId).join(', '));
+    process.exit(1);
+  }
+  console.log('\n' + '═'.repeat(56));
+  console.log(`  SIGNAL ACCURACY — ${entry.homeTeamId} vs ${entry.awayTeamId} (${entry.matchId})`);
+  console.log('═'.repeat(56));
+  const resultStr = entry.wentToExtraTime
+    ? `90' ${entry.regulationResult.home}-${entry.regulationResult.away} → 120' ${entry.finalResult.home}-${entry.finalResult.away}${entry.penaltyWinner ? ` (${entry.penaltyWinner} pens)` : ''}`
+    : `${entry.finalResult.home}-${entry.finalResult.away}`;
+  console.log(`\n📋 RESULT:  ${resultStr}`);
+  console.log(`\n🔮 ALPHA TOP SCORELINES`);
+  entry.alphaTopScorelines.forEach((s, i) => console.log(`  #${i + 1}  ${s.home}-${s.away}  ${s.probability}%`));
+  if (entry.alphaImpliedLambdaHome != null) {
+    console.log(`  Implied λ: ${entry.alphaImpliedLambdaHome.toFixed(2)} / ${entry.alphaImpliedLambdaAway?.toFixed(2)}`);
+  }
+  console.log(`  Actual rank: ${entry.alphaActualRank != null ? '#' + entry.alphaActualRank : '—'}  (${entry.alphaActualProbability ?? 0}%)`);
+  console.log(`\n🤖 MODEL TOP SCORELINES (λ ${entry.modelLambdaHome.toFixed(2)} / ${entry.modelLambdaAway.toFixed(2)})`);
+  entry.modelTopScorelines.forEach((s, i) => console.log(`  #${i + 1}  ${s.home}-${s.away}  ${s.probability}%`));
+  console.log(`  Actual rank: ${entry.modelActualRank != null ? '#' + entry.modelActualRank : '—'}  (${entry.modelActualProbability ?? 0}%)`);
+  console.log(`\n⚖️  CLOSER SIGNAL: ${entry.closerSignal ?? '—'}`);
+  const flags: string[] = [];
+  if (entry.rule23Triggered) flags.push(`Rule23 (divergence ${entry.lambdaDivergencePct}%)`);
+  if (entry.rule25Flagged) flags.push('Rule25 (AET excluded)');
+  if (flags.length) console.log(`   Flags: ${flags.join(', ')}`);
+  if (entry.notes) console.log(`\n📝 NOTES: ${entry.notes}`);
+  console.log('═'.repeat(56) + '\n');
+  process.exit(0);
+}
 
 // Support both --match=R32-11 and --match R32-11
 const matchArg = process.argv[2] ?? '';

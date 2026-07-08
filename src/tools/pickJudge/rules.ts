@@ -306,5 +306,37 @@ export function checkRule20(input: PickJudgeInput): RuleCheck {
   };
 }
 
+/**
+ * Rule 23 — Lambda Disagreement Flag
+ * When: |model total lambda - alpha implied total lambda| / model total lambda > 50%
+ * Effect: Treat alpha's implied total as a compression ceiling. When triggered,
+ * the model's raw scoreline matrix should NOT be trusted for margin — defer to
+ * alpha's implied direction + margin instead.
+ * Validated retrospectively on 4 R16 matches (PAR-FRA, POR-ESP, ARG-EGY, SUI-COL,
+ * WC2026): in all 4 cases with divergence >50%, alpha's scoreline was closer to
+ * the actual result than the model's own matrix. See src/data/signalAccuracy.ts.
+ */
+export function checkRule23(input: PickJudgeInput): RuleCheck {
+  const modelTotal = (input.homeLambda ?? 0) + (input.awayLambda ?? 0);
+  const alphaTotal = (input.alpha.alphaImpliedHomeLambda ?? 0) + (input.alpha.alphaImpliedAwayLambda ?? 0);
+
+  if (modelTotal === 0 || input.alpha.alphaImpliedHomeLambda == null) {
+    return { ruleId: 'Rule23', triggered: false, reason: 'Alpha implied lambda not available' };
+  }
+
+  const divergencePct = Math.abs(modelTotal - alphaTotal) / modelTotal * 100;
+  const triggered = divergencePct > 50;
+
+  return {
+    ruleId: 'Rule23',
+    triggered,
+    reason: triggered
+      ? `Model total lambda ${modelTotal.toFixed(2)} vs alpha implied total ${alphaTotal.toFixed(2)} ` +
+        `— divergence ${divergencePct.toFixed(0)}% (>50%). Treat alpha-implied total as compression ceiling. ` +
+        `Do not trust model matrix margin — defer to alpha direction + margin.`
+      : `Divergence ${divergencePct.toFixed(0)}% — within normal range`
+  };
+}
+
 // Exported for engine noise-floor checks (Rule 2).
 export { NOISE_FLOOR };

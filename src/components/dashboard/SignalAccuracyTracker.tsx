@@ -1,0 +1,305 @@
+import { useState } from "react";
+import {
+  signalAccuracyData,
+  getSignalAccuracySummary,
+} from "../../data/signalAccuracy";
+import type { SignalAccuracyEntry } from "../../data/signalAccuracy";
+
+type Round = "All" | "R32" | "R16" | "QF" | "SF" | "3P" | "F";
+const ROUNDS: Round[] = ["All", "R32", "R16", "QF", "SF", "3P", "F"];
+
+export function SignalAccuracyTracker() {
+  const [activeRound, setActiveRound] = useState<Round>("All");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const summary = getSignalAccuracySummary();
+  const filtered =
+    activeRound === "All"
+      ? signalAccuracyData
+      : signalAccuracyData.filter((e) => e.round === activeRound);
+
+  return (
+    <div className="bg-bg-secondary rounded-xl border border-border p-6">
+      <h2 className="text-lg font-bold text-text-primary mb-1">
+        Signal Accuracy Tracker
+      </h2>
+      <p className="text-sm text-text-muted mb-5">
+        Alpha vs Model vs actual result — who read the knockout matches better
+      </p>
+
+      {/* Summary bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <StatCard label="Alpha closer" value={summary.alphaCloser} color="text-violet-400" />
+        <StatCard label="Model closer" value={summary.modelCloser} color="text-accent-green" />
+        <StatCard label="Tie" value={summary.tie} color="text-text-secondary" />
+        <StatCard label="Excluded (AET)" value={summary.aetExcluded} color="text-text-muted" />
+      </div>
+
+      {/* Rule 23 badge */}
+      {summary.rule23TriggeredCount > 0 && (
+        <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10">
+          <span className="text-xs font-bold text-amber-400">Rule 23</span>
+          <span className="text-xs text-text-secondary">
+            {summary.rule23TriggeredCount}x triggered —{" "}
+            {summary.rule23AlphaWinRate !== null
+              ? `Alpha wins ${(summary.rule23AlphaWinRate * 100).toFixed(0)}%`
+              : "insufficient data"}
+          </span>
+        </div>
+      )}
+
+      {/* Round filter */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {ROUNDS.map((r) => (
+          <button
+            key={r}
+            onClick={() => {
+              setActiveRound(r);
+              setExpandedId(null);
+            }}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+              activeRound === r
+                ? "bg-accent-gold text-bg-primary"
+                : "bg-bg-tertiary text-text-secondary hover:text-text-primary border border-border"
+            }`}
+          >
+            {r}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      {filtered.length === 0 ? (
+        <p className="text-sm text-text-muted py-6 text-center">
+          No matches recorded yet for this round
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-text-secondary">
+                <th className="py-2 pr-2 font-medium">Match</th>
+                <th className="py-2 px-2 font-medium text-center">Result</th>
+                <th className="py-2 px-2 font-medium text-center">α Rank</th>
+                <th className="py-2 px-2 font-medium text-center">Model Rank</th>
+                <th className="py-2 px-2 font-medium text-center">Closer</th>
+                <th className="py-2 pl-2 font-medium text-center">Flags</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((entry) => (
+                <MatchRow
+                  key={entry.matchId}
+                  entry={entry}
+                  expanded={expandedId === entry.matchId}
+                  onToggle={() =>
+                    setExpandedId((id) =>
+                      id === entry.matchId ? null : entry.matchId
+                    )
+                  }
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) {
+  return (
+    <div className="bg-bg-tertiary rounded-lg p-3 text-center">
+      <div className={`text-2xl font-mono font-bold ${color}`}>{value}</div>
+      <div className="text-xs text-text-muted mt-1">{label}</div>
+    </div>
+  );
+}
+
+function CloserBadge({
+  signal,
+  rule25Flagged,
+}: {
+  signal?: string;
+  rule25Flagged?: boolean;
+}) {
+  if (rule25Flagged) {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-xs font-medium border border-amber-500/40 text-amber-400">
+        AET excl.
+      </span>
+    );
+  }
+  if (signal === "alpha") {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-violet-500/10 text-violet-400 border border-violet-500/30">
+        Alpha
+      </span>
+    );
+  }
+  if (signal === "model") {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-accent-green/10 text-accent-green border border-accent-green/30">
+        Model
+      </span>
+    );
+  }
+  if (signal === "tie") {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-bg-tertiary text-text-muted border border-border">
+        Tie
+      </span>
+    );
+  }
+  return null;
+}
+
+function MatchRow({
+  entry,
+  expanded,
+  onToggle,
+}: {
+  entry: SignalAccuracyEntry;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const resultStr = entry.wentToExtraTime
+    ? `90' ${entry.regulationResult.home}-${entry.regulationResult.away} → 120' ${entry.finalResult.home}-${entry.finalResult.away}${entry.penaltyWinner ? ` (${entry.penaltyWinner} pens)` : ""}`
+    : `${entry.finalResult.home}-${entry.finalResult.away}`;
+
+  return (
+    <>
+      <tr
+        className="border-b border-border/30 hover:bg-bg-tertiary/50 cursor-pointer"
+        onClick={onToggle}
+      >
+        <td className="py-2 pr-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-mono text-text-muted">
+              {entry.matchId}
+            </span>
+            <span className="text-xs font-medium text-text-primary">
+              {entry.homeTeamId}
+            </span>
+            <span className="text-text-muted text-xs">vs</span>
+            <span className="text-xs font-medium text-text-primary">
+              {entry.awayTeamId}
+            </span>
+            <span className="text-text-muted text-xs ml-1">
+              {expanded ? "▾" : "▸"}
+            </span>
+          </div>
+        </td>
+        <td className="py-2 px-2 text-center font-mono text-xs text-text-primary">
+          {resultStr}
+        </td>
+        <td className="py-2 px-2 text-center font-mono text-xs text-text-secondary">
+          {entry.alphaActualRank != null ? `#${entry.alphaActualRank}` : "—"}
+        </td>
+        <td className="py-2 px-2 text-center font-mono text-xs text-text-secondary">
+          {entry.modelActualRank != null ? `#${entry.modelActualRank}` : "—"}
+        </td>
+        <td className="py-2 px-2 text-center">
+          <CloserBadge
+            signal={entry.closerSignal}
+            rule25Flagged={entry.rule25Flagged}
+          />
+        </td>
+        <td className="py-2 pl-2 text-center">
+          <div className="flex gap-1 justify-center">
+            {entry.rule23Triggered && (
+              <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                R23
+              </span>
+            )}
+            {entry.rule25Flagged && (
+              <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-bg-tertiary text-text-muted border border-border">
+                R25
+              </span>
+            )}
+          </div>
+        </td>
+      </tr>
+      {expanded && (
+        <tr className="border-b border-border/30">
+          <td colSpan={6} className="py-3 px-4 bg-bg-tertiary/40">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              {/* Alpha scorelines */}
+              <div>
+                <div className="font-bold text-violet-400 mb-1.5">
+                  Alpha Top Scorelines
+                </div>
+                {entry.alphaTopScorelines.map((s, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between font-mono text-text-secondary py-0.5"
+                  >
+                    <span>
+                      #{i + 1} {s.home}-{s.away}
+                    </span>
+                    <span
+                      className={
+                        entry.alphaActualRank === i + 1
+                          ? "text-accent-green font-bold"
+                          : "text-text-muted"
+                      }
+                    >
+                      {s.probability}%
+                      {entry.alphaActualRank === i + 1 && " ✓"}
+                    </span>
+                  </div>
+                ))}
+                {entry.alphaImpliedLambdaHome != null && (
+                  <div className="text-text-muted mt-1.5">
+                    Implied λ: {entry.alphaImpliedLambdaHome.toFixed(2)} /{" "}
+                    {entry.alphaImpliedLambdaAway?.toFixed(2)}
+                  </div>
+                )}
+              </div>
+              {/* Model scorelines */}
+              <div>
+                <div className="font-bold text-accent-green mb-1.5">
+                  Model Top Scorelines (λ {entry.modelLambdaHome.toFixed(2)} /{" "}
+                  {entry.modelLambdaAway.toFixed(2)})
+                </div>
+                {entry.modelTopScorelines.map((s, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between font-mono text-text-secondary py-0.5"
+                  >
+                    <span>
+                      #{i + 1} {s.home}-{s.away}
+                    </span>
+                    <span
+                      className={
+                        entry.modelActualRank === i + 1
+                          ? "text-accent-green font-bold"
+                          : "text-text-muted"
+                      }
+                    >
+                      {s.probability}%
+                      {entry.modelActualRank === i + 1 && " ✓"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {entry.notes && (
+              <div className="mt-3 pt-2 border-t border-border/30 text-xs text-text-secondary italic">
+                {entry.notes}
+              </div>
+            )}
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}

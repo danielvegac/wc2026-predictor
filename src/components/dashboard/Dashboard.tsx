@@ -19,6 +19,7 @@ import { expertPicks, calculateExpertAccuracy } from "../../data/expertPicks";
 import { getProdeAIPicks } from "../../data/prodeai";
 import { matchInsights, getTeamFormMultipliers } from "../../data/matchInsights";
 import { EngineDiagnosticsPanel } from "./EngineDiagnosticsPanel";
+import { SignalAccuracyTracker } from "./SignalAccuracyTracker";
 import { calculateFormRankings } from "../../engine/formRankingEngine";
 import { formOverrides } from "../../data/formOverrides";
 import {
@@ -52,6 +53,7 @@ export function Dashboard() {
     <div className="flex flex-col gap-8">
       <EloUpdateIndicator />
       <ModelTrackRecord predictions={predictions} />
+      <SignalAccuracyTracker />
       <ExpertAccuracyTracker predictions={predictions} />
       <FormInsights />
       <TournamentFormRankings />

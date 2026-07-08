@@ -57,6 +57,10 @@ export interface AlphaSignals {
   homeAdjustedLambda?: number;  // orange/adjusted home xG per match from Alphametrico
   awayAdjustedLambda?: number;  // orange/adjusted away xG per match from Alphametrico
 
+  // IMPLIED LAMBDA (from Alphametrico scoreline matrix — used for Rule 23 divergence check)
+  alphaImpliedHomeLambda?: number;
+  alphaImpliedAwayLambda?: number;
+
   // GOAL DISTRIBUTION (from Alphametrico goal distribution chart)
   goalDistribution?: {
     awayPeakAtZeroPct: number;  // % probability at 0 goals for away team
@@ -72,6 +76,8 @@ export interface PickJudgeInput {
 
   // MODEL
   modelPick: { home: number; away: number };
+  homeLambda?: number;
+  awayLambda?: number;
   homeElo: number;
   awayElo: number;
   // eloDiff = homeElo - awayElo (positive = home stronger)

@@ -3,7 +3,7 @@ import {
   checkRule16a, checkRule16b, checkRule15,
   checkRule14, checkRule12,
   checkRule13, checkRule11b, checkRule9, checkRule7,
-  checkRule17, checkRule20,
+  checkRule17, checkRule20, checkRule23,
   NOISE_FLOOR
 } from './rules';
 
@@ -44,9 +44,14 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
   const rule9 = checkRule9(input);
   const rule7 = checkRule7(input);
   const rule17 = checkRule17(input);
+  const rule23 = checkRule23(input);
 
-  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7, rule17];
+  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7, rule17, rule23];
   allChecks.filter(r => r.triggered).forEach(r => rulesTriggered.push(r.ruleId));
+
+  if (rule23.triggered) {
+    reasoning.push(`[Rule 23 ADVISORY — Lambda Disagreement] ${rule23.reason}`);
+  }
 
   reasoning.push(`STEP 1 — Model anchor: ${input.homeTeam} ${input.modelPick.home}-${input.modelPick.away} ${input.awayTeam}`);
   reasoning.push(`Elo: ${input.homeTeam} ${input.homeElo} vs ${input.awayTeam} ${input.awayElo} (diff: ${input.homeElo - input.awayElo > 0 ? '+' : ''}${input.homeElo - input.awayElo})`);
