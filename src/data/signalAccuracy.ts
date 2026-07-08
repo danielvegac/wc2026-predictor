@@ -41,6 +41,15 @@ export interface SignalAccuracyEntry {
   alphaActualProbability?: number;
   modelActualProbability?: number;
   closerSignal?: "alpha" | "model" | "tie" | "neither-aet";
+  /**
+   * Use ONLY when the pure rank/probability comparison doesn't capture
+   * a nuance worth documenting. Must include a reason. When absent,
+   * closerSignal is always computed by computeCloserSignal().
+   */
+  closerSignalOverride?: {
+    value: "alpha" | "model" | "tie";
+    reason: string;
+  };
 
   // ── Rule flags ─────────────────────────────────────────────
   lambdaDivergencePct?: number;
@@ -67,6 +76,34 @@ export function evaluateRule23(entry: SignalAccuracyEntry): boolean {
   return div != null && div > RULE_23_DIVERGENCE_THRESHOLD;
 }
 
+/**
+ * Determines which signal was closer to the actual result. Lower rank wins.
+ * If ranks tie, higher probability wins. A manual override takes precedence.
+ */
+export function computeCloserSignal(
+  entry: SignalAccuracyEntry
+): "alpha" | "model" | "tie" {
+  if (entry.closerSignalOverride) {
+    return entry.closerSignalOverride.value;
+  }
+
+  const aRank = entry.alphaActualRank ?? null;
+  const mRank = entry.modelActualRank ?? null;
+  const aProb = entry.alphaActualProbability ?? 0;
+  const mProb = entry.modelActualProbability ?? 0;
+
+  if (aRank == null && mRank == null) return "tie";
+  if (aRank == null) return "model";
+  if (mRank == null) return "alpha";
+
+  if (aRank < mRank) return "alpha";
+  if (mRank < aRank) return "model";
+
+  if (aProb > mProb) return "alpha";
+  if (mProb > aProb) return "model";
+  return "tie";
+}
+
 // ============================================================
 // HISTORICAL DATA — R32 + R16 (WC2026), backfilled retrospectively
 // ============================================================
@@ -83,7 +120,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 0, away: 1 }, wentToExtraTime: false, finalResult: { home: 0, away: 1 },
     alphaActualRank: 1, modelActualRank: 6, alphaActualProbability: 17, modelActualProbability: 6.9,
-    closerSignal: "alpha",
     notes: "Alpha nailed exact top cell. Model matrix leaned toward 1-2/0-2 blowout, underweighted the tight 0-1.",
   },
   {
@@ -97,7 +133,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 2, away: 1 }, wentToExtraTime: false, finalResult: { home: 2, away: 1 },
     alphaActualRank: 4, modelActualRank: 1, alphaActualProbability: 10, modelActualProbability: 8.1,
-    closerSignal: "model",
     notes: "Model's own matrix hit the exact scoreline at rank #1.",
   },
   {
@@ -112,7 +147,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     regulationResult: { home: 1, away: 1 }, wentToExtraTime: true, penaltyWinner: "GER",
     finalResult: { home: 1, away: 1 },
     alphaActualRank: 1, modelActualRank: 6, alphaActualProbability: 13, modelActualProbability: 5.9,
-    closerSignal: "alpha",
     notes: "Model matrix heavily favored a GER blowout (lambda 2.82 vs 0.51). Alpha correctly read the tight draw.",
   },
   {
@@ -127,7 +161,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     regulationResult: { home: 1, away: 1 }, wentToExtraTime: true, penaltyWinner: "MAR",
     finalResult: { home: 1, away: 1 },
     alphaActualRank: 2, modelActualRank: 5, alphaActualProbability: 14, modelActualProbability: 6.7,
-    closerSignal: "alpha",
     notes: "Model matrix overweighted NED winning by 2+. Alpha's draw signal (14%) was much closer.",
   },
   {
@@ -141,7 +174,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 1, away: 2 }, wentToExtraTime: false, finalResult: { home: 1, away: 2 },
     alphaActualRank: 2, modelActualRank: 2, alphaActualProbability: 10.0, modelActualProbability: 10.0,
-    closerSignal: "tie",
     notes: "Model and alpha converged almost exactly here (Rule 14 origin match).",
   },
   {
@@ -155,7 +187,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 3, away: 0 }, wentToExtraTime: false, finalResult: { home: 3, away: 0 },
     alphaActualRank: 5, modelActualRank: 1, alphaActualProbability: 7, modelActualProbability: 9.0,
-    closerSignal: "model",
     notes: "Model's clean sheet read (lambda 0.93 away) was the correct one — alpha expected Sweden to score.",
   },
   {
@@ -169,7 +200,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 2, away: 0 }, wentToExtraTime: false, finalResult: { home: 2, away: 0 },
     alphaActualRank: 9, modelActualRank: 9, alphaActualProbability: 3, modelActualProbability: 3.7,
-    closerSignal: "tie",
     notes: "Rule 16a co-host veto correctly overrode both alpha (favored ECU) and the raw model matrix (favored a tight/draw outcome).",
   },
   {
@@ -183,7 +213,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 2, away: 1 }, wentToExtraTime: false, finalResult: { home: 2, away: 1 },
     alphaActualRank: 6, modelActualRank: 6, alphaActualProbability: 6, modelActualProbability: 3.8,
-    closerSignal: "tie",
     notes: "Neither signal anticipated the DRC comeback goal (0-1 at HT) before England's late surge.",
   },
   {
@@ -197,7 +226,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 1, away: 1 }, wentToExtraTime: true, finalResult: { home: 3, away: 2 },
     alphaActualRank: 1, modelActualRank: 1, alphaActualProbability: 13, modelActualProbability: 8.6,
-    closerSignal: "tie",
     rule25Flagged: true,
     notes: "Both matrices correctly called the 90' scoreline (1-1) — the actual quiniela-relevant result (3-2 AET) was decided by extra-time chaos, not a signal failure.",
   },
@@ -212,7 +240,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 2, away: 0 }, wentToExtraTime: false, finalResult: { home: 2, away: 0 },
     alphaActualRank: 4, modelActualRank: 3, alphaActualProbability: 9, modelActualProbability: 8.0,
-    closerSignal: "model",
     notes: "Rule 17 origin match — clean sheet override confirmed by both signals reasonably closely.",
   },
   {
@@ -226,7 +253,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 3, away: 0 }, wentToExtraTime: false, finalResult: { home: 3, away: 0 },
     alphaActualRank: 5, modelActualRank: 1, alphaActualProbability: 9, modelActualProbability: 8.6,
-    closerSignal: "model",
     notes: "Model matrix hit exactly.",
   },
   {
@@ -240,7 +266,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 2, away: 1 }, wentToExtraTime: false, finalResult: { home: 2, away: 1 },
     alphaActualRank: 4, modelActualRank: 1, alphaActualProbability: 10, modelActualProbability: 7.2,
-    closerSignal: "model",
     notes: "Model matrix hit exactly.",
   },
   {
@@ -254,7 +279,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 2, away: 0 }, wentToExtraTime: false, finalResult: { home: 2, away: 0 },
     alphaActualRank: 8, modelActualRank: 1, alphaActualProbability: 5, modelActualProbability: 12.4,
-    closerSignal: "model",
     notes: "Alpha leaned Algeria direction; model matrix (never surfaced to the pick at the time) had the exact answer. Retroactive lesson: always cross-check the model's own matrix, not just its single-point prediction.",
   },
   {
@@ -269,7 +293,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     regulationResult: { home: 1, away: 1 }, wentToExtraTime: true, penaltyWinner: "EGY",
     finalResult: { home: 1, away: 1 },
     alphaActualRank: 3, modelActualRank: 3, alphaActualProbability: 13, modelActualProbability: 9.6,
-    closerSignal: "tie",
     notes: "Both signals had the draw in their top-3.",
   },
   {
@@ -283,7 +306,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 1, away: 1 }, wentToExtraTime: true, finalResult: { home: 3, away: 2 },
     alphaActualRank: 3, modelActualRank: null, alphaActualProbability: 14, modelActualProbability: 1.0,
-    closerSignal: "alpha",
     rule25Flagged: true,
     notes: "Alpha had the 90' draw in its top-3. Model expected a blowout via inflated lambda 4.00 (group-stage vs weak opponents). 120' result (3-2) decided by AET chaos.",
   },
@@ -297,9 +319,8 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
       { home: 2, away: 0, probability: 12.7 }, { home: 1, away: 0, probability: 12.7 }, { home: 1, away: 1, probability: 11.8 },
     ],
     regulationResult: { home: 1, away: 0 }, wentToExtraTime: false, finalResult: { home: 1, away: 0 },
-    alphaActualRank: 2, modelActualRank: 1, alphaActualProbability: 15, modelActualProbability: 12.7,
-    closerSignal: "model",
-    notes: "Both signals close; model marginally better.",
+    alphaActualRank: 2, modelActualRank: 2, alphaActualProbability: 15, modelActualProbability: 12.7,
+    notes: "1-0 is the model's #2 cell (tied at 12.7% with 2-0 at #1); alpha's #2 at higher 15% is the closer read.",
   },
   {
     matchId: "R16-01", round: "R16", homeTeamId: "CAN", awayTeamId: "MAR",
@@ -312,7 +333,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 0, away: 3 }, wentToExtraTime: false, finalResult: { home: 0, away: 3 },
     alphaActualRank: 8, modelActualRank: 3, alphaActualProbability: 3, modelActualProbability: 9.9,
-    closerSignal: "model",
     notes: "Model matrix had the 0-3 blowout in its top-3; alpha's draw-leaning matrix missed the margin badly.",
   },
   {
@@ -328,7 +348,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     alphaActualRank: 1, modelActualRank: 10, alphaActualProbability: 14, modelActualProbability: 4.31,
     lambdaDivergencePct: 63,
     rule23Triggered: true,
-    closerSignal: "alpha",
     notes: "FRA lambda 4.00 hit the engine's hard cap — massively inflated the model matrix toward a blowout that never came. Rule 23 origin match.",
   },
   {
@@ -342,7 +361,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 1, away: 2 }, wentToExtraTime: false, finalResult: { home: 1, away: 2 },
     alphaActualRank: 12, modelActualRank: 7, alphaActualProbability: 2, modelActualProbability: 4.5,
-    closerSignal: "model",
     notes: "Genuine upset — Haaland brace from low xG. Neither signal anticipated a Norway win, but the model's matrix had the near-misses closer.",
   },
   {
@@ -356,7 +374,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 2, away: 3 }, wentToExtraTime: false, finalResult: { home: 2, away: 3 },
     alphaActualRank: 13, modelActualRank: 7, alphaActualProbability: 1, modelActualProbability: 5.2,
-    closerSignal: "model",
     notes: "5-goal thriller neither matrix anticipated exactly, but the model's ENG-favoring lambda (3.14) was directionally closer.",
   },
   {
@@ -372,7 +389,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     alphaActualRank: 2, modelActualRank: 19, alphaActualProbability: 11, modelActualProbability: 1.98,
     lambdaDivergencePct: 55,
     rule23Triggered: true,
-    closerSignal: "alpha",
     notes: "Model lambda (2.72 for ESP) far exceeded alpha's implied xG (1.26) — model matrix expected a high-scoring ESP win, actual was a tight 0-1.",
   },
   {
@@ -386,7 +402,6 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     ],
     regulationResult: { home: 1, away: 4 }, wentToExtraTime: false, finalResult: { home: 1, away: 4 },
     alphaActualRank: 16, modelActualRank: 20, alphaActualProbability: 1, modelActualProbability: 0.4,
-    closerSignal: "tie",
     notes: "Stale BEL formOverride (score 25, never updated post-Senegal) likely contaminated the model lambda. Both signals totally missed the blowout margin.",
   },
   {
@@ -402,7 +417,10 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     alphaActualRank: null, modelActualRank: 11, alphaActualProbability: 1, modelActualProbability: 3.92,
     lambdaDivergencePct: 51,
     rule23Triggered: true,
-    closerSignal: "alpha",
+    closerSignalOverride: {
+      value: "tie",
+      reason: "Alpha correctly read the 1-goal margin (top cells 1-0/2-0/0-0, all low-scoring) but completely missed the high-scoring total (actual was 5 goals). The model's matrix got the total-goals ballpark and Argentina's exact goal count right (top cells 3-0/4-0/3-1, all showing ARG scoring 3) but missed the tight margin. A strict rank/probability comparison favors the model (rank #11 vs alpha's unranked <1%), but each signal captured a real, different dimension of the actual result — treated as a tie by design rather than by the numeric rule alone.",
+    },
     notes: "Alpha's implied margin (1 goal) was structurally closer than the model's blowout-shaped matrix (lambda 4.00, inflated by weak group-stage opponents).",
   },
   {
@@ -418,18 +436,23 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     alphaActualRank: 5, modelActualRank: 22, alphaActualProbability: 8, modelActualProbability: 1.71,
     lambdaDivergencePct: 51,
     rule23Triggered: true,
-    closerSignal: "alpha",
     notes: "Model matrix expected goals to flow (combined lambda 4.61); alpha's tighter read (0-1/1-1 top cells) was closer to the dry 0-0.",
   },
 ];
 
 export function getSignalAccuracySummary() {
   const comparable = signalAccuracyData.filter((e) => !e.rule25Flagged);
-  const alphaCloser = comparable.filter((e) => e.closerSignal === "alpha").length;
-  const modelCloser = comparable.filter((e) => e.closerSignal === "model").length;
-  const tie = comparable.filter((e) => e.closerSignal === "tie").length;
+  const withSignal = comparable.map((e) => ({ e, signal: computeCloserSignal(e) }));
+
+  const alphaCloser = withSignal.filter((x) => x.signal === "alpha").length;
+  const modelCloser = withSignal.filter((x) => x.signal === "model").length;
+  const tie = withSignal.filter((x) => x.signal === "tie").length;
+
   const rule23Matches = signalAccuracyData.filter((e) => e.rule23Triggered);
-  const rule23AlphaWins = rule23Matches.filter((e) => e.closerSignal === "alpha").length;
+  const rule23Signals = rule23Matches.map((e) => computeCloserSignal(e));
+  const rule23AlphaWins = rule23Signals.filter((s) => s === "alpha").length;
+  const rule23Ties = rule23Signals.filter((s) => s === "tie").length;
+  const rule23ModelWins = rule23Signals.filter((s) => s === "model").length;
 
   return {
     totalMatches: signalAccuracyData.length,
@@ -439,6 +462,6 @@ export function getSignalAccuracySummary() {
     modelCloser,
     tie,
     rule23TriggeredCount: rule23Matches.length,
-    rule23AlphaWinRate: rule23Matches.length > 0 ? rule23AlphaWins / rule23Matches.length : null,
+    rule23Breakdown: { alpha: rule23AlphaWins, tie: rule23Ties, model: rule23ModelWins },
   };
 }

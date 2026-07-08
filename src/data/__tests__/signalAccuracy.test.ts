@@ -3,6 +3,7 @@ import {
   computeLambdaDivergence,
   evaluateRule23,
   getSignalAccuracySummary,
+  computeCloserSignal,
   signalAccuracyData,
 } from '../signalAccuracy';
 import { checkRule23 } from '../../tools/pickJudge/rules';
@@ -126,12 +127,9 @@ describe('computeLambdaDivergence', () => {
   });
 
   it('computes divergence correctly for the PAR-FRA R16-02 match (63%)', () => {
-    // modelTotal = 0.57 + 4.00 = 4.57, alphaTotal ≈ 0.57*0.37+... we test with the stored entry
     const entry = signalAccuracyData.find(e => e.matchId === 'R16-02')!;
-    // lambdaDivergencePct is stored as 63 — compute should be in that ballpark
     const div = computeLambdaDivergence(entry);
-    // Entry has no alphaImpliedLambda fields set → returns null (fields not stored inline)
-    // divergencePct stored as manual annotation; this confirms the function handles absence gracefully
+    // Entry has no alphaImpliedLambda fields set → returns null
     expect(div).toBeNull();
   });
 
@@ -172,12 +170,10 @@ describe('evaluateRule23', () => {
       alphaImpliedLambdaHome: 1.0,
       alphaImpliedLambdaAway: 0.5,
     });
-    // divergence = 50%, threshold is >50 so this is false
     expect(evaluateRule23(entry)).toBe(false);
   });
 
   it('returns true when divergence exceeds 50%', () => {
-    // model 5.0, alpha 2.0 → 60%
     const entry = makeEntry({
       modelLambdaHome: 3.0,
       modelLambdaAway: 2.0,
@@ -188,7 +184,6 @@ describe('evaluateRule23', () => {
   });
 
   it('returns false when divergence is below 50%', () => {
-    // model 4.0, alpha 3.0 → 25%
     const entry = makeEntry({
       modelLambdaHome: 2.0,
       modelLambdaAway: 2.0,
@@ -214,14 +209,12 @@ describe('checkRule23', () => {
   });
 
   it('does not trigger when divergence is at the boundary (exactly 50%)', () => {
-    // model 3.0, alpha 1.5 → exactly 50%
     const result = checkRule23(makeInput(2.0, 1.0, 1.0, 0.5));
     expect(result.triggered).toBe(false);
     expect(result.reason).toMatch(/50%/);
   });
 
   it('triggers when divergence exceeds 50%', () => {
-    // model 4.57 (0.57+4.00), alpha 1.71 (~63% divergence) — mirrors R16-02 PAR-FRA
     const result = checkRule23(makeInput(0.57, 4.00, 0.57, 1.14));
     expect(result.triggered).toBe(true);
     expect(result.ruleId).toBe('Rule23');
@@ -238,8 +231,90 @@ describe('checkRule23', () => {
   it('reason mentions model and alpha totals when triggered', () => {
     const result = checkRule23(makeInput(3.0, 2.0, 1.2, 0.8));
     expect(result.triggered).toBe(true);
-    expect(result.reason).toContain('5.00');  // model total
-    expect(result.reason).toContain('2.00');  // alpha total
+    expect(result.reason).toContain('5.00');
+    expect(result.reason).toContain('2.00');
+  });
+});
+
+// ─── computeCloserSignal ─────────────────────────────────────────────────────
+
+describe('computeCloserSignal', () => {
+  it('returns "tie" when both ranks are null', () => {
+    const entry = makeEntry({ alphaActualRank: null, modelActualRank: null });
+    expect(computeCloserSignal(entry)).toBe('tie');
+  });
+
+  it('returns "model" when only alphaActualRank is null', () => {
+    const entry = makeEntry({ alphaActualRank: null, modelActualRank: 3 });
+    expect(computeCloserSignal(entry)).toBe('model');
+  });
+
+  it('returns "alpha" when only modelActualRank is null', () => {
+    const entry = makeEntry({ alphaActualRank: 2, modelActualRank: null });
+    expect(computeCloserSignal(entry)).toBe('alpha');
+  });
+
+  it('returns "alpha" when alpha rank is lower (regardless of probability)', () => {
+    const entry = makeEntry({
+      alphaActualRank: 2, alphaActualProbability: 5,
+      modelActualRank: 5, modelActualProbability: 20,
+    });
+    expect(computeCloserSignal(entry)).toBe('alpha');
+  });
+
+  it('returns "model" when model rank is lower (regardless of probability)', () => {
+    const entry = makeEntry({
+      alphaActualRank: 8, alphaActualProbability: 15,
+      modelActualRank: 1, modelActualProbability: 8,
+    });
+    expect(computeCloserSignal(entry)).toBe('model');
+  });
+
+  it('breaks a rank tie in favour of higher probability — alpha wins', () => {
+    const entry = makeEntry({
+      alphaActualRank: 3, alphaActualProbability: 12,
+      modelActualRank: 3, modelActualProbability: 9,
+    });
+    expect(computeCloserSignal(entry)).toBe('alpha');
+  });
+
+  it('breaks a rank tie in favour of higher probability — model wins', () => {
+    const entry = makeEntry({
+      alphaActualRank: 3, alphaActualProbability: 8,
+      modelActualRank: 3, modelActualProbability: 11,
+    });
+    expect(computeCloserSignal(entry)).toBe('model');
+  });
+
+  it('returns "tie" when rank and probability are identical', () => {
+    const entry = makeEntry({
+      alphaActualRank: 2, alphaActualProbability: 10,
+      modelActualRank: 2, modelActualProbability: 10,
+    });
+    expect(computeCloserSignal(entry)).toBe('tie');
+  });
+
+  it('closerSignalOverride takes precedence over computed result', () => {
+    // Without override: alpha rank 1 should beat model rank 5
+    // With override set to "model", the override wins
+    const entry = makeEntry({
+      alphaActualRank: 1, alphaActualProbability: 15,
+      modelActualRank: 5, modelActualProbability: 8,
+      closerSignalOverride: { value: 'model', reason: 'test override' },
+    });
+    expect(computeCloserSignal(entry)).toBe('model');
+  });
+
+  it('closerSignalOverride "tie" overrides a clear numeric winner', () => {
+    const entry = makeEntry({
+      alphaActualRank: null, alphaActualProbability: 1,
+      modelActualRank: 11, modelActualProbability: 3.92,
+      closerSignalOverride: {
+        value: 'tie',
+        reason: 'each signal captured a different dimension',
+      },
+    });
+    expect(computeCloserSignal(entry)).toBe('tie');
   });
 });
 
@@ -262,8 +337,15 @@ describe('getSignalAccuracySummary', () => {
     expect(getSignalAccuracySummary().rule23TriggeredCount).toBe(4);
   });
 
-  it('reports 100% alpha win rate on Rule 23 triggered matches', () => {
-    expect(getSignalAccuracySummary().rule23AlphaWinRate).toBe(1);
+  it('reports alphaCloser: 10, modelCloser: 10, tie: 2', () => {
+    const s = getSignalAccuracySummary();
+    expect(s.alphaCloser).toBe(10);
+    expect(s.modelCloser).toBe(10);
+    expect(s.tie).toBe(2);
+  });
+
+  it('reports rule23Breakdown: { alpha: 3, tie: 1, model: 0 }', () => {
+    expect(getSignalAccuracySummary().rule23Breakdown).toEqual({ alpha: 3, tie: 1, model: 0 });
   });
 
   it('comparable + excluded = total', () => {
@@ -276,16 +358,14 @@ describe('getSignalAccuracySummary', () => {
     expect(s.alphaCloser + s.modelCloser + s.tie).toBe(s.comparableMatches);
   });
 
-  it('all Rule 23 triggered entries have closerSignal = "alpha"', () => {
-    const rule23Entries = signalAccuracyData.filter(e => e.rule23Triggered);
-    expect(rule23Entries.length).toBe(4);
-    rule23Entries.forEach(e => {
-      expect(e.closerSignal).toBe('alpha');
-    });
-  });
-
   it('all rule25Flagged entries are excluded from comparable count', () => {
     const flagged = signalAccuracyData.filter(e => e.rule25Flagged);
     expect(flagged.length).toBe(getSignalAccuracySummary().aetExcluded);
+  });
+
+  it('rule23Breakdown counts sum to rule23TriggeredCount', () => {
+    const s = getSignalAccuracySummary();
+    const { alpha, tie, model } = s.rule23Breakdown;
+    expect(alpha + tie + model).toBe(s.rule23TriggeredCount);
   });
 });

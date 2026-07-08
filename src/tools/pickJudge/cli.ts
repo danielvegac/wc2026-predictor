@@ -43,7 +43,7 @@ if (cliFlag === '--accuracy-summary') {
   console.log(`  Tie:                     ${s.tie}`);
   console.log(`\n⚠️  RULE 23 (Lambda Disagreement)`);
   console.log(`  Triggered:               ${s.rule23TriggeredCount}x`);
-  console.log(`  Alpha win rate:          ${s.rule23AlphaWinRate !== null ? (s.rule23AlphaWinRate * 100).toFixed(0) + '%' : 'N/A'}`);
+  console.log(`  Alpha ${s.rule23Breakdown.alpha} · Tie ${s.rule23Breakdown.tie} · Model ${s.rule23Breakdown.model}`);
   console.log('═'.repeat(56) + '\n');
   process.exit(0);
 }

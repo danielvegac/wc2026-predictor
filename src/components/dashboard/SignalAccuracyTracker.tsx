@@ -2,11 +2,15 @@ import { useState } from "react";
 import {
   signalAccuracyData,
   getSignalAccuracySummary,
+  computeCloserSignal,
 } from "../../data/signalAccuracy";
-import type { SignalAccuracyEntry } from "../../data/signalAccuracy";
+import type { SignalAccuracyEntry, ScorelineProbability } from "../../data/signalAccuracy";
 
 type Round = "All" | "R32" | "R16" | "QF" | "SF" | "3P" | "F";
 const ROUNDS: Round[] = ["All", "R32", "R16", "QF", "SF", "3P", "F"];
+
+const isActualResult = (row: ScorelineProbability, entry: SignalAccuracyEntry) =>
+  row.home === entry.regulationResult.home && row.away === entry.regulationResult.away;
 
 export function SignalAccuracyTracker() {
   const [activeRound, setActiveRound] = useState<Round>("All");
@@ -40,10 +44,8 @@ export function SignalAccuracyTracker() {
         <div className="mb-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10">
           <span className="text-xs font-bold text-amber-400">Rule 23</span>
           <span className="text-xs text-text-secondary">
-            {summary.rule23TriggeredCount}x triggered —{" "}
-            {summary.rule23AlphaWinRate !== null
-              ? `Alpha wins ${(summary.rule23AlphaWinRate * 100).toFixed(0)}%`
-              : "insufficient data"}
+            {summary.rule23TriggeredCount}x triggered — Alpha {summary.rule23Breakdown.alpha} · Tie{" "}
+            {summary.rule23Breakdown.tie} · Model {summary.rule23Breakdown.model}
           </span>
         </div>
       )}
@@ -175,6 +177,8 @@ function MatchRow({
     ? `90' ${entry.regulationResult.home}-${entry.regulationResult.away} → 120' ${entry.finalResult.home}-${entry.finalResult.away}${entry.penaltyWinner ? ` (${entry.penaltyWinner} pens)` : ""}`
     : `${entry.finalResult.home}-${entry.finalResult.away}`;
 
+  const signal = computeCloserSignal(entry);
+
   return (
     <>
       <tr
@@ -209,7 +213,7 @@ function MatchRow({
         </td>
         <td className="py-2 px-2 text-center">
           <CloserBadge
-            signal={entry.closerSignal}
+            signal={signal}
             rule25Flagged={entry.rule25Flagged}
           />
         </td>
@@ -247,13 +251,13 @@ function MatchRow({
                     </span>
                     <span
                       className={
-                        entry.alphaActualRank === i + 1
+                        isActualResult(s, entry)
                           ? "text-accent-green font-bold"
                           : "text-text-muted"
                       }
                     >
                       {s.probability}%
-                      {entry.alphaActualRank === i + 1 && " ✓"}
+                      {isActualResult(s, entry) && " ✓"}
                     </span>
                   </div>
                 ))}
@@ -280,18 +284,45 @@ function MatchRow({
                     </span>
                     <span
                       className={
-                        entry.modelActualRank === i + 1
+                        isActualResult(s, entry)
                           ? "text-accent-green font-bold"
                           : "text-text-muted"
                       }
                     >
                       {s.probability}%
-                      {entry.modelActualRank === i + 1 && " ✓"}
+                      {isActualResult(s, entry) && " ✓"}
                     </span>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* Always-visible actual result summary */}
+            <div className="mt-3 pt-2 border-t border-border/50 bg-bg-secondary/40 rounded px-2 py-1.5 text-xs font-mono">
+              <span className="text-text-muted">Resultado real </span>
+              <span className="text-text-primary font-bold">
+                {entry.regulationResult.home}-{entry.regulationResult.away}
+              </span>
+              <span className="text-text-muted">: </span>
+              <span className="text-violet-400">
+                Alpha {entry.alphaActualProbability != null ? `${entry.alphaActualProbability}%` : "—"}
+                {" "}(#{entry.alphaActualRank != null ? entry.alphaActualRank : "—"})
+              </span>
+              <span className="text-text-muted"> · </span>
+              <span className="text-accent-green">
+                Modelo {entry.modelActualProbability != null ? `${entry.modelActualProbability}%` : "—"}
+                {" "}(#{entry.modelActualRank != null ? entry.modelActualRank : "—"})
+              </span>
+            </div>
+
+            {/* Override reason (shown when closerSignalOverride is present) */}
+            {entry.closerSignalOverride && (
+              <div className="mt-2 pl-2 border-l-2 border-amber-500/50 text-xs text-text-secondary italic">
+                <span className="text-amber-400 not-italic font-medium">Manual judgment: </span>
+                {entry.closerSignalOverride.reason}
+              </div>
+            )}
+
             {entry.notes && (
               <div className="mt-3 pt-2 border-t border-border/30 text-xs text-text-secondary italic">
                 {entry.notes}
