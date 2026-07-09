@@ -126,6 +126,24 @@ export const knockoutMatches: KnockoutMatch[] = [
   { matchId: "R16-8", round: "R16", date: "2026-07-07", homeTeamId: "SUI", awayTeamId: "COL",
     venue: "BC Place, Vancouver, Canada", kickoffCOT: "3:00 PM", status: "completed",
     homeGoals: 0, awayGoals: 0 },
+
+  // ==========================================
+  // QUARTER-FINALS
+  // ==========================================
+
+  // July 9
+  { matchId: "QF-1", round: "QF", date: "2026-07-09", homeTeamId: "FRA", awayTeamId: "MAR",
+    venue: "Gillette Stadium, Foxborough, MA", kickoffCOT: "3:00 PM", status: "upcoming" },
+
+  // July 10
+  { matchId: "QF-2", round: "QF", date: "2026-07-10", homeTeamId: "ESP", awayTeamId: "BEL",
+    venue: "SoFi Stadium, Inglewood, CA", kickoffCOT: "2:00 PM", status: "upcoming" },
+
+  // July 11
+  { matchId: "QF-3", round: "QF", date: "2026-07-11", homeTeamId: "NOR", awayTeamId: "ENG",
+    venue: "Hard Rock Stadium, Miami Gardens, FL", kickoffCOT: "4:00 PM", status: "upcoming" },
+  { matchId: "QF-4", round: "QF", date: "2026-07-11", homeTeamId: "ARG", awayTeamId: "SUI",
+    venue: "Arrowhead Stadium, Kansas City, MO", kickoffCOT: "8:00 PM", status: "upcoming" },
 ];
 
 /** Get all knockout matches for a specific round */

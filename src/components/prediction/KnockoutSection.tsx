@@ -138,19 +138,26 @@ function RoundSection({
 export function KnockoutSection() {
   const r32Matches = useMemo(() => knockoutMatches.filter((m) => m.round === "R32"), []);
   const r16Matches = useMemo(() => knockoutMatches.filter((m) => m.round === "R16"), []);
+  const qfMatches = useMemo(() => knockoutMatches.filter((m) => m.round === "QF"), []);
 
   return (
     <>
-      <RoundSection
-        title="Round of 16"
-        badge="Knockout Stage"
-        matches={r16Matches}
-      />
       <RoundSection
         title="Round of 32"
         badge="Knockout Stage"
         matches={r32Matches}
         defaultCollapsed={true}
+      />
+      <RoundSection
+        title="Round of 16"
+        badge="Knockout Stage"
+        matches={r16Matches}
+        defaultCollapsed={true}
+      />
+      <RoundSection
+        title="Quarter-Finals"
+        badge="Knockout Stage"
+        matches={qfMatches}
       />
     </>
   );
