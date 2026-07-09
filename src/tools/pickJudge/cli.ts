@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 /// <reference types="node" />
 import { judgePickInput } from './engine';
-import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, usa_bih, esp_aut, por_cro, sui_alg, aus_egy, arg_cpv, col_gha, can_mar, par_fra, mex_eng, bra_nor, sui_col } from './__tests__/historicalFixtures';
+import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, usa_bih, esp_aut, por_cro, sui_alg, aus_egy, arg_cpv, col_gha, can_mar, par_fra, mex_eng, bra_nor, sui_col, fra_mar, por_esp, usa_bel, arg_egy } from './__tests__/historicalFixtures';
 import type { PickJudgeInput } from './types';
 import { signalAccuracyData, getSignalAccuracySummary } from '../../data/signalAccuracy';
+import { knockoutMatches } from '../../data/knockoutMatches';
+import { formOverrides } from '../../data/formOverrides';
+import { teams } from '../../data/teams';
 
 const fixtures: Record<string, PickJudgeInput> = {
   'R32-05': civ_nor,
@@ -22,7 +25,11 @@ const fixtures: Record<string, PickJudgeInput> = {
   'R16-2': par_fra,
   'R16-3': bra_nor,
   'R16-4': mex_eng,
+  'R16-5': por_esp,
+  'R16-6': usa_bel,
+  'R16-7': arg_egy,
   'R16-8': sui_col,
+  'QF-1': fra_mar,
 };
 
 // ── Accuracy CLI flags ────────────────────────────────────────────────
@@ -98,6 +105,55 @@ if (!input) {
   console.error(`Unknown match: ${matchId}. Available: ${Object.keys(fixtures).join(', ')}`);
   process.exit(1);
 }
+
+// ── RULE 27: Form Freshness Gate (preflight warning, not rule logic) ──────
+// Resolves each team to its 3-letter code, finds the most recent COMPLETED
+// knockoutMatches entry for that team (excluding this fixture), and checks
+// whether formOverrides.ts was updated to reflect it (heuristic: the note
+// mentions the opponent's code from that match).
+function resolveTeamCode(name: string): string | undefined {
+  if (teams.some(t => t.id === name)) return name;
+  const match = teams.find(t => t.name.toLowerCase() === name.toLowerCase());
+  return match?.id;
+}
+
+function checkRule27(teamName: string): void {
+  const code = resolveTeamCode(teamName);
+  if (!code) {
+    console.log(`  ⚠️  RULE 27: Could not resolve team code for "${teamName}" — skipping freshness check.`);
+    return;
+  }
+
+  const priorCompleted = knockoutMatches
+    .filter(m => m.status === 'completed' && m.matchId !== matchId &&
+      (m.homeTeamId === code || m.awayTeamId === code))
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  const mostRecent = priorCompleted[0];
+  if (!mostRecent) return; // no prior knockout match — nothing to be stale against
+
+  const opponentCode = mostRecent.homeTeamId === code ? mostRecent.awayTeamId : mostRecent.homeTeamId;
+  const override = formOverrides[code];
+
+  if (!override) {
+    console.log(
+      `  ⚠️  STALE FORM DATA: ${teamName} has no formOverride entry, but has a completed ` +
+      `${mostRecent.round} match (${mostRecent.matchId} vs ${opponentCode}). Recompute before trusting this fixture's λ.`
+    );
+    return;
+  }
+
+  if (!override.note.includes(opponentCode)) {
+    console.log(
+      `  ⚠️  STALE FORM DATA: ${teamName} formOverride does not reference ${opponentCode} ` +
+      `(most recent completed match: ${mostRecent.matchId}, ${mostRecent.round}). Recompute before trusting this fixture's λ.`
+    );
+  }
+}
+
+console.log('\n🧪 RULE 27 (Form Freshness Gate)');
+checkRule27(input.homeTeam);
+checkRule27(input.awayTeam);
 
 const result = judgePickInput(input);
 

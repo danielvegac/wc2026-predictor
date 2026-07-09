@@ -5,6 +5,11 @@ export interface TournamentRecord {
   cleanSheets: number;
   goalsConceded: number;
   goalsScored: number;
+  // Rule 26 — verified per-match scoring flag (true only if the team scored
+  // in EVERY tournament match played, confirmed against matchInsights.ts).
+  // Optional: falls back to the goalsScored/matchesPlayed proxy when omitted,
+  // so existing fixtures keep working without a full data-verification pass.
+  scoredEveryMatch?: boolean;
 }
 
 export interface AlphaSignals {
@@ -109,6 +114,12 @@ export interface PickJudgeInput {
     tournamentGoals: number;
     singleMatchBrace?: boolean; // true if scored 2+ goals in any single match
   }[];
+
+  // ESTABLISHED SCORING PATTERN (Rule 28)
+  homeGoalPatternMatches?: number;  // count of PRIOR tournament matches (not counting
+                                      // this fixture) where home scored exactly
+                                      // homeGoalPatternValue goals
+  homeGoalPatternValue?: number;     // the repeated goal count itself
 }
 
 export interface RuleCheck {

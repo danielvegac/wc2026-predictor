@@ -4,8 +4,26 @@ import {
   checkRule14, checkRule12,
   checkRule13, checkRule11b, checkRule9, checkRule7,
   checkRule17, checkRule20, checkRule23,
+  checkRule28, checkRule29, resolveScoredEveryMatch,
   NOISE_FLOOR
 } from './rules';
+
+/**
+ * Rule 29 guard — applied wherever a pick would otherwise force the away
+ * team's goals to 0. If Rule 29 is triggered, the clean sheet is not
+ * permitted; the away side is floored at 1.
+ */
+function applyRule29Guard(
+  pick: { home: number; away: number },
+  rule29: RuleCheck,
+  reasoning: string[]
+): { home: number; away: number } {
+  if (rule29.triggered && pick.away === 0) {
+    reasoning.push(`[Rule 29] ${rule29.reason} Pick ${pick.home}-0 → ${pick.home}-1.`);
+    return { home: pick.home, away: 1 };
+  }
+  return pick;
+}
 
 /**
  * Compress model pick total by exactly 1 goal.
@@ -45,8 +63,10 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
   const rule7 = checkRule7(input);
   const rule17 = checkRule17(input);
   const rule23 = checkRule23(input);
+  const rule28 = checkRule28(input);
+  const rule29 = checkRule29(input);
 
-  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7, rule17, rule23];
+  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7, rule17, rule23, rule28, rule29];
   allChecks.filter(r => r.triggered).forEach(r => rulesTriggered.push(r.ruleId));
 
   if (rule23.triggered) {
@@ -72,6 +92,19 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
       `[Rule 20 — λ Cap Override] ${rule20.reason}. ` +
       `Model pick ${input.modelPick.home}-${input.modelPick.away} → ${workingPick.home}-${workingPick.away}.`
     );
+
+    // Rule 28 — established scoring pattern floor. Relax Rule 20's cap when the
+    // home team has a verified 2+ match pattern of scoring this exact total.
+    if (rule28.triggered && workingPick.home >= workingPick.away) {
+      const floor = input.homeGoalPatternValue ?? 0;
+      if (workingPick.home < floor) {
+        reasoning.push(
+          `[Rule 28 — Scoring Pattern Floor] ${rule28.reason} ` +
+          `Rule 20 cap ${workingPick.home}-${workingPick.away} → ${floor}-${workingPick.away}.`
+        );
+        workingPick = { home: floor, away: workingPick.away };
+      }
+    }
   }
 
   // A Tier 3 alpha override = Rule 14 (direction flip) or Rule 12 (draw primary).
@@ -113,6 +146,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     }
 
     reasoning.push(`STEP 3 — Tier 2 compression: ${workingPick.home}-${workingPick.away} → ${tier2pick.home}-${tier2pick.away}`);
+    tier2pick = applyRule29Guard(tier2pick, rule29, reasoning);
     reasoning.push(`FINAL PICK: ${input.homeTeam} ${tier2pick.home}-${tier2pick.away} ${input.awayTeam} [Tier 2]`);
 
     return {
@@ -155,9 +189,10 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
         `on tight line ≤+1.0 with 2+ consecutive). ` +
         `Form anchor enforced → Tier 1: follow model pick.`
       );
-      reasoning.push(`FINAL PICK: ${input.homeTeam} ${workingPick.home}-${workingPick.away} ${input.awayTeam} [Tier 1, Rule 18]`);
+      const rule18Pick = applyRule29Guard(workingPick, rule29, reasoning);
+      reasoning.push(`FINAL PICK: ${input.homeTeam} ${rule18Pick.home}-${rule18Pick.away} ${input.awayTeam} [Tier 1, Rule 18]`);
       return {
-        finalPick: { ...workingPick },
+        finalPick: rule18Pick,
         tier: 1,
         rulesTriggered,
         reasoning,
@@ -239,6 +274,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     tier2pick = { home: tier2pick.home, away: 0 };
     reasoning.push(`STEP 5b — Rule 17 fired: away λ ≤0.45 + goal dist 0-peak ≥35% + home win% ≥55% → clean sheet override, BTTS league context invalid`);
     reasoning.push(`Tier 2 compression: ${workingPick.home}-${workingPick.away} → ${tier2pick.home}-${tier2pick.away} (clean sheet forced)`);
+    tier2pick = applyRule29Guard(tier2pick, rule29, reasoning);
     reasoning.push(`FINAL PICK: ${input.homeTeam} ${tier2pick.home}-${tier2pick.away} ${input.awayTeam} [Tier 2]`);
     return {
       finalPick: tier2pick,
@@ -279,10 +315,9 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     reasoning.push(`STEP 4 — Tier 2: Under/BTTS No signals valid. Compressing model pick total by 1 goal.`);
     let tier2pick = compressTier2(workingPick);
 
-    // Rule 11b post-compression guard: if compression lands on a clean sheet but the
-    // shut-out team scored in every tournament match AND BTTS No < 80, revert.
-    const awayMatchesPlayed2 = input.awayTournament.wins + input.awayTournament.draws + input.awayTournament.losses;
-    const awayScoredEveryMatch2 = awayMatchesPlayed2 > 0 && input.awayTournament.goalsScored >= awayMatchesPlayed2;
+    // Rule 26/11b post-compression guard: if compression lands on a clean sheet but the
+    // shut-out team's verified scoring history shows every match scored AND BTTS No < 80, revert.
+    const awayScoredEveryMatch2 = resolveScoredEveryMatch(input.awayTournament);
     if (
       tier2pick.away === 0 &&
       awayScoredEveryMatch2 &&
@@ -294,8 +329,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
       );
     }
 
-    const homeMatchesPlayed2 = input.homeTournament.wins + input.homeTournament.draws + input.homeTournament.losses;
-    const homeScoredEveryMatch2 = homeMatchesPlayed2 > 0 && input.homeTournament.goalsScored >= homeMatchesPlayed2;
+    const homeScoredEveryMatch2 = resolveScoredEveryMatch(input.homeTournament);
     if (
       tier2pick.home === 0 &&
       homeScoredEveryMatch2 &&
@@ -305,6 +339,18 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
       reasoning.push(
         `Rule 11b blocks Tier 2 compression to clean sheet: home team scored in every match, BTTS No Score ${input.alpha.bttsNoScore} < 80. Reverting to pre-compression pick.`
       );
+    }
+
+    // Rule 28 — established scoring pattern floor also applies to Tier 2 compression.
+    if (rule28.triggered && tier2pick.home >= tier2pick.away) {
+      const floor = input.homeGoalPatternValue ?? 0;
+      if (tier2pick.home < floor) {
+        reasoning.push(
+          `[Rule 28 — Scoring Pattern Floor] ${rule28.reason} ` +
+          `Tier 2 compression ${tier2pick.home}-${tier2pick.away} → ${floor}-${tier2pick.away}.`
+        );
+        tier2pick = { home: floor, away: tier2pick.away };
+      }
     }
 
     // Rule 16b takes priority over Rule 13: genuine away threat → BTTS compression
@@ -334,6 +380,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
       }
     }
 
+    tier2pick = applyRule29Guard(tier2pick, rule29, reasoning);
     reasoning.push(`FINAL PICK: ${input.homeTeam} ${tier2pick.home}-${tier2pick.away} ${input.awayTeam} [Tier 2]`);
     return {
       finalPick: tier2pick,
@@ -346,9 +393,10 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
 
   // ── STEP 7: Tier 1 — follow the model ────────────────────────────
   reasoning.push(`STEP 4 — No qualifying alpha signals. Tier 1: follow model pick.`);
-  reasoning.push(`FINAL PICK: ${input.homeTeam} ${workingPick.home}-${workingPick.away} ${input.awayTeam} [Tier 1]`);
+  const finalStep7Pick = applyRule29Guard(workingPick, rule29, reasoning);
+  reasoning.push(`FINAL PICK: ${input.homeTeam} ${finalStep7Pick.home}-${finalStep7Pick.away} ${input.awayTeam} [Tier 1]`);
   return {
-    finalPick: { ...workingPick },
+    finalPick: finalStep7Pick,
     tier: 1,
     rulesTriggered,
     reasoning,

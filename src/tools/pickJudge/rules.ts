@@ -180,16 +180,35 @@ export function checkRule13(input: PickJudgeInput): RuleCheck {
 }
 
 /**
+ * Rule 26 — True Scoring History Flag
+ * Reads TournamentRecord.scoredEveryMatch when explicitly set (verified from
+ * matchInsights.ts per-match data). Falls back to the old aggregate proxy
+ * (goalsScored / matchesPlayed >= 1) only when the flag is not provided, so
+ * legacy fixtures keep working without a full re-verification pass.
+ *
+ * Fixes a false positive seen in R16-5 (POR-ESP): the proxy said "Portugal
+ * scored in every match" (8 goals / 3 matches) but Portugal was actually held
+ * scoreless 0-0 vs Colombia — the proxy can't see that because Portugal's other
+ * matches (5-0 UZB) hide the zero in the aggregate.
+ */
+export function resolveScoredEveryMatch(record: PickJudgeInput['homeTournament']): boolean {
+  if (record.scoredEveryMatch != null) return record.scoredEveryMatch;
+  const matchesPlayed = record.wins + record.draws + record.losses;
+  return matchesPlayed > 0 && record.goalsScored >= matchesPlayed;
+}
+
+/**
  * Rule 11b — Don't assume opponent's first shutout
  * When: team scored in every group match AND BTTS No < 80 AND league BTTS not suppressed
  * Effect: Avoid picking scoreline that requires this team's first scoreless match.
  * BLOCKED by Rule 15 when clean sheet convergence is present.
+ * Scoring history now sourced via Rule 26 (resolveScoredEveryMatch) instead of
+ * the raw aggregate proxy.
  */
 export function checkRule11b(input: PickJudgeInput): RuleCheck {
   const { awayTournament, alpha } = input;
-  // "Away team scored in every group match" = goalsScored >= matches played
   const awayMatchesPlayed = awayTournament.wins + awayTournament.draws + awayTournament.losses;
-  const awayScoredEveryMatch = awayTournament.goalsScored >= awayMatchesPlayed && awayMatchesPlayed > 0;
+  const awayScoredEveryMatch = resolveScoredEveryMatch(awayTournament);
   const bttsNoWeak = alpha.bttsNoScore < 80;
   const leagueNotSuppressed = alpha.leagueBttsPct >= 35;
 
@@ -335,6 +354,60 @@ export function checkRule23(input: PickJudgeInput): RuleCheck {
         `— divergence ${divergencePct.toFixed(0)}% (>50%). Treat alpha-implied total as compression ceiling. ` +
         `Do not trust model matrix margin — defer to alpha direction + margin.`
       : `Divergence ${divergencePct.toFixed(0)}% — within normal range`
+  };
+}
+
+/**
+ * Rule 28 — Established Scoring Pattern Floor
+ * When: the home team has scored the exact same goal total in 2+ PRIOR
+ * tournament matches (not counting the current fixture) — an established
+ * pattern, not noise.
+ * Effect: Relaxes Rule 20's compression ceiling. The compressed total cannot
+ * be pushed below homeGoalPatternValue, even when Under Score >= 80 would
+ * otherwise force further compression.
+ * Lesson (R16-7 ARG-EGY, July 7 2026): Argentina scored exactly 3 goals in
+ * 3 prior tournament matches (3-0 ALG, 0-3 JOR, 3-2 CPV AET) before Rule 20
+ * compressed the model's 3-0 anchor down to 2-0. Actual result was 3-2.
+ */
+export function checkRule28(input: PickJudgeInput): RuleCheck {
+  const matches = input.homeGoalPatternMatches ?? 0;
+  const value = input.homeGoalPatternValue ?? 0;
+  const triggered = matches >= 2 && value > 0;
+
+  return {
+    ruleId: 'Rule28',
+    triggered,
+    reason: triggered
+      ? `${input.homeTeam} scored exactly ${value} goals in ${matches} prior tournament matches ` +
+        `— established pattern. Compression floor set at ${value}, overriding Rule 20's cap.`
+      : 'Rule 28 not triggered'
+  };
+}
+
+/**
+ * Rule 29 — Symmetric Underdog BTTS Floor
+ * Mirror of Rule 11b/13, protecting against the FAVORITE's clean-sheet pick:
+ * if BTTS No Score is 60-79 (moderate, not dominant) AND the away team's
+ * verified scoring history (Rule 26) shows they scored in every match, the
+ * engine cannot output 0 goals for the away team — even if Rule 20/18 would
+ * otherwise compress toward a home clean sheet.
+ * Lesson (R16-7 ARG-EGY): bttsNoScore=78, Egypt scored in every match through
+ * R16-7 → Rule 29 should have forced Egypt's goal output to >=1. Actual: 3-2.
+ */
+export function checkRule29(input: PickJudgeInput): RuleCheck {
+  const { alpha, awayTournament } = input;
+  const bttsNoModerate = alpha.bttsNoScore >= 60 && alpha.bttsNoScore <= 79;
+  const awayScoredEveryMatch = resolveScoredEveryMatch(awayTournament);
+
+  const triggered = bttsNoModerate && awayScoredEveryMatch;
+  return {
+    ruleId: 'Rule29',
+    triggered,
+    reason: triggered
+      ? `BTTS No Score ${alpha.bttsNoScore} (60-79 — moderate, not dominant). ` +
+        `${input.awayTeam} scored in every tournament match. ` +
+        `Away goal output floored at 1 — home clean sheet not permitted.`
+      : 'Rule 29 not triggered'
   };
 }
 

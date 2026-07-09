@@ -279,7 +279,10 @@ export const mex_ecu: PickJudgeInput = {
   awayElo: 1730,
 
   homeTournament: { wins: 3, draws: 0, losses: 0, cleanSheets: 3, goalsConceded: 0, goalsScored: 6 },
-  awayTournament: { wins: 1, draws: 1, losses: 1, cleanSheets: 1, goalsConceded: 2, goalsScored: 3 },
+  // ECU: 0-1 CIV, 0-0 CUW, 3-x GER — real per-match data shows 0 goals in 2 of 3 matches
+  // (all 3 goals came in the GER match). Rule 26: aggregate proxy (3G/3M) would wrongly
+  // say "scored every match" — verified false from matchInsights.ts.
+  awayTournament: { wins: 1, draws: 1, losses: 1, cleanSheets: 1, goalsConceded: 2, goalsScored: 3, scoredEveryMatch: false },
   homeFormMultiplier: 1.35,
   awayFormMultiplier: 0.92,
 
@@ -1492,3 +1495,337 @@ export const sui_col: PickJudgeInput = {
 // Rule 11b SUI: anotó en todos sus partidos → no forzar primer partido sin gol
 // Rule 14 adj: SUI zero + COL cascade moderado → 1-2 COL (no el empate modal del modelo)
 // Model modal: 2-2 (7.0%) → overrideado por alpha dirección Colombia
+
+/**
+ * QF-1: France vs Morocco
+ * Model pick: 2-0 France. FRA deflated post-Paraguay block (form 1.00), MAR floored (form 0.65).
+ * Alpha: Under3=89, BTTS No=76 (Rule 13 range 60-79) → tier2Conditions valid.
+ * Morocco AH cascade: best Score=87 @+2.0 (wide line, not tight) — Rule 14 tight-line check fails.
+ * Morocco 1X2 Score=9, alpha away win%=22.6 — no Rule 12 dominance.
+ * awayAdjustedLambda=0.65 > 0.45 → Rule 17 NOT triggered.
+ */
+export const fra_mar: PickJudgeInput = {
+  matchId: 'QF-1',
+  homeTeam: 'France',
+  awayTeam: 'Morocco',
+  stage: 'knockout',
+
+  modelPick: { home: 2, away: 0 },
+  homeElo: 2052,
+  awayElo: 1883,
+
+  // FRA: 6W-0D-0L, 14 goals scored, 2 conceded across tournament
+  homeTournament: { wins: 6, draws: 0, losses: 0, cleanSheets: 4, goalsConceded: 2, goalsScored: 14 },
+  // MAR: scored in every match played (incl. R32 1-1 vs NED before penalties), 5W-0D-0L in regulation/advancement
+  awayTournament: { wins: 5, draws: 0, losses: 0, cleanSheets: 0, goalsConceded: 3, goalsScored: 9 },
+  homeFormMultiplier: 1.00,   // deflated post-Paraguay block (R16-2)
+  awayFormMultiplier: 0.65,   // floored — 0.85 xG vs CAN, conversion outlier not xG dominance
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 89,            // Under 3 Score=89
+    bttsNoScore: 76,               // Rule 13 range (60-79)
+
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    // Morocco AH cascade — wide lines strong (85-87), tight lines below 85
+    awayAHBestScore: 87,
+    awayAHBestLine: 2.0,
+    awayAHConsecutiveAbove80: 4,   // +2.00 through +1.25 all ≥85; +1.00 (82) breaks the tight-line streak
+
+    homeWinScore: 5,               // Correct Score 1_0 Score=5 (noise floor territory)
+    awayWinScore: 9,               // 1X2 Morocco Score=9
+    homeValueMarketsFound: 47,
+    awayValueMarketsFound: 45,
+
+    cs00Score: 2,
+    csHomeCleanSheetScore: 0,      // not explicitly found — infer from BTTS No=76
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 44.6,
+    alphaDrawPct: 32.8,
+    alphaAwayWinPct: 22.6,
+
+    leagueBttsPct: 0,              // not provided this session — leave 0 or omit if optional
+    matchProjectedBttsPct: 0,
+    leagueOver25Pct: 0,
+    matchProjectedOver25Pct: 0,
+    projectedGoalsPerMatch: 1.80,  // ~1.15 + ~0.65 from Expected Goals (adjusted) chart
+
+    climateNetFactor: 1.00,        // not provided this session
+    awayAdjustedLambda: 0.65,      // Morocco adjusted xG per Expected Goals chart
+  },
+
+  fieldTopPick: { home: 1, away: 0 },
+  fieldTopPickPct: 0.17,           // Alphametrico matrix top cell (1-0 at 17%)
+};
+// Expected: TBD — validate against manual walkthrough via CLI run
+
+/**
+ * R16-5: Portugal vs Spain — POR-ESP (July 6, 2026, AT&T Stadium, Arlington)
+ * Spain favored: Elo gap -90 (POR 1950 vs ESP 2040, per src/data/teams.ts base ratings —
+ *   matches the -89 gap noted in session history).
+ * Form multipliers back-derived from matchInsights.ts recency-weighted history pre-kickoff
+ *   (POR: COD draw 0.79, UZB win 1.45, COL draw 0.65 → ~1.18; ESP: CPV draw 0.72, KSA win 1.45,
+ *   AUT win 1.45 → ~1.38) since no explicit pregame multiplier was captured this session.
+ * Alpha: Under3=80, BTTS No=60 (exactly at floor) — tier2Conditions valid at the margin.
+ * POR AH cascade only qualifies on +1.0 (Score=81, not tight enough for Rule 12/14).
+ * ESP Result: zero value markets across 46 evaluated.
+ */
+export const por_esp: PickJudgeInput = {
+  matchId: 'R16-5',
+  homeTeam: 'Portugal',
+  awayTeam: 'Spain',
+  stage: 'knockout',
+
+  modelPick: { home: 1, away: 2 },
+  homeElo: 1950,   // base rating from src/data/teams.ts — live-updated gap (-89) matches this closely
+  awayElo: 2040,
+
+  // POR: 1-1 COD (D), 5-0 UZB (W,CS), 0-0 COL (D,CS) — 1W2D0L, 2 CS, 6 goals scored, 1 conceded
+  // Rule 26: verified per-match — POR did NOT score every match (0-0 vs Colombia MD3, June 27)
+  homeTournament: { wins: 1, draws: 2, losses: 0, cleanSheets: 2, goalsConceded: 1, goalsScored: 6, scoredEveryMatch: false },
+  // ESP: 0-0 CPV (D,CS), 4-0 KSA (W,CS), 3-0 AUT R32 (W,CS) — 2W1D0L, 3 CS, 7 goals scored, 0 conceded
+  // Rule 26: verified per-match — ESP did NOT score every match (0-0 vs Cape Verde, group MD1)
+  awayTournament: { wins: 2, draws: 1, losses: 0, cleanSheets: 3, goalsConceded: 0, goalsScored: 7, scoredEveryMatch: false },
+
+  homeFormMultiplier: 1.18,  // back-derived from matchInsights recency weighting (see comment above)
+  awayFormMultiplier: 1.38,  // back-derived from matchInsights recency weighting (see comment above)
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,   // AT&T Stadium, Arlington — neutral venue
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 80,           // Under 3 Score=80
+    bttsNoScore: 60,             // exactly at floor threshold
+
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 81,         // POR cascade best on +1.0 (NOT tight enough for Rule 12/14)
+    homeAHBestLine: 1.0,
+    homeAHConsecutiveAbove80: 1, // only +1.0 line qualifies, not 2+ consecutive tight
+
+    awayAHBestScore: 0,          // ESP Result: zero value markets found (46 evaluated)
+    awayAHBestLine: 0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,
+    awayWinScore: 0,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 46,   // zero EV markets, but 46 evaluated
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 0,
+    alphaDrawPct: 0,
+    alphaAwayWinPct: 0,
+
+    leagueBttsPct: 0,
+    matchProjectedBttsPct: 0,
+    leagueOver25Pct: 0,
+    matchProjectedOver25Pct: 0,
+    projectedGoalsPerMatch: 0,
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 1.94,
+    awayAdjustedLambda: 2.72,
+  },
+
+  fieldTopPick: { home: 0, away: 0 },
+  fieldTopPickPct: 0,
+};
+// Expected: 1-2 ESP (Tier 2 attempted, Rule 11b blocks compression → reverts to 1-2 ESP)
+//   Rule 21 (HSCM) fires as secondary candidate: POR 2-2 ESP
+// Actual: 0-1 Spain (per session history — Portugal shut out)
+// Verdict: ✗ — direction correct, scoreline wrong (model/engine expected Portugal to score)
+
+/**
+ * R16-6: USA vs Belgium — USA-BEL (July 6, 2026, Lumen Field, Seattle)
+ * USA co-host effect priced into alpha win% despite lower Elo.
+ * All alpha signals below actionable threshold — Tier 1 (follow model).
+ * Rule 21 does NOT fire: λ total 3.16 < 3.5.
+ */
+export const usa_bel: PickJudgeInput = {
+  matchId: 'R16-6',
+  homeTeam: 'USA',
+  awayTeam: 'BEL',
+  stage: 'knockout',
+
+  modelPick: { home: 1, away: 1 },
+  homeElo: 1825,
+  awayElo: 1892,
+
+  homeTournament: { wins: 3, draws: 0, losses: 1, cleanSheets: 2, goalsConceded: 4, goalsScored: 10 },
+  awayTournament: { wins: 2, draws: 2, losses: 0, cleanSheets: 1, goalsConceded: 3, goalsScored: 4 },
+
+  homeFormMultiplier: 1.15,
+  awayFormMultiplier: 1.10,
+
+  homeIsCoHost: true,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: true,   // Lumen Field, Seattle
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 60,
+    bttsNoScore: 29,             // noise — below Rule 2 threshold, discard
+
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 4,          // noise
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    awayAHBestScore: 4,          // noise
+    awayAHBestLine: 0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 4,
+    awayWinScore: 4,
+    homeValueMarketsFound: 1,
+    awayValueMarketsFound: 1,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 39.0,       // USA co-host effect priced in despite lower Elo
+    alphaDrawPct: 26.8,
+    alphaAwayWinPct: 34.2,
+
+    leagueBttsPct: 47.0,
+    matchProjectedBttsPct: 50.0,
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 55.0,
+    projectedGoalsPerMatch: 3.16,
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 1.02,
+    awayAdjustedLambda: 2.14,
+  },
+
+  fieldTopPick: { home: 0, away: 0 },
+  fieldTopPickPct: 0,
+};
+// Expected: 1-1 (Tier 1 — all alpha signals below actionable threshold,
+//   Rule 21 does NOT fire — λ total 3.16 < 3.5)
+// Actual: USA 1-4 Belgium (per session history)
+// Verdict: ✗ — direction correct (Belgium favored by alpha despite lower Elo),
+//   margin badly missed. Root cause already diagnosed in prior session:
+//   Belgium formOverride was stale (score 25, never updated post-Senegal AET win)
+
+/**
+ * R16-7: Argentina vs Egypt — ARG-EGY (July 7, 2026, SoFi Stadium, Inglewood)
+ * Form multipliers back-derived from matchInsights.ts recency-weighted history pre-kickoff
+ *   (ARG: ALG win 1.28, AUT win 1.22, JOR win 1.45, CPV win 1.30 → ~1.34; EGY: BEL draw 1.15,
+ *   NZL win 1.45, IRN draw 1.10 → ~1.21 — EGY's R32 vs AUS not logged in matchInsights).
+ * Alpha: Under3=86, BTTS No=78 (Rule 13 range 60-79). Egypt AH cascade wide-only (Rule 15 pattern).
+ * Match Outcome ARG 87% / Draw 9% / EGY 4%.
+ */
+export const arg_egy: PickJudgeInput = {
+  matchId: 'R16-7',
+  homeTeam: 'Argentina',
+  awayTeam: 'Egypt',
+  stage: 'knockout',
+
+  modelPick: { home: 3, away: 0 },
+  homeElo: 2082,
+  awayElo: 1720,
+
+  // ARG pre-R16-7: 3-0 ALG (W,CS), 2-0 AUT (W,CS), 3-0 JOR (W,CS, rotated), 3-2 CPV R32 AET (W) — 4W-0D-0L
+  // Rule 26: verified per-match — ARG scored in every match (3, 2, 3, 3)
+  homeTournament: { wins: 4, draws: 0, losses: 0, cleanSheets: 2, goalsConceded: 3, goalsScored: 11, scoredEveryMatch: true },
+  // EGY pre-R16-7: 1-1 BEL (D), 3-1 NZL (W), 1-1 IRN (D), 1-1 AUS R32 AET (W on pens) — 2W-2D-0L
+  // Rule 26: verified per-match — EGY scored in every match (1, 3, 1, 1)
+  awayTournament: { wins: 2, draws: 2, losses: 0, cleanSheets: 0, goalsConceded: 4, goalsScored: 6, scoredEveryMatch: true },
+
+  // Rule 28: ARG scored exactly 3 goals in 3 PRIOR tournament matches (3-0 ALG, 3-0 JOR, 3-2 CPV) —
+  // verified from matchInsights.ts / formOverrides.ts ARG note ("PATRÓN: 3 goles en 4 de 5 partidos").
+  // Corrects the task brief's assumed count of 2 — JOR (3-0, rotated XI) also belongs in the pattern.
+  homeGoalPatternMatches: 3,
+  homeGoalPatternValue: 3,
+
+  homeFormMultiplier: 1.34,  // back-derived from matchInsights recency weighting (see comment above)
+  awayFormMultiplier: 1.21,  // back-derived from matchInsights recency weighting (see comment above)
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,   // SoFi Stadium, Inglewood
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 86,           // Under 3 Score=86
+    bttsNoScore: 78,             // Rule 13 range (60-79)... actually 78 still in range
+
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 9,          // Correct Score 1_0 Score=9 (noise floor)
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    awayAHBestScore: 85,         // Egypt +2 Score=85 — WIDE line only
+    awayAHBestLine: 2.0,
+    awayAHConsecutiveAbove80: 4, // +2.0(85), +2.25(84), +2.5(82), +1.75(81) — all wide,
+                                  // tight lines (+1.0=62, +0.75=50) drop below threshold
+                                  // → Rule 15 pattern (wide-only cascade)
+
+    homeWinScore: 9,
+    awayWinScore: 1,             // 1X2 Egypt Score=1
+    homeValueMarketsFound: 49,
+    awayValueMarketsFound: 43,
+
+    cs00Score: 3,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 87,         // Match Outcome ARG 87% / Draw 9% / EGY 4%
+    alphaDrawPct: 9,
+    alphaAwayWinPct: 4,
+
+    leagueBttsPct: 0,
+    matchProjectedBttsPct: 0,
+    leagueOver25Pct: 0,
+    matchProjectedOver25Pct: 0,
+    projectedGoalsPerMatch: 2.2,  // alpha-implied total (Under 3/2.5 cascade inference)
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 4.00,
+    awayAdjustedLambda: 0.97,
+  },
+
+  fieldTopPick: { home: 0, away: 0 },
+  fieldTopPickPct: 0,
+};
+// Expected: 2-0 ARG (Rule 20 λ≥3.5+Under80 compression, Rule 23 divergence ~63%
+//   caps total near alpha-implied ~2.2, Rule 18 confirms ARG direction,
+//   Rule 15 confirms Egypt cascade is wide-only — no Tier 3 override)
+// Actual: Argentina 3-2 Egypt (per session history)
+// Verdict: ✗ — direction correct, Rule 20 over-compressed. Known lesson:
+//   Argentina's 3-goal tournament pattern (3-0 ALG, 3-0 JOR, 3-2 CPV, 3-2 EGY)
+//   should have been stress-tested as an alternative before accepting Rule 20's
+//   compression to ≤2. Egypt's 2 goals also missed — BTTS No=78 was close to
+//   the 80 ceiling and should have been weighted more heavily as a warning sign.
