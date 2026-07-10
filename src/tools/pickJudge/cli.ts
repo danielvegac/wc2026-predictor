@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /// <reference types="node" />
 import { judgePickInput } from './engine';
-import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, usa_bih, esp_aut, por_cro, sui_alg, aus_egy, arg_cpv, col_gha, can_mar, par_fra, mex_eng, bra_nor, sui_col, fra_mar, por_esp, usa_bel, arg_egy } from './__tests__/historicalFixtures';
+import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, usa_bih, esp_aut, por_cro, sui_alg, aus_egy, arg_cpv, col_gha, can_mar, par_fra, mex_eng, bra_nor, sui_col, fra_mar, por_esp, usa_bel, arg_egy, esp_bel } from './__tests__/historicalFixtures';
 import type { PickJudgeInput } from './types';
 import { signalAccuracyData, getSignalAccuracySummary } from '../../data/signalAccuracy';
 import { knockoutMatches } from '../../data/knockoutMatches';
@@ -30,6 +30,7 @@ const fixtures: Record<string, PickJudgeInput> = {
   'R16-7': arg_egy,
   'R16-8': sui_col,
   'QF-1': fra_mar,
+  'QF-2': esp_bel,
 };
 
 // ── Accuracy CLI flags ────────────────────────────────────────────────

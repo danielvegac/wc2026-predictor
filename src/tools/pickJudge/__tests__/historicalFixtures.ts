@@ -1829,3 +1829,84 @@ export const arg_egy: PickJudgeInput = {
 //   should have been stress-tested as an alternative before accepting Rule 20's
 //   compression to ≤2. Egypt's 2 goals also missed — BTTS No=78 was close to
 //   the 80 ceiling and should have been weighted more heavily as a warning sign.
+
+export const esp_bel: PickJudgeInput = {
+  matchId: 'QF-2',
+  homeTeam: 'ESP',
+  awayTeam: 'BEL',
+  stage: 'knockout',
+
+  modelPick: { home: 1, away: 1 },
+  homeLambda: 1.84,
+  awayLambda: 1.31,
+  homeElo: 2065,
+  awayElo: 1926,
+
+  // ESP: 0-0 CPV, 4-0 KSA, 1-0 URU, 3-0 AUT, 1-0 POR (5 partidos)
+  homeTournament: { wins: 4, draws: 1, losses: 0, cleanSheets: 5, goalsConceded: 0, goalsScored: 9, scoredEveryMatch: false },
+
+  // BEL: 1-1 EGY, 0-0 IRN, 5-1 NZL, 3-2 SEN (R32 AET), 4-1 USA (R16)
+  // scoredEveryMatch = false — VERIFICADO: 0-0 vs Irán en MD2 (no asumir proxy agregado)
+  awayTournament: { wins: 3, draws: 2, losses: 0, cleanSheets: 1, goalsConceded: 5, goalsScored: 13, scoredEveryMatch: false },
+
+  homeFormMultiplier: 1.45,
+  awayFormMultiplier: 1.30,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 72,
+    bttsNoScore: 13,
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    awayAHBestScore: 72,
+    awayAHBestLine: 1.0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,
+    awayWinScore: 13,
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 13,
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 50.3,
+    alphaDrawPct: 26.7,
+    alphaAwayWinPct: 23.0,
+
+    leagueBttsPct: 47.0,
+    matchProjectedBttsPct: 48.0,
+    leagueOver25Pct: 47.0,
+    matchProjectedOver25Pct: 33.0,
+    projectedGoalsPerMatch: 2.57,
+
+    climateNetFactor: 1.0,
+
+    homeAdjustedLambda: 1.58,
+    awayAdjustedLambda: 0.99,
+
+    alphaImpliedHomeLambda: 1.45,
+    alphaImpliedAwayLambda: 0.90,
+
+    goalDistribution: {
+      awayPeakAtZeroPct: 37,
+      homePeakAtZeroPct: 21,
+    },
+  },
+
+  highCeilingPlayers: [
+    { teamId: 'away', playerName: 'Charles De Ketelaere', tournamentGoals: 2, singleMatchBrace: true },
+  ],
+};
