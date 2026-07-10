@@ -71,7 +71,9 @@ if (cliFlag === '--accuracy') {
   console.log('\n' + '═'.repeat(56));
   console.log(`  SIGNAL ACCURACY — ${entry.homeTeamId} vs ${entry.awayTeamId} (${entry.matchId})`);
   console.log('═'.repeat(56));
-  const resultStr = entry.wentToExtraTime
+  const resultStr = !entry.finalResult
+    ? 'Pending'
+    : entry.wentToExtraTime && entry.regulationResult
     ? `90' ${entry.regulationResult.home}-${entry.regulationResult.away} → 120' ${entry.finalResult.home}-${entry.finalResult.away}${entry.penaltyWinner ? ` (${entry.penaltyWinner} pens)` : ''}`
     : `${entry.finalResult.home}-${entry.finalResult.away}`;
   console.log(`\n📋 RESULT:  ${resultStr}`);

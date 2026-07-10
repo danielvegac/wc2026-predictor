@@ -30,9 +30,12 @@ export interface SignalAccuracyEntry {
   modelTopScorelines: ScorelineProbability[];
 
   // ── Results ────────────────────────────────────────────────
-  regulationResult: { home: number; away: number };
-  wentToExtraTime: boolean;
-  finalResult: { home: number; away: number };
+  // Optional: matches not yet played leave these unset and are resolved
+  // at render time from the ESPN live results store (useResultsStore).
+  date?: string;
+  regulationResult?: { home: number; away: number };
+  wentToExtraTime?: boolean;
+  finalResult?: { home: number; away: number };
   penaltyWinner?: string;
 
   // ── Derived / manually computed accuracy ──
@@ -438,10 +441,67 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     rule23Triggered: true,
     notes: "Model matrix expected goals to flow (combined lambda 4.61); alpha's tighter read (0-1/1-1 top cells) was closer to the dry 0-0.",
   },
+
+  // ==========================================
+  // QUARTER-FINALS
+  // ==========================================
+  {
+    matchId: "QF-1", round: "QF", homeTeamId: "FRA", awayTeamId: "MAR",
+    date: "2026-07-09",
+    modelLambdaHome: 2.83, modelLambdaAway: 0.64,
+    modelTopScorelines: [
+      { home: 2, away: 0, probability: 12.6 }, { home: 3, away: 0, probability: 11.8 }, { home: 4, away: 0, probability: 8.4 },
+    ],
+    alphaTopScorelines: [
+      { home: 1, away: 0, probability: 17 }, { home: 0, away: 0, probability: 16 }, { home: 1, away: 1, probability: 14 },
+    ],
+    regulationResult: { home: 2, away: 0 }, wentToExtraTime: false, finalResult: { home: 2, away: 0 },
+    modelActualRank: 1, modelActualProbability: 12.6, alphaActualRank: 4, alphaActualProbability: 10,
+    rule23Triggered: false, rule25Flagged: false,
+    notes: "Model exact hit — 2-0 rank 1 at 12.6%. Alpha top pick was 1-0 " +
+           "(17%); 2-0 was rank 4 in alpha matrix (tied with 0-1 MAR at 10%). " +
+           "France xG 3.04 vs Morocco 0.14. Rule 13/11b caused chat pick to " +
+           "be 2-1; model anchor was correct. Model closer: rank 1 vs rank 4.",
+  },
+  {
+    matchId: "QF-2", round: "QF", homeTeamId: "ESP", awayTeamId: "BEL",
+    date: "2026-07-10",
+    modelLambdaHome: 0, modelLambdaAway: 0,
+    alphaTopScorelines: [],
+    modelTopScorelines: [],
+    alphaActualRank: null, alphaActualProbability: undefined,
+    modelActualRank: null, modelActualProbability: undefined,
+    rule23Triggered: false, rule25Flagged: false,
+    notes: "Pending — Jul 10 2:00 PM COT. SoFi Stadium, Inglewood CA.",
+  },
+  {
+    matchId: "QF-3", round: "QF", homeTeamId: "NOR", awayTeamId: "ENG",
+    date: "2026-07-11",
+    modelLambdaHome: 0, modelLambdaAway: 0,
+    alphaTopScorelines: [],
+    modelTopScorelines: [],
+    alphaActualRank: null, alphaActualProbability: undefined,
+    modelActualRank: null, modelActualProbability: undefined,
+    rule23Triggered: false, rule25Flagged: false,
+    notes: "Pending — Jul 11 4:00 PM COT. Hard Rock Stadium, Miami FL.",
+  },
+  {
+    matchId: "QF-4", round: "QF", homeTeamId: "ARG", awayTeamId: "SUI",
+    date: "2026-07-11",
+    modelLambdaHome: 0, modelLambdaAway: 0,
+    alphaTopScorelines: [],
+    modelTopScorelines: [],
+    alphaActualRank: null, alphaActualProbability: undefined,
+    modelActualRank: null, modelActualProbability: undefined,
+    rule23Triggered: false, rule25Flagged: false,
+    notes: "Pending — Jul 11 8:00 PM COT. Arrowhead Stadium, Kansas City MO.",
+  },
 ];
 
 export function getSignalAccuracySummary() {
-  const comparable = signalAccuracyData.filter((e) => !e.rule25Flagged);
+  const comparable = signalAccuracyData.filter(
+    (e) => !e.rule25Flagged && e.finalResult != null
+  );
   const withSignal = comparable.map((e) => ({ e, signal: computeCloserSignal(e) }));
 
   const alphaCloser = withSignal.filter((x) => x.signal === "alpha").length;

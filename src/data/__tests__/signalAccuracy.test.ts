@@ -321,26 +321,26 @@ describe('computeCloserSignal', () => {
 // ─── getSignalAccuracySummary ────────────────────────────────────────────────
 
 describe('getSignalAccuracySummary', () => {
-  it('reports 24 total matches', () => {
-    expect(getSignalAccuracySummary().totalMatches).toBe(24);
+  it('reports 28 total matches', () => {
+    expect(getSignalAccuracySummary().totalMatches).toBe(28);
   });
 
-  it('reports 22 comparable matches (excluding AET-flagged entries)', () => {
-    expect(getSignalAccuracySummary().comparableMatches).toBe(22);
+  it('reports 23 comparable matches (excluding AET-flagged and pending entries)', () => {
+    expect(getSignalAccuracySummary().comparableMatches).toBe(23);
   });
 
-  it('reports 2 AET-excluded matches', () => {
-    expect(getSignalAccuracySummary().aetExcluded).toBe(2);
+  it('reports 5 AET-excluded/pending matches', () => {
+    expect(getSignalAccuracySummary().aetExcluded).toBe(5);
   });
 
   it('reports Rule 23 triggered on exactly 4 matches', () => {
     expect(getSignalAccuracySummary().rule23TriggeredCount).toBe(4);
   });
 
-  it('reports alphaCloser: 10, modelCloser: 10, tie: 2', () => {
+  it('reports alphaCloser: 10, modelCloser: 11, tie: 2', () => {
     const s = getSignalAccuracySummary();
     expect(s.alphaCloser).toBe(10);
-    expect(s.modelCloser).toBe(10);
+    expect(s.modelCloser).toBe(11);
     expect(s.tie).toBe(2);
   });
 
@@ -358,9 +358,11 @@ describe('getSignalAccuracySummary', () => {
     expect(s.alphaCloser + s.modelCloser + s.tie).toBe(s.comparableMatches);
   });
 
-  it('all rule25Flagged entries are excluded from comparable count', () => {
-    const flagged = signalAccuracyData.filter(e => e.rule25Flagged);
-    expect(flagged.length).toBe(getSignalAccuracySummary().aetExcluded);
+  it('all rule25Flagged and pending entries are excluded from comparable count', () => {
+    const excluded = signalAccuracyData.filter(
+      (e) => e.rule25Flagged || e.finalResult == null
+    );
+    expect(excluded.length).toBe(getSignalAccuracySummary().aetExcluded);
   });
 
   it('rule23Breakdown counts sum to rule23TriggeredCount', () => {

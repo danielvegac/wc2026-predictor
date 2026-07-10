@@ -7,7 +7,7 @@
 export const formOverrides: Record<string, { score: number; note: string }> = {
   "ARG": { score: 88, note: "R16: 3-2 EGY. Remontada desde 0-2 (min 79). Messi 8vo gol torneo (21 WC total, récord). Fernández 90+2' ganador. ARG xG 2.76 — ataque real aunque λ inflado por rivales débiles previos. PATRÓN: 3 goles en 4 de 5 partidos del torneo (3-0 ALG, 3-0 JOR, 3-2 CPV, 3-2 EGY). Defense score DOWN: 2 goles concedidos por 2do partido consecutivo (CPV y EGY). Solo 5 tiros de EGY generaron 2 goles — defensa estructuralmente expuesta en transición. Messi sobreperforma xG sistemáticamente (8 goles de ~4.5 xG acumulado = 1.78x). QF vs SUI." },
   "AUT": { score: 42, note: "R32: 0-3 ESP. ELIMINATED. λ 0.75 but 0 conversion. Austria attack struggles vs elite defense. Rangnick press ineffective vs Spain possession. Clean sheet vs ALG was ceiling." },
-  "FRA": { score: 97, note: "MD2: 3-0 IRQ. 2.38 xG. Mbappé 100th cap brace (16 WC goals all-time, 2nd). Dembélé first WC goal. Olise 3 assists in 2 games. 2hr weather delay no impact. France 6pts, R32 secured. Rotated but still dominant. MD3 vs Norway — genuine group decider for top spot." },
+  "FRA": { score: 98, note: "QF-1 vs MAR: 3.04 xG, 2-0. Mbappe 8 goals tournament. Attack capped, defense capped. 7W-0D-0L, 16 goals, 2 conceded. SF vs BEL or ESP." },
   "IRQ": { score: 8, note: "MD2: 0-3 FRA. 0.6 xG. 5 WC matches, 5 losses — first Asian nation in WC history to lose first 5. Keeper error gifted Mbappé second. No path to qualification. Tournament over." },
   "NOR": { score: 91, note: "R16-3: 2-1 BRA. QF vs MEX/ENG (Jul 11). Haaland 7 goals tournament. 0.84 xG but clinical conversion. Counter-attack system elite. Ødegaard pulling strings." },
   "SEN": { score: 62, note: "MD2: 2-3 NOR. 1.7 xG. Sarr brace (53', 90+3'). Mané assist showing form. Competed hard but defensive errors cost them early. Must beat Iraq by large margin MD3 to reach R32. Still alive but need help." },
@@ -29,7 +29,7 @@ export const formOverrides: Record<string, { score: number; note: string }> = {
   "AUS": { score: 40, note: "3pts but 0.77+0.35=1.12 xG across 2 matches. Patrick Beach heroics and finishing luck. Real attacking output is poor. Overrated by scoreline." },
   "NED": { score: 48, note: "Eliminated R32 vs MAR on penalties. Defensive, against-the-run-of-play goal. Clearly inferior team on pitch. Elo penalty applied." },
   "SWE": { score: 32, note: "Conceded 2.47 xG vs NED, defense exposed. Gyökeres needs more service. Must beat Tunisia MD3 to survive." },
-  "MAR": { score: 88, note: "QF. Drew vs BRA (dominated), beat SCO, beat HAI 4-2, dominated NED in R32 (penalties), 3-0 vs CAN. Saibari/El Khannouss elite. Tournament's best xG trajectory." },
+  "MAR": { score: 72, note: "QF-1 vs FRA: 0.14 xG, 2-0 loss. Eliminated QF. FROZEN." },
   "SCO": { score: 18, note: "0.51 xG vs Morocco, 1.05 vs Haiti. Near-zero attack output. Clarke's system too passive. Eliminated effectively after 2 matches." },
   "HAI": { score: 8, note: "0.23 xG vs Brazil, eliminated. Showed spirit vs Scotland (1.21 xG) but quality gap too large at this level." },
   "GER": { score: 72, note: "9 goals in 2 games, elite sub bench (Undav 5 contributions). xG: 4.22 + 1.83. Showed character vs CIV — came back from 0-1 deficit. Best squad depth in tournament." },

@@ -5,12 +5,18 @@ import {
   computeCloserSignal,
 } from "../../data/signalAccuracy";
 import type { SignalAccuracyEntry, ScorelineProbability } from "../../data/signalAccuracy";
+import { useResultsStore } from "../../store/resultsStore";
 
 type Round = "All" | "R32" | "R16" | "QF" | "SF" | "3P" | "F";
 const ROUNDS: Round[] = ["All", "R32", "R16", "QF", "SF", "3P", "F"];
 
-const isActualResult = (row: ScorelineProbability, entry: SignalAccuracyEntry) =>
-  row.home === entry.regulationResult.home && row.away === entry.regulationResult.away;
+const isActualResult = (
+  row: ScorelineProbability,
+  regulationResult: { home: number; away: number } | null
+) =>
+  regulationResult != null &&
+  row.home === regulationResult.home &&
+  row.away === regulationResult.away;
 
 export function SignalAccuracyTracker() {
   const [activeRound, setActiveRound] = useState<Round>("All");
@@ -129,10 +135,19 @@ function StatCard({
 function CloserBadge({
   signal,
   rule25Flagged,
+  isPending,
 }: {
   signal?: string;
   rule25Flagged?: boolean;
+  isPending?: boolean;
 }) {
+  if (isPending) {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-xs font-medium border border-border text-text-muted">
+        Pending
+      </span>
+    );
+  }
   if (rule25Flagged) {
     return (
       <span className="px-2 py-0.5 rounded-full text-xs font-medium border border-amber-500/40 text-amber-400">
@@ -173,11 +188,22 @@ function MatchRow({
   expanded: boolean;
   onToggle: () => void;
 }) {
-  const resultStr = entry.wentToExtraTime
-    ? `90' ${entry.regulationResult.home}-${entry.regulationResult.away} → 120' ${entry.finalResult.home}-${entry.finalResult.away}${entry.penaltyWinner ? ` (${entry.penaltyWinner} pens)` : ""}`
-    : `${entry.finalResult.home}-${entry.finalResult.away}`;
+  // Same pattern as KnockoutMatchCard: fall back to the ESPN live results
+  // store when this match hasn't had its result manually backfilled yet.
+  const liveResult = useResultsStore((s) => s.getResultForMatch(entry.matchId));
+  const finalResult =
+    entry.finalResult ??
+    (liveResult ? { home: liveResult.homeScore, away: liveResult.awayScore } : null);
+  const regulationResult = entry.regulationResult ?? finalResult;
+  const isPending = finalResult == null;
 
-  const signal = computeCloserSignal(entry);
+  const resultStr = isPending
+    ? "Pending"
+    : entry.wentToExtraTime && regulationResult
+    ? `90' ${regulationResult.home}-${regulationResult.away} → 120' ${finalResult.home}-${finalResult.away}${entry.penaltyWinner ? ` (${entry.penaltyWinner} pens)` : ""}`
+    : `${finalResult.home}-${finalResult.away}`;
+
+  const signal = isPending ? undefined : computeCloserSignal(entry);
 
   return (
     <>
@@ -215,6 +241,7 @@ function MatchRow({
           <CloserBadge
             signal={signal}
             rule25Flagged={entry.rule25Flagged}
+            isPending={isPending}
           />
         </td>
         <td className="py-2 pl-2 text-center">
@@ -251,13 +278,13 @@ function MatchRow({
                     </span>
                     <span
                       className={
-                        isActualResult(s, entry)
+                        isActualResult(s, regulationResult)
                           ? "text-accent-green font-bold"
                           : "text-text-muted"
                       }
                     >
                       {s.probability}%
-                      {isActualResult(s, entry) && " ✓"}
+                      {isActualResult(s, regulationResult) && " ✓"}
                     </span>
                   </div>
                 ))}
@@ -284,13 +311,13 @@ function MatchRow({
                     </span>
                     <span
                       className={
-                        isActualResult(s, entry)
+                        isActualResult(s, regulationResult)
                           ? "text-accent-green font-bold"
                           : "text-text-muted"
                       }
                     >
                       {s.probability}%
-                      {isActualResult(s, entry) && " ✓"}
+                      {isActualResult(s, regulationResult) && " ✓"}
                     </span>
                   </div>
                 ))}
@@ -299,20 +326,26 @@ function MatchRow({
 
             {/* Always-visible actual result summary */}
             <div className="mt-3 pt-2 border-t border-border/50 bg-bg-secondary/40 rounded px-2 py-1.5 text-xs font-mono">
-              <span className="text-text-muted">Resultado real </span>
-              <span className="text-text-primary font-bold">
-                {entry.regulationResult.home}-{entry.regulationResult.away}
-              </span>
-              <span className="text-text-muted">: </span>
-              <span className="text-violet-400">
-                Alpha {entry.alphaActualProbability != null ? `${entry.alphaActualProbability}%` : "—"}
-                {" "}(#{entry.alphaActualRank != null ? entry.alphaActualRank : "—"})
-              </span>
-              <span className="text-text-muted"> · </span>
-              <span className="text-accent-green">
-                Modelo {entry.modelActualProbability != null ? `${entry.modelActualProbability}%` : "—"}
-                {" "}(#{entry.modelActualRank != null ? entry.modelActualRank : "—"})
-              </span>
+              {regulationResult == null ? (
+                <span className="text-text-muted">Match not yet played</span>
+              ) : (
+                <>
+                  <span className="text-text-muted">Resultado real </span>
+                  <span className="text-text-primary font-bold">
+                    {regulationResult.home}-{regulationResult.away}
+                  </span>
+                  <span className="text-text-muted">: </span>
+                  <span className="text-violet-400">
+                    Alpha {entry.alphaActualProbability != null ? `${entry.alphaActualProbability}%` : "—"}
+                    {" "}(#{entry.alphaActualRank != null ? entry.alphaActualRank : "—"})
+                  </span>
+                  <span className="text-text-muted"> · </span>
+                  <span className="text-accent-green">
+                    Modelo {entry.modelActualProbability != null ? `${entry.modelActualProbability}%` : "—"}
+                    {" "}(#{entry.modelActualRank != null ? entry.modelActualRank : "—"})
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Override reason (shown when closerSignalOverride is present) */}

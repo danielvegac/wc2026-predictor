@@ -1261,6 +1261,25 @@ export const matchInsights: MatchInsight[] = [
     awayDefenseMultiplier: 1.45,  // 1.35/0.29 = 4.66 → capped. Colombia defensiva ejemplar. Solo 0.29 xG concedido en 90'
     notes: "Switzerland 0-0 Colombia (SUI 4-3 PKs). xG más bajo en tiempo normal de cualquier partido del torneo (0.71 combinado en 90'). Kobel salvó a Cucho Hernández en penales. Vargas R. anotó el penal definitivo. COL tuvo el mejor xG total (1.03 vs 0.35 en 120') — más peligrosos en ET. Lucumí dio en travesaño. Campaz falló la mejor ocasión del partido (115'). Manzambi no jugó. Penales SUI: Xhaka (in), Amdouni (in), Itten (in), Akanji (out), Vargas R. (in). Penales COL: Quintero (in), D.Sánchez (travesaño), Campaz (in), Hernández Cucho (atajado). PICK: 1-2 COL → WRONG (0-0 AET, SUI eliminó COL en penales). LECCIÓN: Partido del 3er xG más bajo en historia WC en tiempo normal. Alpha Over 2 Score 81 tenía razón en que los equipos generarían pero el 0.71 total xG desmiente eso — hubo bloqueo táctico mutuo total. Colombia 3ra eliminación consecutiva en prórroga/penales en WC (2018 vs ENG PKs, 2026). SUI advance to QF vs Argentina (Kansas City, July 11/12).",
   },
+
+  // ==========================================
+  // QUARTER-FINALS
+  // ==========================================
+
+  {
+    matchId: "QF-1",
+    date: "2026-07-09",
+    homeTeamId: "FRA", awayTeamId: "MAR",
+    homeGoals: 2, awayGoals: 0,
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.65,
+    notes: "France dominant 3.04 vs 0.14 xG. Mbappe missed pen first half, " +
+           "scored 60min, assisted Dembele 66min. Morocco 34-match unbeaten " +
+           "run ended. Saibari absence + France tactical superiority = " +
+           "historic low xG for MAR. France shots 22-5, on target 8-1.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

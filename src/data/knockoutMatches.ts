@@ -133,7 +133,8 @@ export const knockoutMatches: KnockoutMatch[] = [
 
   // July 9
   { matchId: "QF-1", round: "QF", date: "2026-07-09", homeTeamId: "FRA", awayTeamId: "MAR",
-    venue: "Gillette Stadium, Foxborough, MA", kickoffCOT: "3:00 PM", status: "upcoming" },
+    venue: "Gillette Stadium, Foxborough, MA", kickoffCOT: "3:00 PM", status: "completed",
+    homeGoals: 2, awayGoals: 0 },
 
   // July 10
   { matchId: "QF-2", round: "QF", date: "2026-07-10", homeTeamId: "ESP", awayTeamId: "BEL",
