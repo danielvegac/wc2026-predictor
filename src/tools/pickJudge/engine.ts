@@ -30,7 +30,11 @@ function applyRule29Guard(
  * Reduces the winning team's margin by 1 (floor 0).
  * If draw predicted, reduces total by 1 (e.g. 1-1 → 0-0 or 1-0).
  */
-function compressTier2(modelPick: { home: number; away: number }): { home: number; away: number } {
+function compressTier2(
+  modelPick: { home: number; away: number },
+  alphaHomeWinPct: number,
+  alphaAwayWinPct: number
+): { home: number; away: number } {
   const { home, away } = modelPick;
   if (home > away) {
     // Home winning — remove 1 goal from total, keeping home win direction
@@ -42,8 +46,13 @@ function compressTier2(modelPick: { home: number; away: number }): { home: numbe
     if (home > 0) return { home: home - 1, away };
     else return { home: 0, away: away - 1 };
   } else {
-    // Draw predicted — reduce total by 1 (e.g. 1-1 → 0-0)
-    return { home: Math.max(0, home - 1), away: Math.max(0, away - 1) };
+    // Draw predicted — reduce total by exactly 1 goal, using alpha win% direction
+    // to decide which side loses the goal (same pattern as Rule 7).
+    if (alphaHomeWinPct >= alphaAwayWinPct) {
+      return { home, away: Math.max(0, away - 1) };
+    } else {
+      return { home: Math.max(0, home - 1), away };
+    }
   }
 }
 
@@ -118,7 +127,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     const tierWouldHaveBeen: 3 = 3; // Rule 14 / Rule 12 would have pushed to Tier 3
 
     // Apply Tier 2 compression
-    let tier2pick = compressTier2(workingPick);
+    let tier2pick = compressTier2(workingPick, input.alpha.alphaHomeWinPct, input.alpha.alphaAwayWinPct);
 
     // Rule 16b takes priority over Rule 13: genuine away threat → BTTS compression
     if (rule16b.triggered) {
@@ -270,7 +279,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
   // Conditions: away λ ≤ 0.45 + goal dist 0-peak ≥ 35% + home win% ≥ 55%
   // Takes priority over Rule 13 (BTTS context). Does NOT override Rule 12 / Rule 14.
   if (rule17.triggered) {
-    let tier2pick = compressTier2(workingPick);
+    let tier2pick = compressTier2(workingPick, input.alpha.alphaHomeWinPct, input.alpha.alphaAwayWinPct);
     tier2pick = { home: tier2pick.home, away: 0 };
     reasoning.push(`STEP 5b — Rule 17 fired: away λ ≤0.45 + goal dist 0-peak ≥35% + home win% ≥55% → clean sheet override, BTTS league context invalid`);
     reasoning.push(`Tier 2 compression: ${workingPick.home}-${workingPick.away} → ${tier2pick.home}-${tier2pick.away} (clean sheet forced)`);
@@ -313,7 +322,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     }
 
     reasoning.push(`STEP 4 — Tier 2: Under/BTTS No signals valid. Compressing model pick total by 1 goal.`);
-    let tier2pick = compressTier2(workingPick);
+    let tier2pick = compressTier2(workingPick, input.alpha.alphaHomeWinPct, input.alpha.alphaAwayWinPct);
 
     // Rule 26/11b post-compression guard: if compression lands on a clean sheet but the
     // shut-out team's verified scoring history shows every match scored AND BTTS No < 80, revert.
