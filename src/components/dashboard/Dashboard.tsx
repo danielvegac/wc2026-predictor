@@ -32,6 +32,8 @@ import type { MonteCarloResults, Prediction, Stage } from "../../types";
 import {
   getMatchDateStageMap,
   formatShortDate,
+  aggregateByMatchday,
+  aggregateByStage,
   STAGE_ORDER,
   STAGE_LABELS,
 } from "../../utils/trackRecordAggregation";
@@ -1235,68 +1237,16 @@ function PointsByMatchday({
     userHome: number | null;
   }>;
 }) {
+  const [view, setView] = useState<"matchday" | "stage">("matchday");
+
   // Build a date/stage lookup: matchId → { date, stage } (group stage + knockout)
   const dateStageMap = useMemo(() => getMatchDateStageMap(), []);
 
   const { chartData, tableRows, userGrandTotal, modelGrandTotal } = useMemo(() => {
-    // Group rows by date
-    const byDate = new Map<string, typeof rows>();
-    for (const r of rows) {
-      const date = dateStageMap.get(r.matchId)?.date ?? "unknown";
-      if (!byDate.has(date)) byDate.set(date, []);
-      byDate.get(date)!.push(r);
-    }
-
-    // Sort dates chronologically
-    const sortedDates = [...byDate.keys()].sort();
-
-    let cumUser = 0;
-    let cumModel = 0;
-    const chartData: Array<{
-      label: string;
-      date: string;
-      userPts: number;
-      modelPts: number;
-      cumUser: number;
-      cumModel: number;
-    }> = [];
-
-    const tableRows: Array<{
-      key: string;
-      label: string;
-      matches: number;
-      userPts: number;
-      modelPts: number;
-      leader: string;
-    }> = [];
-
-    for (const date of sortedDates) {
-      const dayRows = byDate.get(date)!;
-      const dayUser = dayRows.reduce((s, r) => s + r.userPts, 0);
-      const dayModel = dayRows.reduce((s, r) => s + r.modelPts, 0);
-      cumUser += dayUser;
-      cumModel += dayModel;
-
-      const label = formatShortDate(date);
-
-      chartData.push({ label, date, userPts: dayUser, modelPts: dayModel, cumUser, cumModel });
-      tableRows.push({
-        key: date,
-        label,
-        matches: dayRows.length,
-        userPts: dayUser,
-        modelPts: dayModel,
-        leader:
-          dayUser > dayModel
-            ? "You"
-            : dayModel > dayUser
-            ? "Model"
-            : "Tie",
-      });
-    }
-
-    return { chartData, tableRows, userGrandTotal: cumUser, modelGrandTotal: cumModel };
-  }, [rows, dateStageMap]);
+    return view === "matchday"
+      ? aggregateByMatchday(rows, dateStageMap)
+      : aggregateByStage(rows, dateStageMap);
+  }, [rows, dateStageMap, view]);
 
   if (chartData.length === 0) return null;
 
@@ -1305,11 +1255,39 @@ function PointsByMatchday({
 
   return (
     <div className="mt-6 pt-5 border-t border-border">
-      <h3 className="text-sm font-bold text-text-primary mb-1">
-        Points by Matchday
-      </h3>
+      <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
+        <h3 className="text-sm font-bold text-text-primary">
+          Points by {view === "matchday" ? "Matchday" : "Stage"}
+        </h3>
+        <div className="flex items-center gap-1 bg-bg-tertiary rounded-lg p-0.5">
+          <button
+            type="button"
+            onClick={() => setView("matchday")}
+            className={`text-xs font-medium px-2.5 py-1 rounded-md transition-colors ${
+              view === "matchday"
+                ? "bg-accent-gold text-bg-primary"
+                : "text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            By Matchday
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("stage")}
+            className={`text-xs font-medium px-2.5 py-1 rounded-md transition-colors ${
+              view === "stage"
+                ? "bg-accent-gold text-bg-primary"
+                : "text-text-secondary hover:text-text-primary"
+            }`}
+          >
+            By Stage
+          </button>
+        </div>
+      </div>
       <p className="text-xs text-text-muted mb-4">
-        Daily scoring breakdown — bars show points earned, lines show cumulative totals.
+        {view === "matchday"
+          ? "Daily scoring breakdown — bars show points earned, lines show cumulative totals."
+          : "Scoring breakdown by tournament stage — bars show points earned, lines show cumulative totals."}
       </p>
 
       {/* Chart */}
@@ -1356,7 +1334,7 @@ function PointsByMatchday({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left text-text-secondary">
-              <th className="py-2 pr-2 font-medium">Matchday</th>
+              <th className="py-2 pr-2 font-medium">{view === "matchday" ? "Matchday" : "Stage"}</th>
               <th className="py-2 px-2 font-medium text-center">Matches</th>
               <th className="py-2 px-2 font-medium text-center">Your pts</th>
               <th className="py-2 px-2 font-medium text-center text-amber-600">Model pts</th>
