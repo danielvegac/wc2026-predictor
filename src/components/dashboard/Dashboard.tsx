@@ -28,7 +28,13 @@ import {
 } from "recharts";
 import { getAlphaData } from "../../data/alphametrico";
 import { knockoutMatches } from "../../data/knockoutMatches";
-import type { MonteCarloResults, Prediction } from "../../types";
+import type { MonteCarloResults, Prediction, Stage } from "../../types";
+import {
+  getMatchDateStageMap,
+  formatShortDate,
+  STAGE_ORDER,
+  STAGE_LABELS,
+} from "../../utils/trackRecordAggregation";
 
 const NUM_SIMS = 10_000;
 
@@ -763,10 +769,15 @@ function ModelTrackRecord({
 
   // Local draft state for inputs while typing
   const [drafts, setDrafts] = useState<Record<string, { home: string; away: string }>>({});
+  const [stageFilter, setStageFilter] = useState<Stage | "all">("all");
 
   const rows = useMemo(() => {
+    const dateStageMap = getMatchDateStageMap();
+
     const out: Array<{
       matchId: string;
+      date: string;
+      stage: Stage;
       homeTeamId: string;
       awayTeamId: string;
       userHome: number | null;
@@ -874,8 +885,13 @@ function ModelTrackRecord({
         }
       }
 
+      const dsInfo = dateStageMap.get(match.id);
+      if (!dsInfo) console.warn(`[ModelTrackRecord] missing date/stage for match ${match.id}`);
+
       out.push({
         matchId: match.id,
+        date: dsInfo?.date ?? match.date,
+        stage: dsInfo?.stage ?? match.stage,
         homeTeamId: match.homeTeamId,
         awayTeamId: match.awayTeamId,
         userHome: userPred?.homeGoals ?? null,
@@ -948,8 +964,13 @@ function ModelTrackRecord({
       if (mb.homeGoalsPoints || mb.awayGoalsPoints)
         mParts.push(`${mb.homeGoalsPoints + mb.awayGoalsPoints} goals`);
 
+      const koDsInfo = dateStageMap.get(ko.matchId);
+      if (!koDsInfo) console.warn(`[ModelTrackRecord] missing date/stage for match ${ko.matchId}`);
+
       out.push({
         matchId: ko.matchId,
+        date: koDsInfo?.date ?? ko.date,
+        stage: koDsInfo?.stage ?? "round32",
         homeTeamId: ko.homeTeamId,
         awayTeamId: ko.awayTeamId,
         userHome: userPred?.homeGoals ?? null,
@@ -977,6 +998,8 @@ function ModelTrackRecord({
   }, [predictions, results, getResult, modelPredictions]);
 
   if (rows.length === 0) return null;
+
+  const filteredRows = stageFilter === "all" ? rows : rows.filter((r) => r.stage === stageFilter);
 
   const userTotal = rows.reduce((s, r) => s + r.userPts, 0);
   const modelTotal = rows.reduce((s, r) => s + r.modelPts, 0);
@@ -1015,11 +1038,38 @@ function ModelTrackRecord({
         Your predictions vs. the model — quiniela scoring (max 9 pts/match).
       </p>
 
+      {/* Stage filter */}
+      <div className="flex items-center gap-2 mb-3">
+        <label htmlFor="track-record-stage-filter" className="text-xs font-medium text-text-secondary">
+          Stage:
+        </label>
+        <select
+          id="track-record-stage-filter"
+          value={stageFilter}
+          onChange={(e) => setStageFilter(e.target.value as Stage | "all")}
+          className="text-xs bg-bg-tertiary border border-border rounded-md px-2 py-1 text-text-primary outline-none focus:border-accent-gold transition-colors"
+        >
+          <option value="all">All</option>
+          {STAGE_ORDER.map((s) => (
+            <option key={s} value={s}>
+              {STAGE_LABELS[s]}
+            </option>
+          ))}
+        </select>
+        {stageFilter !== "all" && (
+          <span className="text-xs text-text-muted">
+            {filteredRows.length} of {rows.length} matches
+          </span>
+        )}
+      </div>
+
       {/* Match rows */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left text-text-secondary">
+              <th className="py-2 pr-2 font-medium">Date</th>
+              <th className="py-2 pr-2 font-medium">Stage</th>
               <th className="py-2 pr-2 font-medium">Match</th>
               <th className="py-2 px-2 font-medium text-center">Your Guess</th>
               <th className="py-2 px-2 font-medium text-center text-blue-500">Model</th>
@@ -1031,11 +1081,17 @@ function ModelTrackRecord({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => {
+            {filteredRows.map((r) => {
               const home = teamMap.get(r.homeTeamId);
               const away = teamMap.get(r.awayTeamId);
               return (
                 <tr key={r.matchId} className="border-b border-border/30 hover:bg-bg-secondary/50">
+                  <td className="py-2 pr-2 text-xs text-text-muted whitespace-nowrap">
+                    {formatShortDate(r.date)}
+                  </td>
+                  <td className="py-2 pr-2 text-xs text-text-muted whitespace-nowrap">
+                    {STAGE_LABELS[r.stage]}
+                  </td>
                   <td className="py-2 pr-2">
                     <div className="flex items-center gap-1.5">
                       <span className={`${getFlagClass(r.homeTeamId)} text-sm`} />
@@ -1179,23 +1235,14 @@ function PointsByMatchday({
     userHome: number | null;
   }>;
 }) {
-  // Build a schedule lookup: matchId → date (group stage + knockout)
-  const scheduleMap = useMemo(
-    () => {
-      const map = new Map(groupStageSchedule.map((m) => [m.id, m.date]));
-      for (const ko of knockoutMatches) {
-        map.set(ko.matchId, ko.date);
-      }
-      return map;
-    },
-    []
-  );
+  // Build a date/stage lookup: matchId → { date, stage } (group stage + knockout)
+  const dateStageMap = useMemo(() => getMatchDateStageMap(), []);
 
   const { chartData, tableRows, userGrandTotal, modelGrandTotal } = useMemo(() => {
     // Group rows by date
     const byDate = new Map<string, typeof rows>();
     for (const r of rows) {
-      const date = scheduleMap.get(r.matchId) ?? "unknown";
+      const date = dateStageMap.get(r.matchId)?.date ?? "unknown";
       if (!byDate.has(date)) byDate.set(date, []);
       byDate.get(date)!.push(r);
     }
@@ -1215,6 +1262,7 @@ function PointsByMatchday({
     }> = [];
 
     const tableRows: Array<{
+      key: string;
       label: string;
       matches: number;
       userPts: number;
@@ -1229,12 +1277,11 @@ function PointsByMatchday({
       cumUser += dayUser;
       cumModel += dayModel;
 
-      // Format label as "Jun 11"
-      const d = new Date(date + "T12:00:00");
-      const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      const label = formatShortDate(date);
 
       chartData.push({ label, date, userPts: dayUser, modelPts: dayModel, cumUser, cumModel });
       tableRows.push({
+        key: date,
         label,
         matches: dayRows.length,
         userPts: dayUser,
@@ -1249,7 +1296,7 @@ function PointsByMatchday({
     }
 
     return { chartData, tableRows, userGrandTotal: cumUser, modelGrandTotal: cumModel };
-  }, [rows, scheduleMap]);
+  }, [rows, dateStageMap]);
 
   if (chartData.length === 0) return null;
 
@@ -1318,7 +1365,7 @@ function PointsByMatchday({
           </thead>
           <tbody>
             {tableRows.map((r) => (
-              <tr key={r.label} className="border-b border-border/30 hover:bg-bg-secondary/50">
+              <tr key={r.key} className="border-b border-border/30 hover:bg-bg-secondary/50">
                 <td className="py-1.5 pr-2 font-medium text-xs">{r.label}</td>
                 <td className="py-1.5 px-2 text-center font-mono text-xs">{r.matches}</td>
                 <td className="py-1.5 px-2 text-center font-mono text-xs font-bold">{r.userPts}</td>
