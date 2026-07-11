@@ -138,7 +138,8 @@ export const knockoutMatches: KnockoutMatch[] = [
 
   // July 10
   { matchId: "QF-2", round: "QF", date: "2026-07-10", homeTeamId: "ESP", awayTeamId: "BEL",
-    venue: "SoFi Stadium, Inglewood, CA", kickoffCOT: "2:00 PM", status: "upcoming" },
+    venue: "SoFi Stadium, Inglewood, CA", kickoffCOT: "2:00 PM", status: "completed",
+    homeGoals: 2, awayGoals: 1 },
 
   // July 11
   { matchId: "QF-3", round: "QF", date: "2026-07-11", homeTeamId: "NOR", awayTeamId: "ENG",

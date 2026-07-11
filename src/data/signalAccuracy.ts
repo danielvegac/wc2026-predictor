@@ -466,13 +466,22 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
   {
     matchId: "QF-2", round: "QF", homeTeamId: "ESP", awayTeamId: "BEL",
     date: "2026-07-10",
-    modelLambdaHome: 0, modelLambdaAway: 0,
-    alphaTopScorelines: [],
-    modelTopScorelines: [],
-    alphaActualRank: null, alphaActualProbability: undefined,
-    modelActualRank: null, modelActualProbability: undefined,
+    modelLambdaHome: 1.84, modelLambdaAway: 1.31,
+    modelTopScorelines: [
+      { home: 1, away: 1, probability: 11.7 }, { home: 2, away: 1, probability: 9.5 }, { home: 2, away: 0, probability: 7.2 },
+    ],
+    alphaImpliedLambdaHome: 1.45, alphaImpliedLambdaAway: 0.90,
+    alphaTopScorelines: [
+      { home: 1, away: 1, probability: 13 }, { home: 1, away: 0, probability: 11 }, { home: 2, away: 0, probability: 10 }, { home: 2, away: 1, probability: 9 },
+    ],
+    regulationResult: { home: 2, away: 1 }, wentToExtraTime: false, finalResult: { home: 2, away: 1 },
+    modelActualRank: 2, modelActualProbability: 9.5, alphaActualRank: 4, alphaActualProbability: 9,
     rule23Triggered: false, rule25Flagged: false,
-    notes: "Pending — Jul 10 2:00 PM COT. SoFi Stadium, Inglewood CA.",
+    notes: "Model rank 2 (9.5%) vs alpha rank 4 (9%) — model closer. Chat " +
+           "pick was 1-0 (correct margin, wrong total); actual 2-1 exposed a " +
+           "gap in the engine's Tier 2 compression for moderate Under signals " +
+           "when the favorite's own lambda/form already implied a higher " +
+           "attacking output. Led to Rule 30 (Favorite Lambda Floor).",
   },
   {
     matchId: "QF-3", round: "QF", homeTeamId: "NOR", awayTeamId: "ENG",

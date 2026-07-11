@@ -4,7 +4,7 @@ import {
   checkRule14, checkRule12,
   checkRule13, checkRule11b, checkRule9, checkRule7,
   checkRule17, checkRule20, checkRule23,
-  checkRule28, checkRule29, resolveScoredEveryMatch,
+  checkRule28, checkRule29, checkRule30, resolveScoredEveryMatch,
   NOISE_FLOOR
 } from './rules';
 
@@ -74,8 +74,9 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
   const rule23 = checkRule23(input);
   const rule28 = checkRule28(input);
   const rule29 = checkRule29(input);
+  const rule30 = checkRule30(input);
 
-  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7, rule17, rule23, rule28, rule29];
+  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7, rule17, rule23, rule28, rule29, rule30];
   allChecks.filter(r => r.triggered).forEach(r => rulesTriggered.push(r.ruleId));
 
   if (rule23.triggered) {
@@ -291,6 +292,30 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
       rulesTriggered,
       reasoning,
       confidence: 'MEDIUM'
+    };
+  }
+
+  // ── STEP 5c: Rule 30 — favorite lambda floor (blocks moderate-Under compression) ──
+  if (rule30.triggered) {
+    const homeIsFavorite = input.alpha.alphaHomeWinPct >= input.alpha.alphaAwayWinPct;
+    const favoriteLambda = homeIsFavorite ? (input.homeLambda ?? 0) : (input.awayLambda ?? 0);
+    const favoriteGoals = Math.round(favoriteLambda);
+    const underdogGoals = Math.max(0, favoriteGoals - 1);
+    let rule30pick = homeIsFavorite
+      ? { home: favoriteGoals, away: underdogGoals }
+      : { home: underdogGoals, away: favoriteGoals };
+
+    reasoning.push(`STEP 5c — Rule 30 fired: ${rule30.reason}`);
+    reasoning.push(`Lambda floor pick: ${input.homeTeam} ${rule30pick.home}-${rule30pick.away} ${input.awayTeam}`);
+
+    rule30pick = applyRule29Guard(rule30pick, rule29, reasoning);
+    reasoning.push(`FINAL PICK: ${input.homeTeam} ${rule30pick.home}-${rule30pick.away} ${input.awayTeam} [Tier 2, Rule 30]`);
+    return {
+      finalPick: rule30pick,
+      tier: 2,
+      rulesTriggered,
+      reasoning,
+      confidence: 'HIGH'
     };
   }
 

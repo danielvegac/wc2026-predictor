@@ -411,5 +411,39 @@ export function checkRule29(input: PickJudgeInput): RuleCheck {
   };
 }
 
+/**
+ * Rule 30 — ESP-BEL lesson (Favorite Lambda Floor)
+ * When Rule 7 fires (favorite clearly ahead outright + underdog cascade is
+ * margin-only, not a shutout threat) AND the favorite's own model lambda is
+ * already high (>=1.7) AND the favorite's form multiplier is at/near the cap
+ * (>=1.40), a merely MODERATE Under signal (NOISE_FLOOR to just under 80)
+ * should not compress the favorite's own expected goal output below what its
+ * own lambda implies. Only a STRONG Under signal (>=80) is trusted enough to
+ * override this floor and allow full compression toward a low-scoring total.
+ */
+export function checkRule30(input: PickJudgeInput): RuleCheck {
+  const rule7 = checkRule7(input);
+  const homeIsFavorite = input.alpha.alphaHomeWinPct >= input.alpha.alphaAwayWinPct;
+  const favoriteLambda = homeIsFavorite ? input.homeLambda : input.awayLambda;
+  const favoriteForm = homeIsFavorite ? input.homeFormMultiplier : input.awayFormMultiplier;
+  const underModerate = input.alpha.underTopScore >= NOISE_FLOOR && input.alpha.underTopScore < 80;
+
+  const triggered =
+    rule7.triggered &&
+    (favoriteLambda ?? 0) >= 1.7 &&
+    favoriteForm >= 1.40 &&
+    underModerate;
+
+  return {
+    ruleId: 'Rule30',
+    triggered,
+    reason: triggered
+      ? `Rule 7 active + favorite lambda=${favoriteLambda} >=1.7 + form x${favoriteForm} at/near cap + ` +
+        `Under Score=${input.alpha.underTopScore} only moderate (60-79, not >=80 strong). ` +
+        `Lambda floor override: favorite goals = round(lambda), underdog = favorite-1.`
+      : 'Rule 30 not triggered'
+  };
+}
+
 // Exported for engine noise-floor checks (Rule 2).
 export { NOISE_FLOOR };

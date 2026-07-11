@@ -325,22 +325,22 @@ describe('getSignalAccuracySummary', () => {
     expect(getSignalAccuracySummary().totalMatches).toBe(28);
   });
 
-  it('reports 23 comparable matches (excluding AET-flagged and pending entries)', () => {
-    expect(getSignalAccuracySummary().comparableMatches).toBe(23);
+  it('reports 24 comparable matches (excluding AET-flagged and pending entries)', () => {
+    expect(getSignalAccuracySummary().comparableMatches).toBe(24);
   });
 
-  it('reports 5 AET-excluded/pending matches', () => {
-    expect(getSignalAccuracySummary().aetExcluded).toBe(5);
+  it('reports 4 AET-excluded/pending matches', () => {
+    expect(getSignalAccuracySummary().aetExcluded).toBe(4);
   });
 
   it('reports Rule 23 triggered on exactly 4 matches', () => {
     expect(getSignalAccuracySummary().rule23TriggeredCount).toBe(4);
   });
 
-  it('reports alphaCloser: 10, modelCloser: 11, tie: 2', () => {
+  it('reports alphaCloser: 10, modelCloser: 12, tie: 2', () => {
     const s = getSignalAccuracySummary();
     expect(s.alphaCloser).toBe(10);
-    expect(s.modelCloser).toBe(11);
+    expect(s.modelCloser).toBe(12);
     expect(s.tie).toBe(2);
   });
 

@@ -1280,6 +1280,23 @@ export const matchInsights: MatchInsight[] = [
            "run ended. Saibari absence + France tactical superiority = " +
            "historic low xG for MAR. France shots 22-5, on target 8-1.",
   },
+  {
+    matchId: "QF-2",
+    date: "2026-07-10",
+    homeTeamId: "ESP", awayTeamId: "BEL",
+    homeGoals: 2, awayGoals: 1,
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 1.45,
+    awayAttackMultiplier: 0.65,
+    awayDefenseMultiplier: 0.65,
+    notes: "Spain 2.08 xG vs Belgium 0.38 xG despite the close 2-1 scoreline " +
+           "— both Spanish goals came from second-chance rebounds (Fabian Ruiz " +
+           "30', Merino 88' off a Cubarsi shot Lammens spilled). First goal " +
+           "conceded all tournament (De Ketelaere equalizer), ending a 5-match " +
+           "clean sheet streak, but underlying dominance intact: 16 shots to 5. " +
+           "Courtois off injured 73', Lammens in. Belgium played without " +
+           "captain Tielemans (warmup injury). SF vs FRA (Dallas, Jul 14).",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
