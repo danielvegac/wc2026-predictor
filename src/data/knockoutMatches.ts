@@ -143,9 +143,19 @@ export const knockoutMatches: KnockoutMatch[] = [
 
   // July 11
   { matchId: "QF-3", round: "QF", date: "2026-07-11", homeTeamId: "NOR", awayTeamId: "ENG",
-    venue: "Hard Rock Stadium, Miami Gardens, FL", kickoffCOT: "4:00 PM", status: "upcoming" },
+    venue: "Hard Rock Stadium, Miami Gardens, FL", kickoffCOT: "4:00 PM", status: "completed",
+    homeGoals: 1, awayGoals: 2 },  // regulation 1-1; England win AET (Bellingham brace)
   { matchId: "QF-4", round: "QF", date: "2026-07-11", homeTeamId: "ARG", awayTeamId: "SUI",
-    venue: "Arrowhead Stadium, Kansas City, MO", kickoffCOT: "8:00 PM", status: "upcoming" },
+    venue: "Arrowhead Stadium, Kansas City, MO", kickoffCOT: "8:00 PM", status: "completed",
+    homeGoals: 3, awayGoals: 1 },  // regulation 1-1; Argentina win AET (Alvarez, Martinez)
+
+  // ==========================================
+  // SEMIFINALS
+  // ==========================================
+
+  // July 15
+  { matchId: "SF-1", round: "SF", date: "2026-07-15", homeTeamId: "ARG", awayTeamId: "ENG",
+    venue: "Mercedes-Benz Stadium, Atlanta, GA", kickoffCOT: "TBD", status: "upcoming" },
 ];
 
 /** Get all knockout matches for a specific round */

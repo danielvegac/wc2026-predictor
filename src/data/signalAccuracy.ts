@@ -486,24 +486,59 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
   {
     matchId: "QF-3", round: "QF", homeTeamId: "NOR", awayTeamId: "ENG",
     date: "2026-07-11",
-    modelLambdaHome: 0, modelLambdaAway: 0,
+    modelLambdaHome: 0.71, modelLambdaAway: 1.81,
+    modelTopScorelines: [
+      { home: 0, away: 1, probability: 13.2 }, { home: 0, away: 2, probability: 13.2 }, { home: 1, away: 1, probability: 11.7 },
+    ],
     alphaTopScorelines: [],
-    modelTopScorelines: [],
+    regulationResult: { home: 1, away: 1 }, wentToExtraTime: true, finalResult: { home: 1, away: 2 },
+    modelActualRank: 3, modelActualProbability: 11.7,
     alphaActualRank: null, alphaActualProbability: undefined,
-    modelActualRank: null, modelActualProbability: undefined,
-    rule23Triggered: false, rule25Flagged: false,
-    notes: "Pending — Jul 11 4:00 PM COT. Hard Rock Stadium, Miami FL.",
+    closerSignalOverride: {
+      value: "tie",
+      reason: "Alpha's live scoreline matrix wasn't captured this session (unlike QF-1/QF-2), so alpha rank/probability can't be honestly computed — not evaluated as a model win by default.",
+    },
+    rule23Triggered: false, rule25Flagged: true,
+    notes: "Norway 1-2 England (AET). Schjelderup opened for Norway ~24', Bellingham " +
+           "equalized just before HT (1-1 regulation — model's rank-3 cell at 11.7%), " +
+           "scoreless 2nd half, Bellingham's extra-time winner sealed it. Haaland did " +
+           "NOT score — ends his run of scoring in 14 straight Norway matches. Chat's " +
+           "submitted pick was 1-2 — exact final scoreline hit (Rule 26 no-ancestor " +
+           "matrix-lookup fix from the prior session correctly resolved the no-ancestor " +
+           "case here). rule25Flagged: AET result, regulation-score comparison used per " +
+           "R32-09 convention. England advance to face Argentina (SF-1, Atlanta, Jul 15).",
   },
   {
     matchId: "QF-4", round: "QF", homeTeamId: "ARG", awayTeamId: "SUI",
     date: "2026-07-11",
-    modelLambdaHome: 0, modelLambdaAway: 0,
+    modelLambdaHome: 4.0, modelLambdaAway: 0.7,
+    modelTopScorelines: [
+      { home: 3, away: 0, probability: 10.2 }, { home: 4, away: 0, probability: 10.2 }, { home: 5, away: 0, probability: 8.2 },
+    ],
+    alphaImpliedLambdaHome: 1.7, alphaImpliedLambdaAway: 0.5,
     alphaTopScorelines: [],
-    modelTopScorelines: [],
+    regulationResult: { home: 1, away: 1 }, wentToExtraTime: true, finalResult: { home: 3, away: 1 },
+    modelActualRank: 13, modelActualProbability: 3,
     alphaActualRank: null, alphaActualProbability: undefined,
-    modelActualRank: null, modelActualProbability: undefined,
-    rule23Triggered: false, rule25Flagged: false,
-    notes: "Pending — Jul 11 8:00 PM COT. Arrowhead Stadium, Kansas City MO.",
+    closerSignalOverride: {
+      value: "tie",
+      reason: "Alpha's live scoreline matrix wasn't captured this session — only the estimated implied lambda (1.7/0.5) survives, not a full matrix — so alpha rank/probability can't be honestly computed.",
+    },
+    rule23Triggered: true, lambdaDivergencePct: 53, rule25Flagged: true,
+    notes: "Argentina 3-1 Switzerland (AET). Mac Allister opened 10' (Messi corner " +
+           "assist), Ndoye equalized 1-1 for Switzerland 67' — even after Embolo's 72' " +
+           "red card left them down to 10 men for the final ~48 minutes. Alvarez (112') " +
+           "and Lautaro Martinez (120+1') settled it in extra time. Chat's submitted " +
+           "pick was Argentina 3-0 (Rule 28's scoring-pattern floor correctly held " +
+           "Argentina at 3, but nothing in the engine addressed Switzerland's side at " +
+           "kickoff) — a miss on the exact scoreline but a correct match-outcome/win-" +
+           "margin read (3 goals, ARG win). This miss motivated Rule 31 (Underdog " +
+           "Resilience Floor): Switzerland's BTTS No Score=55 (weak-but-present, 50-59) " +
+           "combined with their resilience in the prior round (0-0 AET vs Colombia, won " +
+           "4-3 on PKs) should have floored them at 1 goal. Retroactively verified: with " +
+           "Rule 31 now wired in and awayWentToExtraTimeOrPenaltiesPriorRound=true set on " +
+           "the fixture, the CLI produces Argentina 3-1 — matching the actual result. " +
+           "Argentina advance to face England (SF-1, Atlanta, Jul 15).",
   },
 ];
 

@@ -1297,6 +1297,46 @@ export const matchInsights: MatchInsight[] = [
            "Courtois off injured 73', Lammens in. Belgium played without " +
            "captain Tielemans (warmup injury). SF vs FRA (Dallas, Jul 14).",
   },
+  {
+    matchId: "QF-3",
+    date: "2026-07-11",
+    homeTeamId: "NOR", awayTeamId: "ENG",
+    homeGoals: 1, awayGoals: 2,
+    homeAttackMultiplier: 0.85,
+    homeDefenseMultiplier: 0.85,
+    awayAttackMultiplier: 1.30,
+    awayDefenseMultiplier: 1.10,
+    notes: "Norway 1-2 England (AET). Schjelderup opened the scoring ~24' — " +
+           "Erling Haaland did NOT score, ending his run of scoring in 14 " +
+           "consecutive Norway matches. Bellingham equalized just before " +
+           "halftime (1-1 regulation), scoreless second half, then Bellingham's " +
+           "extra-time strike won it (brace on the day). England advance to " +
+           "face Argentina in the semifinal (SF-1, Mercedes-Benz Stadium, " +
+           "Atlanta, Jul 15) after needing extra time despite conceding first.",
+  },
+  {
+    matchId: "QF-4",
+    date: "2026-07-11",
+    homeTeamId: "ARG", awayTeamId: "SUI",
+    homeGoals: 3, awayGoals: 1,
+    homeAttackMultiplier: 1.30,
+    homeDefenseMultiplier: 0.90,
+    awayAttackMultiplier: 0.85,
+    awayDefenseMultiplier: 0.85,
+    notes: "Argentina 3-1 Switzerland (AET). Mac Allister opened 10' (Messi " +
+           "corner assist, Messi himself scoreless). Dan Ndoye equalized 1-1 " +
+           "for Switzerland 67' — even after Breel Embolo's 72' red card " +
+           "(second yellow, VAR-reviewed) left them a man down for the final " +
+           "~48 minutes including all of extra time. Julian Alvarez (112') and " +
+           "Lautaro Martinez (120+1') won it in extra time. Argentina conceded " +
+           "to a 10-man opponent in regulation — do not inflate their defensive " +
+           "rating off the 3-1 scoreline. Switzerland showed real resilience " +
+           "(scored down a man against a heavy favorite, same pattern as their " +
+           "R16 0-0 AET / 4-3 PK win over Colombia) — eliminated, but this " +
+           "pattern motivated Rule 31 (Underdog Resilience Floor) in the pick " +
+           "judge engine. Argentina advance to face England in the semifinal " +
+           "(SF-1, Mercedes-Benz Stadium, Atlanta, Jul 15).",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

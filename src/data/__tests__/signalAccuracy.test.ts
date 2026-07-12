@@ -333,8 +333,8 @@ describe('getSignalAccuracySummary', () => {
     expect(getSignalAccuracySummary().aetExcluded).toBe(4);
   });
 
-  it('reports Rule 23 triggered on exactly 4 matches', () => {
-    expect(getSignalAccuracySummary().rule23TriggeredCount).toBe(4);
+  it('reports Rule 23 triggered on exactly 5 matches', () => {
+    expect(getSignalAccuracySummary().rule23TriggeredCount).toBe(5);
   });
 
   it('reports alphaCloser: 10, modelCloser: 12, tie: 2', () => {
@@ -344,8 +344,8 @@ describe('getSignalAccuracySummary', () => {
     expect(s.tie).toBe(2);
   });
 
-  it('reports rule23Breakdown: { alpha: 3, tie: 1, model: 0 }', () => {
-    expect(getSignalAccuracySummary().rule23Breakdown).toEqual({ alpha: 3, tie: 1, model: 0 });
+  it('reports rule23Breakdown: { alpha: 3, tie: 2, model: 0 }', () => {
+    expect(getSignalAccuracySummary().rule23Breakdown).toEqual({ alpha: 3, tie: 2, model: 0 });
   });
 
   it('comparable + excluded = total', () => {
