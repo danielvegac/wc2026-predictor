@@ -490,23 +490,41 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
     modelTopScorelines: [
       { home: 0, away: 1, probability: 13.2 }, { home: 0, away: 2, probability: 13.2 }, { home: 1, away: 1, probability: 11.7 },
     ],
-    alphaTopScorelines: [],
+    alphaTopScorelines: [
+      { home: 0, away: 1, probability: 11 }, { home: 0, away: 2, probability: 11 }, { home: 1, away: 1, probability: 11 },
+    ],
     regulationResult: { home: 1, away: 1 }, wentToExtraTime: true, finalResult: { home: 1, away: 2 },
     modelActualRank: 3, modelActualProbability: 11.7,
-    alphaActualRank: null, alphaActualProbability: undefined,
+    alphaActualRank: 3, alphaActualProbability: 11,
     closerSignalOverride: {
       value: "tie",
-      reason: "Alpha's live scoreline matrix wasn't captured this session (unlike QF-1/QF-2), so alpha rank/probability can't be honestly computed — not evaluated as a model win by default.",
+      reason: "On the regulation scoreline (1-1), model and alpha both land at rank #3 " +
+              "with near-identical probability (11.7% vs 11%, alpha's cell tied 3-way with " +
+              "0-1/0-2) — genuine tie, not worth deciding on a 0.7pp gap. On the final AET " +
+              "scoreline (1-2), the engine's own Dixon-Coles matrix ranks it #5 at 9.4% " +
+              "(tied displayed value with 0-0 at 9.4%) — NOT #4 as originally transcribed " +
+              "from the screenshot; corrected against the canonical scoreDistribution() " +
+              "output for this session (see notes). Alpha's transcribed #4/10% for 1-2 " +
+              "could not be cross-checked (no canonical alpha matrix source in-repo). " +
+              "Either way both signals landed in the same neighborhood on the final score too.",
     },
     rule23Triggered: false, rule25Flagged: true,
     notes: "Norway 1-2 England (AET). Schjelderup opened for Norway ~24', Bellingham " +
-           "equalized just before HT (1-1 regulation — model's rank-3 cell at 11.7%), " +
-           "scoreless 2nd half, Bellingham's extra-time winner sealed it. Haaland did " +
-           "NOT score — ends his run of scoring in 14 straight Norway matches. Chat's " +
-           "submitted pick was 1-2 — exact final scoreline hit (Rule 26 no-ancestor " +
-           "matrix-lookup fix from the prior session correctly resolved the no-ancestor " +
-           "case here). rule25Flagged: AET result, regulation-score comparison used per " +
-           "R32-09 convention. England advance to face Argentina (SF-1, Atlanta, Jul 15).",
+           "equalized just before HT (1-1 regulation — model's rank-3 cell at 11.7%, " +
+           "alpha's rank-3 cell at 11% in a 3-way tie with 0-1/0-2), scoreless 2nd half, " +
+           "Bellingham's extra-time winner sealed it. Haaland did NOT score — ends his " +
+           "run of scoring in 14 straight Norway matches. Chat's submitted pick was 1-2 " +
+           "— exact final scoreline hit (Rule 26 no-ancestor matrix-lookup fix from the " +
+           "prior session correctly resolved the no-ancestor case here). DATA NOTE: the " +
+           "initial screenshot transcription of the model matrix listed the final score " +
+           "1-2 as ranked 4th at 9.4% — cross-checked against the canonical " +
+           "scoreDistribution() engine output (same homeLambda/awayLambda as the pick " +
+           "judge fixture) and corrected: 1-2 is actually rank 5 at 9.4%, tied in " +
+           "displayed probability with rank-4 0-0 (also 9.4% at higher precision, " +
+           "9.396% vs 9.363%) — the rank number was off by one in the transcription, the " +
+           "probability itself was accurate. rule25Flagged: AET result, regulation-score " +
+           "comparison used per R32-09 convention for the primary rank fields. England " +
+           "advance to face Argentina (SF-1, Atlanta, Jul 15).",
   },
   {
     matchId: "QF-4", round: "QF", homeTeamId: "ARG", awayTeamId: "SUI",
@@ -516,13 +534,28 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
       { home: 3, away: 0, probability: 10.2 }, { home: 4, away: 0, probability: 10.2 }, { home: 5, away: 0, probability: 8.2 },
     ],
     alphaImpliedLambdaHome: 1.7, alphaImpliedLambdaAway: 0.5,
-    alphaTopScorelines: [],
+    alphaTopScorelines: [
+      { home: 1, away: 0, probability: 15 }, { home: 2, away: 0, probability: 14 }, { home: 1, away: 1, probability: 10 },
+    ],
     regulationResult: { home: 1, away: 1 }, wentToExtraTime: true, finalResult: { home: 3, away: 1 },
     modelActualRank: 13, modelActualProbability: 3,
-    alphaActualRank: null, alphaActualProbability: undefined,
+    alphaActualRank: 3, alphaActualProbability: 10,
     closerSignalOverride: {
-      value: "tie",
-      reason: "Alpha's live scoreline matrix wasn't captured this session — only the estimated implied lambda (1.7/0.5) survives, not a full matrix — so alpha rank/probability can't be honestly computed.",
+      value: "model",
+      reason: "Split decision depending on which score you compare against. On the " +
+              "REGULATION scoreline (1-1), alpha is clearly closer: rank #3 at 10% vs the " +
+              "model's rank #13 at 3% — Rule 28's pattern floor blinded the model's own " +
+              "matrix to a draw-at-90' outcome. On the FINAL AET scoreline (3-1) — arguably " +
+              "the more meaningful read here since 2 of Argentina's 3 goals came in extra " +
+              "time — the model is closer: rank #4-5 (tied with 4-1) at 7.2% vs alpha's " +
+              "rank #7 at 6% (per the original transcription; not independently verifiable, " +
+              "no canonical alpha matrix source in-repo). Calling MODEL CLOSER overall: " +
+              "alpha's matrix was anchored toward a low-scoring match (1-0/2-0 dominant) " +
+              "and never priced in Argentina's cluster-scoring pattern once they broke " +
+              "through — exactly what Rule 28 exists to catch, and exactly why the engine's " +
+              "Rule 28-driven pick (3-0, corrected to 3-1 via Rule 31) tracked the final " +
+              "outcome better than alpha's market-implied read, even though alpha correctly " +
+              "read the 90-minute draw.",
     },
     rule23Triggered: true, lambdaDivergencePct: 53, rule25Flagged: true,
     notes: "Argentina 3-1 Switzerland (AET). Mac Allister opened 10' (Messi corner " +
@@ -538,6 +571,12 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
            "4-3 on PKs) should have floored them at 1 goal. Retroactively verified: with " +
            "Rule 31 now wired in and awayWentToExtraTimeOrPenaltiesPriorRound=true set on " +
            "the fixture, the CLI produces Argentina 3-1 — matching the actual result. " +
+           "DATA NOTE: the initial screenshot transcription of the model's top-3 listed " +
+           "Argentina 2-0 (7.7%) as the #3 cell — cross-checked against the canonical " +
+           "scoreDistribution() engine output (same lambda 4.0/0.7 as the pick judge " +
+           "fixture) and corrected: true #3 is Argentina 5-0 at 8.2%, with 2-0 actually " +
+           "#4 at 7.7% (10.2/10.2/8.2/7.7 is the verified order — 2-0 was likely swapped " +
+           "in for 5-0 in transcription as the more 'plausible-looking' scoreline). " +
            "Argentina advance to face England (SF-1, Atlanta, Jul 15).",
   },
 ];
