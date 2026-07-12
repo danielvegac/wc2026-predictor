@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { judgePickInput } from '../engine';
-import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, esp_aut, por_cro, sui_alg, par_fra } from './historicalFixtures';
+import { civ_nor, fra_swe, mex_ecu, eng_cod, bel_sen, esp_aut, por_cro, sui_alg, par_fra, arg_sui } from './historicalFixtures';
 import type { PickJudgeInput } from '../types';
 
 describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
@@ -350,6 +350,51 @@ describe('Pick Judge — Historical Fixtures (R32 2026)', () => {
     });
     it('SUI-ALG is Tier 1 (Rule 18 form anchor confirmed)', () => {
       expect(judgePickInput(sui_alg).tier).toBe(1);
+    });
+  });
+
+  describe('Rule 31 — Underdog Resilience Floor (QF-4 ARG-SUI)', () => {
+    it('outputs Argentina 3-1 Switzerland — Rule 28 floor + Rule 31 resilience bump', () => {
+      const result = judgePickInput(arg_sui);
+      expect(result.finalPick).toEqual({ home: 3, away: 1 });
+      expect(result.tier).toBe(1);
+      expect(result.rulesTriggered).toContain('Rule28');
+      expect(result.rulesTriggered).toContain('Rule31');
+    });
+
+    it('does NOT fire without the prior-round resilience flag', () => {
+      const noResilience: PickJudgeInput = {
+        ...arg_sui,
+        awayWentToExtraTimeOrPenaltiesPriorRound: false,
+      };
+      const result = judgePickInput(noResilience);
+      expect(result.rulesTriggered).not.toContain('Rule31');
+      expect(result.finalPick).toEqual({ home: 3, away: 0 });
+    });
+
+    it('does NOT fire when BTTS No Score is outside the 50-59 band', () => {
+      const bttsTooLow: PickJudgeInput = {
+        ...arg_sui,
+        alpha: { ...arg_sui.alpha, bttsNoScore: 49 },
+      };
+      expect(judgePickInput(bttsTooLow).rulesTriggered).not.toContain('Rule31');
+
+      const bttsTooHigh: PickJudgeInput = {
+        ...arg_sui,
+        alpha: { ...arg_sui.alpha, bttsNoScore: 60 },
+      };
+      expect(judgePickInput(bttsTooHigh).rulesTriggered).not.toContain('Rule31');
+    });
+
+    it('does NOT fire when Rule 28 has not triggered (no established pattern)', () => {
+      const noPattern: PickJudgeInput = {
+        ...arg_sui,
+        homeGoalPatternMatches: 0,
+        homeGoalPatternValue: 0,
+      };
+      const result = judgePickInput(noPattern);
+      expect(result.rulesTriggered).not.toContain('Rule28');
+      expect(result.rulesTriggered).not.toContain('Rule31');
     });
   });
 });

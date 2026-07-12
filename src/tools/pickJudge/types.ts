@@ -120,6 +120,11 @@ export interface PickJudgeInput {
                                       // this fixture) where home scored exactly
                                       // homeGoalPatternValue goals
   homeGoalPatternValue?: number;     // the repeated goal count itself
+
+  // UNDERDOG KNOCKOUT RESILIENCE (Rule 31)
+  awayWentToExtraTimeOrPenaltiesPriorRound?: boolean; // true if the away team's most
+                                      // recent knockout-stage match before this one went
+                                      // to extra time and/or was decided by penalties
 }
 
 export interface RuleCheck {

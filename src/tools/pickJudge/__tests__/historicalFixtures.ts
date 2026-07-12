@@ -2079,6 +2079,9 @@ export const arg_sui: PickJudgeInput = {
   homeGoalPatternMatches: 4,
   homeGoalPatternValue: 3,
 
+  // Rule 31 — Switzerland's R16 vs Colombia went 0-0 AET, won 4-3 on penalties.
+  awayWentToExtraTimeOrPenaltiesPriorRound: true,
+
   alpha: {
     underTopScore: 0,            // NOT PROVIDED this session — see file header note
     bttsNoScore: 55,              // BTTS No Score=55

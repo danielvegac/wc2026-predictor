@@ -445,5 +445,37 @@ export function checkRule30(input: PickJudgeInput): RuleCheck {
   };
 }
 
+/**
+ * Rule 31 — Underdog Resilience Floor
+ * When: Rule 28's scoring pattern floor is active for the favorite AND the
+ * underdog's most recent knockout-stage match went to extra time and/or
+ * penalties (a resilience pattern, not a fluke) AND BTTS No Score is 50-59
+ * (present in the data, below the Rule 2 noise floor, but not negligible).
+ * Effect: If the working pick has the underdog at 0, bump them to 1 goal —
+ * the favorite's total (as set by Rule 28) is left untouched.
+ * Lesson (QF-4 ARG-SUI, July 11 2026): Rule 28 correctly floored Argentina
+ * at 3 goals, but nothing addressed Switzerland — a team that went to
+ * extra time/penalties in the prior round (0-0 AET vs Colombia, won 4-3 on
+ * PKs) and had BTTS No Score=55 (below noise floor, discarded as a market
+ * signal). Actual result: Argentina 3-1 (AET) — Switzerland equalized via
+ * Dan Ndoye even after going down to 10 men.
+ */
+export function checkRule31(input: PickJudgeInput, rule28: RuleCheck): RuleCheck {
+  const resilientPriorRound = input.awayWentToExtraTimeOrPenaltiesPriorRound === true;
+  const bttsNoWeakSignal = input.alpha.bttsNoScore >= 50 && input.alpha.bttsNoScore < 60;
+
+  const triggered = rule28.triggered && resilientPriorRound && bttsNoWeakSignal;
+  return {
+    ruleId: 'Rule31',
+    triggered,
+    reason: triggered
+      ? `${input.awayTeam} showed knockout resilience (prior round: extra time/penalties) ` +
+        `and BTTS No Score=${input.alpha.bttsNoScore} is a weak-but-present signal ` +
+        `(50-59, below noise floor but not negligible). Bumping ${input.awayTeam} from 0 to 1 ` +
+        `goal — favorite's total unchanged.`
+      : 'Rule 31 not triggered'
+  };
+}
+
 // Exported for engine noise-floor checks (Rule 2).
 export { NOISE_FLOOR };

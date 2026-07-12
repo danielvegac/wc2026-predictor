@@ -4,7 +4,7 @@ import {
   checkRule14, checkRule12,
   checkRule13, checkRule11b, checkRule9, checkRule7,
   checkRule17, checkRule20, checkRule23,
-  checkRule28, checkRule29, checkRule30, resolveScoredEveryMatch,
+  checkRule28, checkRule29, checkRule30, checkRule31, resolveScoredEveryMatch,
   NOISE_FLOOR
 } from './rules';
 import { scoreDistribution } from '../../engine/poisson';
@@ -21,6 +21,25 @@ function applyRule29Guard(
 ): { home: number; away: number } {
   if (rule29.triggered && pick.away === 0) {
     reasoning.push(`[Rule 29] ${rule29.reason} Pick ${pick.home}-0 → ${pick.home}-1.`);
+    return { home: pick.home, away: 1 };
+  }
+  return pick;
+}
+
+/**
+ * Rule 31 guard — applied alongside Rule 29's guard wherever a pick would
+ * otherwise leave the underdog at 0. Only fires when Rule 28's favorite
+ * floor is active and the underdog showed knockout resilience (prior round
+ * went to extra time/penalties) with a weak-but-present BTTS No signal
+ * (50-59). Preserves the favorite's total; only bumps the underdog to 1.
+ */
+function applyRule31Guard(
+  pick: { home: number; away: number },
+  rule31: RuleCheck,
+  reasoning: string[]
+): { home: number; away: number } {
+  if (rule31.triggered && pick.away === 0) {
+    reasoning.push(`[Rule 31 — Underdog Resilience Floor] ${rule31.reason}`);
     return { home: pick.home, away: 1 };
   }
   return pick;
@@ -180,8 +199,9 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
   const rule28 = checkRule28(input);
   const rule29 = checkRule29(input);
   const rule30 = checkRule30(input);
+  const rule31 = checkRule31(input, rule28);
 
-  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7, rule17, rule23, rule28, rule29, rule30];
+  const allChecks: RuleCheck[] = [rule16a, rule16b, rule15, rule14, rule12, rule13, rule11b, rule9, rule7, rule17, rule23, rule28, rule29, rule30, rule31];
   allChecks.filter(r => r.triggered).forEach(r => rulesTriggered.push(r.ruleId));
 
   if (rule23.triggered) {
@@ -268,6 +288,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
 
     reasoning.push(`STEP 3 — Tier 2 compression: ${workingPick.home}-${workingPick.away} → ${tier2pick.home}-${tier2pick.away}`);
     tier2pick = applyRule29Guard(tier2pick, rule29, reasoning);
+    tier2pick = applyRule31Guard(tier2pick, rule31, reasoning);
     reasoning.push(`FINAL PICK: ${input.homeTeam} ${tier2pick.home}-${tier2pick.away} ${input.awayTeam} [Tier 2]`);
 
     return {
@@ -310,7 +331,8 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
         `on tight line ≤+1.0 with 2+ consecutive). ` +
         `Form anchor enforced → Tier 1: follow model pick.`
       );
-      const rule18Pick = applyRule29Guard(workingPick, rule29, reasoning);
+      let rule18Pick = applyRule29Guard(workingPick, rule29, reasoning);
+      rule18Pick = applyRule31Guard(rule18Pick, rule31, reasoning);
       reasoning.push(`FINAL PICK: ${input.homeTeam} ${rule18Pick.home}-${rule18Pick.away} ${input.awayTeam} [Tier 1, Rule 18]`);
       return {
         finalPick: rule18Pick,
@@ -396,6 +418,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     reasoning.push(`STEP 5b — Rule 17 fired: away λ ≤0.45 + goal dist 0-peak ≥35% + home win% ≥55% → clean sheet override, BTTS league context invalid`);
     reasoning.push(`Tier 2 compression: ${workingPick.home}-${workingPick.away} → ${tier2pick.home}-${tier2pick.away} (clean sheet forced)`);
     tier2pick = applyRule29Guard(tier2pick, rule29, reasoning);
+    tier2pick = applyRule31Guard(tier2pick, rule31, reasoning);
     reasoning.push(`FINAL PICK: ${input.homeTeam} ${tier2pick.home}-${tier2pick.away} ${input.awayTeam} [Tier 2]`);
     return {
       finalPick: tier2pick,
@@ -420,6 +443,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     reasoning.push(`Lambda floor pick: ${input.homeTeam} ${rule30pick.home}-${rule30pick.away} ${input.awayTeam}`);
 
     rule30pick = applyRule29Guard(rule30pick, rule29, reasoning);
+    rule30pick = applyRule31Guard(rule30pick, rule31, reasoning);
     reasoning.push(`FINAL PICK: ${input.homeTeam} ${rule30pick.home}-${rule30pick.away} ${input.awayTeam} [Tier 2, Rule 30]`);
     return {
       finalPick: rule30pick,
@@ -504,6 +528,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
     }
 
     tier2pick = applyRule29Guard(tier2pick, rule29, reasoning);
+    tier2pick = applyRule31Guard(tier2pick, rule31, reasoning);
     reasoning.push(`FINAL PICK: ${input.homeTeam} ${tier2pick.home}-${tier2pick.away} ${input.awayTeam} [Tier 2]`);
     return {
       finalPick: tier2pick,
@@ -516,7 +541,8 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
 
   // ── STEP 7: Tier 1 — follow the model ────────────────────────────
   reasoning.push(`STEP 4 — No qualifying alpha signals. Tier 1: follow model pick.`);
-  const finalStep7Pick = applyRule29Guard(workingPick, rule29, reasoning);
+  let finalStep7Pick = applyRule29Guard(workingPick, rule29, reasoning);
+  finalStep7Pick = applyRule31Guard(finalStep7Pick, rule31, reasoning);
   reasoning.push(`FINAL PICK: ${input.homeTeam} ${finalStep7Pick.home}-${finalStep7Pick.away} ${input.awayTeam} [Tier 1]`);
   return {
     finalPick: finalStep7Pick,
