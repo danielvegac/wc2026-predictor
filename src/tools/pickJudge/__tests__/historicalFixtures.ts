@@ -817,11 +817,15 @@ export const sui_alg: PickJudgeInput = {
     goalsScored: 7,
     goalsConceded: 3,
   },
+  // ALG: 0-3 ARG (L, no goal), 2-1 JOR (W), 3-3 AUT (D) — 1W-1D-1L, 5 GF, 7 GC.
+  // Rule 26: verified per-match — ALG did NOT score every match (0-3 vs Argentina,
+  // per matchInsights.ts GS entries) — proxy (5G/3M) would wrongly say "scored every match".
   awayTournament: {
     wins: 1, draws: 1, losses: 1,
     cleanSheets: 0,
     goalsScored: 5,
     goalsConceded: 7,
+    scoredEveryMatch: false,
   },
 
   homeIsCoHost: false,
@@ -1910,3 +1914,215 @@ export const esp_bel: PickJudgeInput = {
     { teamId: 'away', playerName: 'Charles De Ketelaere', tournamentGoals: 2, singleMatchBrace: true },
   ],
 };
+
+/**
+ * QF-3: Norway vs England — NOR-ENG (July 11, 2026, Miami)
+ * BLIND — final pre-match Alphametrico read, captured minutes before kickoff.
+ * England favored: alpha away win% 59.0 vs Norway 17.0 (draw 24.0).
+ * England Handicap cascade is margin-only (best Score=61 @ Handicap England 0,
+ * zero lines ≥80) — no Rule 14 tight-line trigger. Under signals all below
+ * NOISE_FLOOR (best Totals Under 3 Score=44) → tier2Conditions invalid.
+ * Rule 30 check: England is favorite (awayLambda=1.81 ≥1.7 ✓) but
+ * awayFormMultiplier=0.74 is well below the 1.40 cap → Rule 30 NOT triggered.
+ * Rule 22 (Individual Ceiling): Haaland 7 tournament goals (brace vs BRA R16-3)
+ * qualifies — stress-test candidates expected alongside primary pick.
+ *
+ * Tournament records verified per-match from matchInsights.ts / formOverrides.ts
+ * (Rule 26 convention) rather than the Alphametrico scoring-history widget's
+ * rounded totals (which read NOR 5m/10gf/10gc, ENG 5m/11gf/6gc):
+ *   NOR: 4-1 IRQ(W), 3-2 SEN(W), 1-4 FRA(L), 2-1 NOR@CIV(W), 2-1 NOR@BRA(W)
+ *        → 4W-0D-1L, 12 GF, 9 GC, 0 CS, scored & conceded every match
+ *        (per-match log verified against official FIFA results 2026-07-11;
+ *        corrects an earlier 7 GC reading that undercounted the FRA match).
+ *   ENG: 4-2 CRO(W), 0-0 GHA(D), 3-0 PAN(W), 2-1 COD(W), 2-3 ENG@MEX(W)
+ *        → 4W-1D-0L, 12 GF, 5 GC, 2 CS (GHA, PAN) — did NOT score every
+ *          match (0-0 vs Ghana, GS-L-3) → scoredEveryMatch: false.
+ * Form multipliers back-derived (60/30/10 recency) from matchInsights.ts:
+ *   NOR: 0.6×0.65(R16-3) + 0.3×1.41(R32-05) + 0.1×0.81(GS-I-5) ≈ 0.89
+ *   ENG: 0.6×0.65(R16-4) + 0.3×0.95(R32-08) + 0.1×0.67(GS-L-3) ≈ 0.74
+ */
+export const nor_eng: PickJudgeInput = {
+  matchId: 'QF-3',
+  homeTeam: 'Norway',
+  awayTeam: 'England',
+  stage: 'knockout',
+
+  modelPick: { home: 0, away: 1 },
+  homeLambda: 0.71,
+  awayLambda: 1.81,
+  homeElo: 1829,
+  awayElo: 2008,
+
+  homeTournament: { wins: 4, draws: 0, losses: 1, cleanSheets: 0, goalsScored: 12, goalsConceded: 9, scoredEveryMatch: true },
+  awayTournament: { wins: 4, draws: 1, losses: 0, cleanSheets: 2, goalsScored: 12, goalsConceded: 5, scoredEveryMatch: false },
+
+  homeFormMultiplier: 0.89,
+  awayFormMultiplier: 0.74,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,   // Hard Rock Stadium, Miami — neutral venue
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    // Totals Under cascade: Under3=44 is the peak read, all below NOISE_FLOOR (60)
+    underTopScore: 44,
+    bttsNoScore: 57,             // below NOISE_FLOOR — noise
+
+    bttsYesScore: 0,
+    overTopScore: 0,
+
+    homeAHBestScore: 0,          // no Norway handicap value markets
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    // England handicap cascade — best line is "Handicap England 0" (Score=61),
+    // margin-only cascade, zero lines reach 80
+    awayAHBestScore: 61,
+    awayAHBestLine: 0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,             // no 1X2 Norway market found
+    awayWinScore: 54,            // 1X2 England Score=54
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 12,   // Handicap/1X2/DC England markets with value
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 17.0,
+    alphaDrawPct: 24.0,
+    alphaAwayWinPct: 59.0,
+
+    leagueBttsPct: 0,            // not provided this session
+    matchProjectedBttsPct: 0,
+    leagueOver25Pct: 0,
+    matchProjectedOver25Pct: 0,
+    projectedGoalsPerMatch: 2.52, // 0.71 + 1.81
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 0.71,
+    awayAdjustedLambda: 1.81,
+  },
+
+  highCeilingPlayers: [
+    { teamId: 'home', playerName: 'Erling Haaland', tournamentGoals: 7, singleMatchBrace: true },
+  ],
+};
+// BLIND — no expectedOutput injected. Run via CLI: npx tsx src/tools/pickJudge/cli.ts --match=QF-3
+
+/**
+ * QF-4: Argentina vs Switzerland (July 11, 2026, Arrowhead Stadium, Kansas City)
+ * Elo (2087 ARG / 1846 SUI) and form multipliers (1.39 / 0.91) back-derived by
+ * replaying matchInsights.ts through the actual eloUpdater/getTeamFormMultipliers
+ * code (base 2060/1800 from teams.ts), not hand-estimated.
+ * ARG tournament: 3-0 ALG, 2-0 AUT, 3-0 JOR, 3-2 CPV (R32 AET), 3-2 EGY (R16) —
+ *   5W-0D-0L, 14 scored / 4 conceded, scored every match. Rule 28 pattern
+ *   confirmed against formOverrides.ts ARG note: 3 goals in 4 of 5 matches
+ *   (3-0 ALG, 3-0 JOR, 3-2 CPV, 3-2 EGY) — homeGoalPatternMatches=4 (corrects
+ *   the task brief's assumed 5).
+ * SUI tournament: 1-1 QAT, 4-1 BIH, 2-1 CAN, 2-0 ALG (R32), 0-0 COL AET (R16,
+ *   won 4-3 PKs) — 3W-2D-0L, 9 scored / 3 conceded. scoredEveryMatch=FALSE —
+ *   0-0 vs Colombia breaks it, per task brief's expectation.
+ *
+ * DATA GAPS (flagged, not guessed):
+ *  - underTopScore: no explicit "Under X" market was supplied in this session's
+ *    alpha read (only Totals Over 2/2.5/3, all below the 60 noise floor) — left
+ *    at 0. This means Rule 20 will NOT see underSignalStrong, even though the
+ *    λ cap condition (homeAdjustedLambda 4.0 ≥ 3.5) is met.
+ *  - alphaHomeWinPct/alphaDrawPct/alphaAwayWinPct: no Match Outcome chart % was
+ *    supplied — left at 0. Affects Rule 17/Rule 12 inputs.
+ *  - awayWinScore, awayAHBestScore: no Switzerland-side 1X2/handicap markets
+ *    were supplied — left at 0 (consistent with SUI being a heavy underdog with
+ *    no priced value on the win side).
+ *  - alphaImpliedHomeLambda/alphaImpliedAwayLambda (1.7/0.5, total 2.2): ESTIMATE,
+ *    not a directly supplied number. Derived from the Totals Over decay
+ *    (Over2=40, Over2.5=25, Over3=10 — all sub-noise-floor, implying a low true
+ *    total) apportioned by the Argentina AH cascade dominance. Needed to let
+ *    Rule 23 actually evaluate the divergence check in code (vs. being applied
+ *    "manually" in comments only, as in prior fixtures where these fields were
+ *    left unset).
+ *  - homeLambda/awayLambda (4.0/0.7, top-level "model" fields Rule 23 reads):
+ *    set equal to alpha.homeAdjustedLambda/awayAdjustedLambda per the task's
+ *    single supplied λ pair — the draft did not distinguish a separate raw
+ *    model λ from Alphametrico's adjusted λ.
+ */
+export const arg_sui: PickJudgeInput = {
+  matchId: 'QF-4',
+  homeTeam: 'Argentina',
+  awayTeam: 'Switzerland',
+  stage: 'knockout',
+
+  modelPick: { home: 3, away: 0 },
+  homeLambda: 4.0,
+  awayLambda: 0.7,
+  homeElo: 2087,
+  awayElo: 1846,
+
+  homeTournament: { wins: 5, draws: 0, losses: 0, cleanSheets: 3, goalsConceded: 4, goalsScored: 14, scoredEveryMatch: true },
+  awayTournament: { wins: 3, draws: 2, losses: 0, cleanSheets: 2, goalsConceded: 3, goalsScored: 9, scoredEveryMatch: false },
+
+  homeFormMultiplier: 1.39,
+  awayFormMultiplier: 0.91,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,   // Arrowhead Stadium, Kansas City — neutral venue
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  // Rule 28 — ARG scored exactly 3 goals in 4 PRIOR tournament matches
+  // (3-0 ALG, 3-0 JOR, 3-2 CPV, 3-2 EGY) — verified against formOverrides.ts ARG note.
+  homeGoalPatternMatches: 4,
+  homeGoalPatternValue: 3,
+
+  alpha: {
+    underTopScore: 0,            // NOT PROVIDED this session — see file header note
+    bttsNoScore: 55,              // BTTS No Score=55
+
+    bttsYesScore: 0,
+    overTopScore: 40,             // Totals Over 2 Score=40 (highest of the Over cascade, still sub-noise-floor)
+
+    homeAHBestScore: 72,          // Handicap Argentina -0.25 / 0 both Score=72, best line -0.25
+    homeAHBestLine: -0.25,
+    homeAHConsecutiveAbove80: 0,  // no line reaches 80
+
+    awayAHBestScore: 0,           // no Switzerland-side handicap markets supplied
+    awayAHBestLine: 0,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 70,             // 1X2 Argentina Score=70
+    awayWinScore: 0,               // not supplied
+    homeValueMarketsFound: 10,    // 7 Handicap ARG + 1X2 ARG + DC ARG/Draw + DC ARG/SUI
+    awayValueMarketsFound: 0,     // no Switzerland-specific value markets supplied
+
+    cs00Score: 0,
+    csHomeCleanSheetScore: 0,     // Correct Score 3_0 and 4_0 both Score=0
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 0,            // NOT PROVIDED this session — see file header note
+    alphaDrawPct: 0,
+    alphaAwayWinPct: 0,
+
+    leagueBttsPct: 0,
+    matchProjectedBttsPct: 0,
+    leagueOver25Pct: 0,
+    matchProjectedOver25Pct: 0,
+    projectedGoalsPerMatch: 2.2,   // ESTIMATE — see file header note
+
+    climateNetFactor: 1.0,
+    homeAdjustedLambda: 4.0,
+    awayAdjustedLambda: 0.7,
+
+    alphaImpliedHomeLambda: 1.7,   // ESTIMATE — see file header note
+    alphaImpliedAwayLambda: 0.5,
+  },
+
+  fieldTopPick: { home: 0, away: 0 },
+  fieldTopPickPct: 0,
+};
+// BLIND — no expectedOutput injected. Run via CLI: npx tsx src/tools/pickJudge/cli.ts --match=QF-4

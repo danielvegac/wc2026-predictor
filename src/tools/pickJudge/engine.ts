@@ -7,6 +7,7 @@ import {
   checkRule28, checkRule29, checkRule30, resolveScoredEveryMatch,
   NOISE_FLOOR
 } from './rules';
+import { scoreDistribution } from '../../engine/poisson';
 
 /**
  * Rule 29 guard — applied wherever a pick would otherwise force the away
@@ -23,6 +24,110 @@ function applyRule29Guard(
     return { home: pick.home, away: 1 };
   }
   return pick;
+}
+
+/**
+ * Rule 26 no-ancestor resolution — used when applyScoredEveryMatchGuard fires
+ * with no prior pick to revert to (revertTo === pick). Looks up the model's
+ * own scoreline probability matrix (the same Dixon-Coles distribution that
+ * feeds the Model Score Matrix UI) rather than inventing a scoreline by hand.
+ * Filters to scorelines where the violating team scores ≥1 AND the result
+ * direction (win/draw/loss) matches the raw model pick, then takes the
+ * highest-probability survivor. Falls back to the raw pick with a warning if
+ * no scoreline satisfies both filters.
+ */
+function resolveViaScorelineMatrix(
+  violatingSide: 'home' | 'away',
+  rawPick: { home: number; away: number },
+  input: PickJudgeInput,
+  reasoning: string[]
+): { home: number; away: number } {
+  const lambdaHome = input.homeLambda ?? input.alpha.homeAdjustedLambda;
+  const lambdaAway = input.awayLambda ?? input.alpha.awayAdjustedLambda;
+
+  if (lambdaHome === undefined || lambdaAway === undefined) {
+    reasoning.push(
+      `[Rule 26 matrix lookup] No lambda values available to build the scoreline matrix — falling back to raw model pick ${rawPick.home}-${rawPick.away}.`
+    );
+    return { ...rawPick };
+  }
+
+  const dist = scoreDistribution(lambdaHome, lambdaAway);
+  const rawDirection = rawPick.home > rawPick.away ? 'home' : rawPick.home < rawPick.away ? 'away' : 'draw';
+
+  let best: { home: number; away: number; prob: number } | null = null;
+  for (const [key, prob] of Object.entries(dist)) {
+    const [h, a] = key.split('-').map(Number);
+    const violatingGoals = violatingSide === 'home' ? h : a;
+    if (violatingGoals < 1) continue;
+    const direction = h > a ? 'home' : h < a ? 'away' : 'draw';
+    if (direction !== rawDirection) continue;
+    if (!best || prob > best.prob) {
+      best = { home: h, away: a, prob };
+    }
+  }
+
+  if (!best) {
+    reasoning.push(
+      `[Rule 26 matrix lookup] No scoreline preserves ${rawDirection} direction with ${violatingSide} team scoring ≥1 — falling back to raw model pick ${rawPick.home}-${rawPick.away}.`
+    );
+    return { ...rawPick };
+  }
+
+  reasoning.push(
+    `[Rule 26 matrix lookup] No ancestor pick to revert to — resolved via scoreline matrix ` +
+    `(λ ${lambdaHome.toFixed(2)}/${lambdaAway.toFixed(2)}): highest-probability scoreline preserving ` +
+    `${rawDirection} direction with ${violatingSide} team scoring ≥1 is ${best.home}-${best.away} (${(best.prob * 100).toFixed(1)}%).`
+  );
+  return { home: best.home, away: best.away };
+}
+
+/**
+ * Rule 26/11b guard — if `pick` has either team at 0 goals while that team's
+ * verified scoring history (Rule 26 / resolveScoredEveryMatch) shows they
+ * scored in every match AND BTTS No Score < 80, the shutout is not trusted.
+ * When `noAncestor` is false (post-Tier-2-compression guard), revert to
+ * `revertTo` (the pre-compression pick). When `noAncestor` is true (the
+ * pre-tier filter, where revertTo === pick and reverting is a no-op),
+ * resolve via the scoreline matrix lookup instead (see
+ * resolveViaScorelineMatrix above).
+ */
+function applyScoredEveryMatchGuard(
+  pick: { home: number; away: number },
+  revertTo: { home: number; away: number },
+  input: PickJudgeInput,
+  reasoning: string[],
+  noAncestor: boolean = false
+): { home: number; away: number } {
+  let result = { ...pick };
+
+  const awayScoredEveryMatch = resolveScoredEveryMatch(input.awayTournament);
+  if (result.away === 0 && awayScoredEveryMatch && input.alpha.bttsNoScore < 80) {
+    reasoning.push(
+      `Rule 11b blocks clean sheet: away team scored in every match, BTTS No Score ${input.alpha.bttsNoScore} < 80.`
+    );
+    if (noAncestor) {
+      result = resolveViaScorelineMatrix('away', revertTo, input, reasoning);
+    } else {
+      result = { ...revertTo };
+      reasoning.push(`Reverting to ${revertTo.home}-${revertTo.away}.`);
+    }
+  }
+
+  const homeScoredEveryMatch = resolveScoredEveryMatch(input.homeTournament);
+  if (result.home === 0 && homeScoredEveryMatch && input.alpha.bttsNoScore < 80) {
+    reasoning.push(
+      `Rule 11b blocks clean sheet: home team scored in every match, BTTS No Score ${input.alpha.bttsNoScore} < 80.`
+    );
+    if (noAncestor) {
+      result = resolveViaScorelineMatrix('home', revertTo, input, reasoning);
+    } else {
+      result = { ...revertTo };
+      reasoning.push(`Reverting to ${revertTo.home}-${revertTo.away}.`);
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -116,6 +221,12 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
       }
     }
   }
+
+  // ── PRE-TIER: Rule 26 — universal scoredEveryMatch pre-filter ──────────
+  // Runs before any alpha/tier branching, so a shutout baked into the raw
+  // model pick (Rule 20-adjusted) gets the same scrutiny as one produced
+  // later by Tier 2 compression (see applyScoredEveryMatchGuard above).
+  workingPick = applyScoredEveryMatchGuard(workingPick, workingPick, input, reasoning, true);
 
   // A Tier 3 alpha override = Rule 14 (direction flip) or Rule 12 (draw primary).
   const tier3TriggerPresent = rule14.triggered || rule12.triggered;
@@ -351,29 +462,7 @@ export function judgePickInput(input: PickJudgeInput): PickJudgeOutput {
 
     // Rule 26/11b post-compression guard: if compression lands on a clean sheet but the
     // shut-out team's verified scoring history shows every match scored AND BTTS No < 80, revert.
-    const awayScoredEveryMatch2 = resolveScoredEveryMatch(input.awayTournament);
-    if (
-      tier2pick.away === 0 &&
-      awayScoredEveryMatch2 &&
-      input.alpha.bttsNoScore < 80
-    ) {
-      tier2pick = { ...workingPick };
-      reasoning.push(
-        `Rule 11b blocks Tier 2 compression to clean sheet: away team scored in every match, BTTS No Score ${input.alpha.bttsNoScore} < 80. Reverting to pre-compression pick.`
-      );
-    }
-
-    const homeScoredEveryMatch2 = resolveScoredEveryMatch(input.homeTournament);
-    if (
-      tier2pick.home === 0 &&
-      homeScoredEveryMatch2 &&
-      input.alpha.bttsNoScore < 80
-    ) {
-      tier2pick = { ...workingPick };
-      reasoning.push(
-        `Rule 11b blocks Tier 2 compression to clean sheet: home team scored in every match, BTTS No Score ${input.alpha.bttsNoScore} < 80. Reverting to pre-compression pick.`
-      );
-    }
+    tier2pick = applyScoredEveryMatchGuard(tier2pick, workingPick, input, reasoning);
 
     // Rule 28 — established scoring pattern floor also applies to Tier 2 compression.
     if (rule28.triggered && tier2pick.home >= tier2pick.away) {
