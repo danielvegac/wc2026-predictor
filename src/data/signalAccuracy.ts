@@ -57,7 +57,43 @@ export interface SignalAccuracyEntry {
   // ── Rule flags ─────────────────────────────────────────────
   lambdaDivergencePct?: number;
   rule23Triggered?: boolean;
+  /**
+   * True for AET/penalty matches. Excludes this entry from the standard
+   * alphaCloser/modelCloser/tie tally (getSignalAccuracySummary), and is
+   * the trigger for showing the regulation-time dimension below. Does
+   * NOT mean "no verdict exists" — see alphaActualRank/alphaActualProbability
+   * (or closerSignalOverride) above for the "AET Final Closer" verdict,
+   * i.e. who was closer to the actual scoreline that quiniela points are
+   * scored on (regulation + extra time + penalties, whatever the final
+   * stored result is). That verdict is informational only here; it is
+   * deliberately excluded from the tally because Rule 25 exists to avoid
+   * over/under-crediting either signal for extra-time chaos neither one
+   * is in the business of forecasting.
+   */
   rule25Flagged?: boolean;
+
+  // ── Regulation-time (90') comparison — SEPARATE dimension, only for
+  // matches that went to AET ──────────────────────────────────────────
+  // Alphametrico's markets (Correct Score, BTTS, Totals, Handicap, the
+  // whole Scoreline Matrix) price REGULATION TIME ONLY — confirmed via
+  // Alphametrico's own dashboard scoring-timeline chart, which is capped
+  // at 90 minutes. Our model has no such distinction (PROJECT_SPEC.md:
+  // SimulationResult carries a single expectedHomeGoals/expectedAwayGoals
+  // pair targeting the full/final result). Comparing the model's raw pick
+  // against the regulation score would therefore hold it to a question it
+  // was never designed to answer — so only alpha gets a closer/rank
+  // verdict on this axis; the model gets an explanatory note instead.
+  /** Rank alpha's own top-scorelines list gave to the actual 90' score. */
+  alphaRegulationRank?: number | null;
+  /** True iff alpha's #1-ranked scoreline exactly matches the 90' score. */
+  alphaRegulationCloser?: boolean;
+  /**
+   * Caveat explaining why the model isn't scored on the regulation-time
+   * axis. Never feed this into a "modelRegulationCloser" tally — the
+   * model's pick targets the final result, not 90 minutes, so a
+   * win/loss framing here would misrepresent what the model is for.
+   */
+  modelRegulationNote?: string;
 
   notes?: string;
 }
@@ -509,6 +545,11 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
               "Either way both signals landed in the same neighborhood on the final score too.",
     },
     rule23Triggered: false, rule25Flagged: true,
+    alphaRegulationRank: 1, alphaRegulationCloser: true,
+    modelRegulationNote: "Model's raw pick (0-1) was never designed to isolate " +
+      "regulation time — it targets the final result. Its matrix does show 1-1 " +
+      "at rank #3 (11.7%), close to alpha's tied #1 (11%), but that's informational " +
+      "only, not a fair predictive-skill measurement on this axis.",
     notes: "Norway 1-2 England (AET). Schjelderup opened for Norway ~24', Bellingham " +
            "equalized just before HT (1-1 regulation — model's rank-3 cell at 11.7%, " +
            "alpha's rank-3 cell at 11% in a 3-way tie with 0-1/0-2), scoreless 2nd half, " +
@@ -558,6 +599,14 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
               "read the 90-minute draw.",
     },
     rule23Triggered: true, lambdaDivergencePct: 53, rule25Flagged: true,
+    // Alpha's #1-ranked scoreline (1-0, 15%) was not the 1-1 regulation
+    // score, so alphaRegulationCloser is false — but 1-1 was alpha's #3
+    // pick (10%), i.e. present in its top-3, not a blind miss.
+    alphaRegulationRank: 3, alphaRegulationCloser: false,
+    modelRegulationNote: "Model's raw pick (3-0, corrected to 3-1) was never designed " +
+      "to isolate regulation time — it targets the final result. The large numeric gap " +
+      "from the 90' score (1-1) reflects the model correctly targeting the AET-final " +
+      "score, not a regulation-time miss; not scored on this axis.",
     notes: "Argentina 3-1 Switzerland (AET). Mac Allister opened 10' (Messi corner " +
            "assist), Ndoye equalized 1-1 for Switzerland 67' — even after Embolo's 72' " +
            "red card left them down to 10 men for the final ~48 minutes. Alvarez (112') " +

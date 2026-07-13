@@ -348,11 +348,34 @@ function MatchRow({
               )}
             </div>
 
-            {/* Override reason (shown when closerSignalOverride is present) */}
+            {/* Override reason (shown when closerSignalOverride is present) —
+                this is the "AET Final Closer" verdict: who was closer to the
+                scoreline that quiniela points actually get scored on. */}
             {entry.closerSignalOverride && (
               <div className="mt-2 pl-2 border-l-2 border-amber-500/50 text-xs text-text-secondary italic">
-                <span className="text-amber-400 not-italic font-medium">Manual judgment: </span>
+                <span className="text-amber-400 not-italic font-medium">
+                  AET Final Closer (manual judgment):{" "}
+                </span>
                 {entry.closerSignalOverride.reason}
+              </div>
+            )}
+
+            {/* Regulation-time (90') dimension — separate from AET Final Closer
+                above. Only alpha gets a closer/rank verdict here since its
+                markets price regulation time only; the model's single pick
+                targets the final result, so it gets an explanatory note. */}
+            {entry.wentToExtraTime && entry.regulationResult && (
+              <div className="mt-2 pl-2 border-l-2 border-sky-500/50 text-xs text-text-secondary">
+                <div className="text-sky-400 font-medium mb-1">
+                  Regulation Closer (90' {entry.regulationResult.home}-{entry.regulationResult.away}):
+                </div>
+                <div className="text-violet-400">
+                  Alpha: {entry.alphaRegulationRank != null ? `#${entry.alphaRegulationRank}` : "—"}
+                  {entry.alphaRegulationCloser && " ✓ closer"}
+                </div>
+                {entry.modelRegulationNote && (
+                  <div className="text-text-muted italic mt-1">{entry.modelRegulationNote}</div>
+                )}
               </div>
             )}
 
