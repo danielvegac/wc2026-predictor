@@ -6,6 +6,7 @@
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { resolveTeamId, WC_TEAM_IDS } from "./_teamMapping.js";
+import { handleCorsAndMethod, safeErrorMessage } from "./_http.js";
 
 interface MatchResult {
   matchId: string | null;
@@ -35,8 +36,8 @@ function getWC2026Dates(): string[] {
   return dates;
 }
 
-export default async function handler(_req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (handleCorsAndMethod(req, res)) return;
   res.setHeader("Cache-Control", "s-maxage=1800, stale-while-revalidate=300");
 
   try {
@@ -122,7 +123,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       matches: [],
       source: "unavailable",
       timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: safeErrorMessage("api/results", error),
     });
   }
 }

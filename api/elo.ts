@@ -4,14 +4,15 @@
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { WC_TEAM_IDS, resolveTeamId } from "./_teamMapping.js";
+import { handleCorsAndMethod, safeErrorMessage } from "./_http.js";
 
 interface EloEntry {
   teamId: string;
   elo: number;
 }
 
-export default async function handler(_req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (handleCorsAndMethod(req, res)) return;
   res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate=3600");
 
   try {
@@ -84,7 +85,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       teams: [],
       source: "unavailable",
       timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: safeErrorMessage("api/elo", error),
     });
   }
 }
