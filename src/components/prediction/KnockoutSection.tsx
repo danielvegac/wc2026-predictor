@@ -139,6 +139,7 @@ export function KnockoutSection() {
   const r32Matches = useMemo(() => knockoutMatches.filter((m) => m.round === "R32"), []);
   const r16Matches = useMemo(() => knockoutMatches.filter((m) => m.round === "R16"), []);
   const qfMatches = useMemo(() => knockoutMatches.filter((m) => m.round === "QF"), []);
+  const sfMatches = useMemo(() => knockoutMatches.filter((m) => m.round === "SF"), []);
 
   return (
     <>
@@ -158,6 +159,12 @@ export function KnockoutSection() {
         title="Quarter-Finals"
         badge="Knockout Stage"
         matches={qfMatches}
+        defaultCollapsed={true}
+      />
+      <RoundSection
+        title="Semi-Finals"
+        badge="Knockout Stage"
+        matches={sfMatches}
       />
     </>
   );

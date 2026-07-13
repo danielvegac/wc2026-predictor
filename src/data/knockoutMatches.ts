@@ -153,9 +153,13 @@ export const knockoutMatches: KnockoutMatch[] = [
   // SEMIFINALS
   // ==========================================
 
+  // July 14
+  { matchId: "SF-1", round: "SF", date: "2026-07-14", homeTeamId: "FRA", awayTeamId: "ESP",
+    venue: "AT&T Stadium, Arlington, USA", kickoffCOT: "2:00 PM", status: "upcoming" },
+
   // July 15
-  { matchId: "SF-1", round: "SF", date: "2026-07-15", homeTeamId: "ARG", awayTeamId: "ENG",
-    venue: "Mercedes-Benz Stadium, Atlanta, GA", kickoffCOT: "TBD", status: "upcoming" },
+  { matchId: "SF-2", round: "SF", date: "2026-07-15", homeTeamId: "ENG", awayTeamId: "ARG",
+    venue: "Mercedes-Benz Stadium, Atlanta, USA", kickoffCOT: "2:00 PM", status: "upcoming" },
 ];
 
 /** Get all knockout matches for a specific round */
