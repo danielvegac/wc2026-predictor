@@ -4,6 +4,7 @@ import { runMonteCarlo } from "../engine/monteCarlo";
 import { calculateStrengthFromElo } from "../engine/strengthCalculator";
 import { teams, getTeamMap } from "../data/teams";
 import { groups } from "../data/groups";
+import { indexBy } from "../utils/collections";
 import type { MonteCarloResults } from "../types";
 
 export interface WorkerRequest {
@@ -25,7 +26,7 @@ self.onmessage = (e: MessageEvent<WorkerRequest>) => {
   try {
     const teamMap = getTeamMap();
     const strengths = calculateStrengthFromElo(teams);
-    const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
+    const strengthMap = indexBy(strengths, (s) => s.teamId);
 
     const results = runMonteCarlo(
       groups,

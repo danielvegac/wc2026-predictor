@@ -15,6 +15,8 @@ import { simulateGroup } from "../../engine/groupSimulator";
 import { analyzeMatch } from "../../engine/matchSimulator";
 import { groupStageSchedule } from "../../data/schedule";
 import { scoreMatch } from "../../utils/scoring";
+import { indexBy, toMap, sortByDesc } from "../../utils/collections";
+import { extractScoreline } from "../../utils/matchResult";
 import { expertPicks, calculateExpertAccuracy } from "../../data/expertPicks";
 import { getProdeAIPicks } from "../../data/prodeai";
 import { matchInsights, getTeamFormMultipliers } from "../../data/matchInsights";
@@ -1157,9 +1159,7 @@ function ModelTrackRecord({
                     {r.modelHome}–{r.modelAway}
                   </td>
                   <td className="py-2 px-2 text-center font-mono text-xs text-violet-500">
-                    {r.alphaPick
-                      ? (r.alphaPick.match(/\d+\s*[-–]\s*\d+/)?.[0] ?? r.alphaPick)
-                      : "—"}
+                    {r.alphaPick ? extractScoreline(r.alphaPick) : "—"}
                   </td>
                   <td className="py-2 px-2 text-center font-mono text-xs font-bold">
                     {r.actualHome}–{r.actualAway}
@@ -1413,9 +1413,9 @@ function ChampionshipComparison({
   const teamMap = getTeamMap();
 
   // Build lookup maps for all models
-  const optaMap = new Map(optaPredictions.map((o) => [o.teamId, o.championshipProb]));
-  const peleMap = new Map(pelePredictions.map((p) => [p.teamId, p.championshipProb]));
-  const polyMap = new Map(polymarketPredictions.map((p) => [p.teamId, p.championshipProb]));
+  const optaMap = toMap(optaPredictions, (o) => o.teamId, (o) => o.championshipProb);
+  const peleMap = toMap(pelePredictions, (p) => p.teamId, (p) => p.championshipProb);
+  const polyMap = toMap(polymarketPredictions, (p) => p.teamId, (p) => p.championshipProb);
 
   // Our model's #1
   const modelSorted = Object.entries(results.championProbs).sort(([, a], [, b]) => b - a);
@@ -1424,12 +1424,12 @@ function ChampionshipComparison({
   const modelFavorite = teamMap.get(modelFavoriteId ?? "");
 
   // Opta's #1
-  const optaSorted = [...optaPredictions].sort((a, b) => b.championshipProb - a.championshipProb);
+  const optaSorted = sortByDesc(optaPredictions, (o) => o.championshipProb);
   const optaFavorite = teamMap.get(optaSorted[0]?.teamId ?? "");
   const optaFavoriteProb = optaSorted[0]?.championshipProb ?? 0;
 
   // Polymarket's #1
-  const polySorted = [...polymarketPredictions].sort((a, b) => b.championshipProb - a.championshipProb);
+  const polySorted = sortByDesc(polymarketPredictions, (p) => p.championshipProb);
   const polyFavorite = teamMap.get(polySorted[0]?.teamId ?? "");
   const polyFavoriteProb = polySorted[0]?.championshipProb ?? 0;
 
@@ -1471,9 +1471,9 @@ function ChampionshipComparison({
 
   // Build 4 independently sorted ranked lists
   const modelTop20 = modelSorted.slice(0, 20).map(([id, p]) => ({ id, pct: p * 100 }));
-  const optaTop20 = [...optaPredictions].sort((a, b) => b.championshipProb - a.championshipProb).slice(0, 20).map((o) => ({ id: o.teamId, pct: o.championshipProb }));
-  const peleTop20 = [...pelePredictions].sort((a, b) => b.championshipProb - a.championshipProb).slice(0, 20).map((p) => ({ id: p.teamId, pct: p.championshipProb }));
-  const polyTop20 = [...polymarketPredictions].sort((a, b) => b.championshipProb - a.championshipProb).slice(0, 20).map((p) => ({ id: p.teamId, pct: p.championshipProb }));
+  const optaTop20 = sortByDesc(optaPredictions, (o) => o.championshipProb).slice(0, 20).map((o) => ({ id: o.teamId, pct: o.championshipProb }));
+  const peleTop20 = sortByDesc(pelePredictions, (p) => p.championshipProb).slice(0, 20).map((p) => ({ id: p.teamId, pct: p.championshipProb }));
+  const polyTop20 = sortByDesc(polymarketPredictions, (p) => p.championshipProb).slice(0, 20).map((p) => ({ id: p.teamId, pct: p.championshipProb }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -1830,7 +1830,7 @@ function GroupStageComparison({
   // Run a single group simulation for model standings
   const modelGroupStandings = useMemo(() => {
     const strengths = calculateStrengthFromElo(teams);
-    const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
+    const strengthMap = indexBy(strengths, (s) => s.teamId);
     const standings: Record<string, import("../../types").GroupStanding[]> = {};
     for (const group of groups) {
       standings[group.name] = simulateGroup(group.teamIds, teamMap, strengthMap);
@@ -1941,7 +1941,7 @@ function useModelScoring(predictions: Record<string, Prediction>): ScoringResult
   return useMemo(() => {
     const teamMap = getTeamMap();
     const strengths = calculateStrengthFromElo(teams);
-    const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
+    const strengthMap = indexBy(strengths, (s) => s.teamId);
 
     let totalPoints = 0;
     let correctResults = 0;

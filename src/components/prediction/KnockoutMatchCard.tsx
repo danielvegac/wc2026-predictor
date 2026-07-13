@@ -3,6 +3,7 @@ import type { Team } from "../../types";
 import type { KnockoutMatch } from "../../data/knockoutMatches";
 import type { ModelPrediction } from "../../store/modelPredictionStore";
 import { getFlagClass } from "../../data/flags";
+import { getResultBorderClass } from "../../utils/matchResult";
 import { ScoreInput } from "./ScoreInput";
 import { usePredictionStore } from "../../store/predictionStore";
 import { useResultsStore } from "../../store/resultsStore";
@@ -53,9 +54,7 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
   if (isCompleted) {
     resultBorder = "border-accent-green/40";
   } else if (homeGoals !== null && awayGoals !== null) {
-    if (homeGoals > awayGoals) resultBorder = "border-accent-green/40";
-    else if (homeGoals < awayGoals) resultBorder = "border-accent-red/40";
-    else resultBorder = "border-accent-gold/40";
+    resultBorder = getResultBorderClass(homeGoals, awayGoals);
   }
 
   return (
