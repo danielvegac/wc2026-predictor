@@ -4,6 +4,7 @@
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { resolveTeamId, WC_TEAM_IDS } from "./_teamMapping.js";
+import { handleCorsAndMethod, safeErrorMessage } from "./_http.js";
 
 interface PolymarketOutcome {
   teamId: string;
@@ -15,8 +16,8 @@ interface PolymarketOutcome {
 const POLYMARKET_GAMMA_URL = "https://gamma-api.polymarket.com/events";
 const SEARCH_QUERY = "FIFA World Cup 2026 Winner";
 
-export default async function handler(_req: VercelRequest, res: VercelResponse) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (handleCorsAndMethod(req, res)) return;
   res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate=600");
 
   try {
@@ -35,7 +36,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
         outcomes: [],
         source: "unavailable",
         timestamp: new Date().toISOString(),
-        error: `Polymarket API returned ${searchRes.status}`,
+        error: "upstream data source unavailable",
       });
     }
 
@@ -95,7 +96,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       outcomes: [],
       source: "unavailable",
       timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: safeErrorMessage("api/polymarket", error),
     });
   }
 }
