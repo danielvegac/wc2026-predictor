@@ -16,14 +16,8 @@
 // Max possible: 72 matches × 9 = 648 + 30 bonus = 678 pts
 
 import type { Prediction, ScoreBreakdown, ComparisonScore, MatchScore } from "../types";
-
-type Result = "home" | "draw" | "away";
-
-function getResult(homeGoals: number, awayGoals: number): Result {
-  if (homeGoals > awayGoals) return "home";
-  if (homeGoals < awayGoals) return "away";
-  return "draw";
-}
+import { getMatchResult } from "./matchResult";
+import { indexBy } from "./collections";
 
 /**
  * Score a single prediction against an actual result.
@@ -32,8 +26,8 @@ export function scoreMatch(
   pred: Prediction,
   actual: Prediction
 ): ScoreBreakdown {
-  const predResult = getResult(pred.homeGoals, pred.awayGoals);
-  const actualResult = getResult(actual.homeGoals, actual.awayGoals);
+  const predResult = getMatchResult(pred.homeGoals, pred.awayGoals);
+  const actualResult = getMatchResult(actual.homeGoals, actual.awayGoals);
 
   const isCorrectResult = predResult === actualResult;
   const homeGoalsCorrect = pred.homeGoals === actual.homeGoals;
@@ -71,7 +65,7 @@ export function scoreFullBracket(
   actualRunnerUp: string | null,
   actualThirdPlace: string | null
 ): ComparisonScore {
-  const actualMap = new Map(actualPredictions.map((p) => [p.matchId, p]));
+  const actualMap = indexBy(actualPredictions, (p) => p.matchId);
   const matchScores: Record<string, MatchScore> = {};
 
   let totalPoints = 0;

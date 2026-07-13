@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Match, Team, Prediction } from "../../types";
 import { getFlagClass } from "../../data/flags";
+import { getMatchResult, getResultBorderClass, extractScoreline, parseScoreline } from "../../utils/matchResult";
 import { formatMatchDate } from "../../data/schedule";
 import { useResultsStore } from "../../store/resultsStore";
 import { useModelPredictionStore, useBaselinePrediction } from "../../store/modelPredictionStore";
@@ -28,8 +29,8 @@ function getAccuracy(
   actualAway: number
 ): AccuracyResult {
   const exactMatch = predHome === actualHome && predAway === actualAway;
-  const predResult = predHome > predAway ? "H" : predHome < predAway ? "A" : "D";
-  const actualResult = actualHome > actualAway ? "H" : actualHome < actualAway ? "A" : "D";
+  const predResult = getMatchResult(predHome, predAway);
+  const actualResult = getMatchResult(actualHome, actualAway);
 
   if (exactMatch) return { icon: "⭐", color: "text-accent-gold", title: "Exact score!" };
   if (predResult === actualResult) return { icon: "✓", color: "text-accent-green", title: "Correct result" };
@@ -82,9 +83,7 @@ export function MatchCard({
     else if (userAccuracy.icon === "✓") resultBorder = "border-accent-green/40";
     else resultBorder = "border-accent-red/40";
   } else if (homeGoals !== null && awayGoals !== null) {
-    if (homeGoals > awayGoals) resultBorder = "border-accent-green/40";
-    else if (homeGoals < awayGoals) resultBorder = "border-accent-red/40";
-    else resultBorder = "border-accent-gold/40";
+    resultBorder = getResultBorderClass(homeGoals, awayGoals);
   }
 
   return (
@@ -228,7 +227,7 @@ export function MatchCard({
               α Pick
             </span>
             <span className="font-mono text-xs font-semibold text-violet-500">
-              {alpha.alphaPickExact.match(/\d+\s*[-–]\s*\d+/)?.[0] ?? alpha.alphaPickExact}
+              {extractScoreline(alpha.alphaPickExact)}
             </span>
             {outcomeBadge}
           </div>
@@ -340,9 +339,7 @@ function AlphaSignalRow({
       }
     } else {
       // Dynamic fallback when signalOutcome not yet set
-      const [pickHome, pickAway] = alpha.alphaPickExact
-        .split(/[-–]/)
-        .map((s) => parseInt(s.trim(), 10));
+      const [pickHome, pickAway] = parseScoreline(alpha.alphaPickExact) ?? [NaN, NaN];
       const totalGoals = actualResult.homeScore + actualResult.awayScore;
       const exactHit =
         pickHome === actualResult.homeScore && pickAway === actualResult.awayScore;
@@ -478,7 +475,7 @@ function AlphaSignalRow({
             </span>
             <div className="flex items-baseline gap-2">
               <span className="font-mono text-sm font-bold text-text-primary">
-                {alpha.alphaPickExact.match(/\d+\s*[-–]\s*\d+/)?.[0] ?? alpha.alphaPickExact}
+                {extractScoreline(alpha.alphaPickExact)}
               </span>
               <span className="text-xs text-text-muted leading-snug">{alpha.alphaPickNote}</span>
             </div>

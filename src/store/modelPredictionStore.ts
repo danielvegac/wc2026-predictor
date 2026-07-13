@@ -16,6 +16,7 @@ import { calculateStrengthFromElo, calculateBaseStrengthFromElo } from "../engin
 import { analyzeMatch } from "../engine/matchSimulator";
 import { matchInsights } from "../data/matchInsights";
 import { knockoutMatches } from "../data/knockoutMatches";
+import { indexBy } from "../utils/collections";
 
 export interface ModelPrediction {
   homeGoals: number;
@@ -68,10 +69,10 @@ export const useModelPredictionStore = create<ModelPredictionState>()(
         const teamMap = getTeamMap();
         // Form-adjusted strengths for future matches
         const strengths = calculateStrengthFromElo(teams, liveElo);
-        const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
+        const strengthMap = indexBy(strengths, (s) => s.teamId);
         // Base strengths (no form adjustments) for recovering locked match predictions
         const baseStrengths = calculateBaseStrengthFromElo(teams, liveElo);
-        const baseStrengthMap = new Map(baseStrengths.map((s) => [s.teamId, s]));
+        const baseStrengthMap = indexBy(baseStrengths, (s) => s.teamId);
 
         const existing = get().predictions;
         const locked = new Set(get().lockedMatchIds);
