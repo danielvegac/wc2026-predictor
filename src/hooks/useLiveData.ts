@@ -54,9 +54,14 @@ export function useLiveData() {
         anyLive = true;
         setState((prev) => ({ ...prev, polymarket: data }));
       }
+    } else {
+      console.error("[useLiveData] Polymarket fetch failed:", polyRes.reason);
     }
 
     // Match results
+    if (resultsRes.status === "rejected") {
+      console.error("[useLiveData] Results fetch failed:", resultsRes.reason);
+    }
     if (resultsRes.status === "fulfilled") {
       const data = resultsRes.value as {
         matches: MatchResult[];

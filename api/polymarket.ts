@@ -31,6 +31,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     });
 
     if (!searchRes.ok) {
+      console.error(`[api/polymarket] Gamma API returned ${searchRes.status}`);
       return res.status(200).json({
         outcomes: [],
         source: "unavailable",
@@ -61,7 +62,11 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
         try {
           if (market.outcomes) outcomes = JSON.parse(market.outcomes) as string[];
           if (market.outcomePrices) prices = JSON.parse(market.outcomePrices) as string[];
-        } catch {
+        } catch (parseError) {
+          console.warn(
+            `[api/polymarket] Skipping market with unparseable outcomes (${market.question ?? "unknown"}):`,
+            parseError
+          );
           continue;
         }
 
@@ -91,6 +96,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       volume: "$1.26B+",
     });
   } catch (error) {
+    console.error("[api/polymarket] Failed to fetch odds:", error);
     return res.status(200).json({
       outcomes: [],
       source: "unavailable",

@@ -41,7 +41,7 @@ import {
 const NUM_SIMS = 10_000;
 
 export function Dashboard() {
-  const { results, running, progress, run } = useMonteCarloWorker();
+  const { results, running, progress, error, run } = useMonteCarloWorker();
   const predictions = usePredictionStore((s) => s.predictions);
   const getTotalProgress = usePredictionStore((s) => s.getTotalProgress);
   const getGroupStandings = usePredictionStore((s) => s.getGroupStandings);
@@ -52,6 +52,10 @@ export function Dashboard() {
   useEffect(() => {
     run(NUM_SIMS);
   }, [run]);
+
+  if (error && !running) {
+    return <SimulationError message={error} onRetry={() => run(NUM_SIMS)} />;
+  }
 
   if (running || !results) {
     return <LoadingState progress={progress} />;
@@ -114,6 +118,29 @@ function LoadingState({
           </p>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Simulation Error State ─────────────────────────────────
+
+function SimulationError({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center py-32 gap-4 text-center">
+      <p className="text-lg font-bold text-accent-red">Simulation failed</p>
+      <p className="text-sm text-text-muted max-w-md">{message}</p>
+      <button
+        onClick={onRetry}
+        className="px-5 py-2 rounded-lg font-bold text-sm bg-accent-gold text-bg-primary cursor-pointer hover:opacity-90 transition-opacity"
+      >
+        Retry
+      </button>
     </div>
   );
 }

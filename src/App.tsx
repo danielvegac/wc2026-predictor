@@ -19,6 +19,7 @@ function App() {
   const [view, setView] = useState<View>("predictions");
   const [results, setResults] = useState<MonteCarloResults | null>(null);
   const [running, setRunning] = useState(false);
+  const [simError, setSimError] = useState<string | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     return (localStorage.getItem("wc2026-theme") as "dark" | "light") || "dark";
   });
@@ -46,13 +47,21 @@ function App() {
 
   const runSimulation = useCallback(() => {
     setRunning(true);
+    setSimError(null);
     setTimeout(() => {
-      const teamMap = getTeamMap();
-      const strengths = calculateStrengthFromElo(teams);
-      const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
-      const mcResults = runMonteCarlo(groups, teamMap, strengthMap, simCount);
-      setResults(mcResults);
-      setRunning(false);
+      try {
+        const teamMap = getTeamMap();
+        const strengths = calculateStrengthFromElo(teams);
+        const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
+        const mcResults = runMonteCarlo(groups, teamMap, strengthMap, simCount);
+        setResults(mcResults);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        console.error("[runSimulation] Monte Carlo failed:", err);
+        setSimError(message);
+      } finally {
+        setRunning(false);
+      }
     }, 50);
   }, [simCount]);
 
@@ -212,6 +221,12 @@ function App() {
               </button>
             </div>
 
+            {simError && (
+              <div className="bg-bg-secondary rounded-xl border border-accent-red/40 p-4 text-accent-red text-sm">
+                Simulation failed: {simError}
+              </div>
+            )}
+
             {results && (
               <div className="bg-bg-secondary rounded-xl border border-border p-6">
                 <h2 className="text-lg font-bold text-text-primary mb-1">
@@ -270,7 +285,7 @@ function App() {
               </div>
             )}
 
-            {!results && (
+            {!results && !simError && (
               <div className="text-center py-24">
                 <p className="text-lg text-text-secondary mb-2">
                   No simulation results yet
