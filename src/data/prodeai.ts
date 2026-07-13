@@ -9,6 +9,7 @@ import { teams, getTeamMap } from "./teams";
 import { groupStageSchedule } from "./schedule";
 import { calculateBaseStrengthFromElo } from "../engine/strengthCalculator";
 import { analyzeMatch } from "../engine/matchSimulator";
+import { indexBy } from "../utils/collections";
 import type { ExpertPick } from "./expertPicks";
 
 const playedMatchIds = new Set([
@@ -27,7 +28,7 @@ export function getProdeAIPicks(): ExpertPick[] {
 
   const teamMap = getTeamMap();
   const strengths = calculateBaseStrengthFromElo(teams);
-  const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
+  const strengthMap = indexBy(strengths, (s) => s.teamId);
 
   const picks: ExpertPick[] = [];
 

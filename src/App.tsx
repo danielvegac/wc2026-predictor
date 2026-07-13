@@ -3,6 +3,7 @@ import { runMonteCarlo } from "./engine";
 import { calculateStrengthFromElo } from "./engine/strengthCalculator";
 import { teams, getTeamMap } from "./data/teams";
 import { getFlagClass } from "./data/flags";
+import { indexBy } from "./utils/collections";
 import { groups } from "./data/groups";
 import { GroupStage } from "./components/bracket/GroupStage";
 import { MatchesByDate } from "./components/prediction/MatchesByDate";
@@ -49,7 +50,7 @@ function App() {
     setTimeout(() => {
       const teamMap = getTeamMap();
       const strengths = calculateStrengthFromElo(teams);
-      const strengthMap = new Map(strengths.map((s) => [s.teamId, s]));
+      const strengthMap = indexBy(strengths, (s) => s.teamId);
       const mcResults = runMonteCarlo(groups, teamMap, strengthMap, simCount);
       setResults(mcResults);
       setRunning(false);

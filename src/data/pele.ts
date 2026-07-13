@@ -8,6 +8,8 @@
 // Named after the Brazilian legend, it uses historical Elo ratings,
 // squad quality metrics, and match-level simulations.
 
+import { sortByDesc } from "../utils/collections";
+
 export interface PeleTeamPrediction {
   teamId: string;
   championshipProb: number; // % chance of winning the World Cup
@@ -38,5 +40,5 @@ export const pelePredictions: PeleTeamPrediction[] = [
 
 /** Get all teams sorted by PELE championship probability */
 export function getPeleRanking(): PeleTeamPrediction[] {
-  return [...pelePredictions].sort((a, b) => b.championshipProb - a.championshipProb);
+  return sortByDesc(pelePredictions, (p) => p.championshipProb);
 }

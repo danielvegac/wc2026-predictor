@@ -11,6 +11,8 @@
 // Live updates: theanalyst.com/competition/fifa-world-cup/predictions
 // (can be scraped via Vercel API route in Phase 4)
 
+import { sortByDesc } from "../utils/collections";
+
 export interface OptaTeamPrediction {
   teamId: string;
   championshipProb: number;       // % chance of winning the World Cup
@@ -93,7 +95,7 @@ export function getOptaPrediction(teamId: string): OptaTeamPrediction | undefine
 
 /** Get all teams sorted by championship probability */
 export function getOptaRanking(): OptaTeamPrediction[] {
-  return [...optaPredictions].sort((a, b) => b.championshipProb - a.championshipProb);
+  return sortByDesc(optaPredictions, (p) => p.championshipProb);
 }
 
 /**

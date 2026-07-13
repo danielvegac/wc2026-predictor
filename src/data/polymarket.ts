@@ -8,6 +8,8 @@
 // on outcomes. Prices reflect crowd consensus probability.
 // This is the most liquid and accurate real-time signal available.
 
+import { sortByDesc } from "../utils/collections";
+
 export interface PolymarketTeamPrediction {
   teamId: string;
   championshipProb: number; // % chance of winning the World Cup
@@ -38,5 +40,5 @@ export const polymarketPredictions: PolymarketTeamPrediction[] = [
 
 /** Get all teams sorted by Polymarket championship probability */
 export function getPolymarketRanking(): PolymarketTeamPrediction[] {
-  return [...polymarketPredictions].sort((a, b) => b.championshipProb - a.championshipProb);
+  return sortByDesc(polymarketPredictions, (p) => p.championshipProb);
 }
