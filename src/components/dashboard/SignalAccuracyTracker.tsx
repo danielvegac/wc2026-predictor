@@ -6,6 +6,8 @@ import {
 } from "../../data/signalAccuracy";
 import type { SignalAccuracyEntry, ScorelineProbability } from "../../data/signalAccuracy";
 import { useResultsStore } from "../../store/resultsStore";
+import { pickJudgeAuditData, getPickJudgeAuditSummary } from "../../data/pickJudgeAudit";
+import type { PickJudgeAuditEntry } from "../../data/pickJudgeAudit";
 
 type Round = "All" | "R32" | "R16" | "QF" | "SF" | "3P" | "F";
 const ROUNDS: Round[] = ["All", "R32", "R16", "QF", "SF", "3P", "F"];
@@ -21,6 +23,8 @@ const isActualResult = (
 export function SignalAccuracyTracker() {
   const [activeRound, setActiveRound] = useState<Round>("All");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [auditExpanded, setAuditExpanded] = useState(false);
+  const [auditRowId, setAuditRowId] = useState<string | null>(null);
 
   const summary = getSignalAccuracySummary();
   const filtered =
@@ -111,7 +115,194 @@ export function SignalAccuracyTracker() {
           </table>
         </div>
       )}
+
+      {/* Pick Judge Audit — collapsible, below the main tracker */}
+      <PickJudgeAuditSection
+        expanded={auditExpanded}
+        onToggle={() => setAuditExpanded((v) => !v)}
+        expandedRowId={auditRowId}
+        onToggleRow={(id) => setAuditRowId((cur) => (cur === id ? null : id))}
+      />
     </div>
+  );
+}
+
+function PickJudgeAuditSection({
+  expanded,
+  onToggle,
+  expandedRowId,
+  onToggleRow,
+}: {
+  expanded: boolean;
+  onToggle: () => void;
+  expandedRowId: string | null;
+  onToggleRow: (id: string) => void;
+}) {
+  const summary = getPickJudgeAuditSummary();
+
+  return (
+    <div className="mt-6 pt-5 border-t border-border">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between text-left"
+      >
+        <div>
+          <h3 className="text-base font-bold text-text-primary">
+            Pick Judge Audit
+          </h3>
+          <p className="text-xs text-text-muted mt-0.5">
+            Before/after verification — original pick vs actual result, R32 → QF
+          </p>
+        </div>
+        <span className="text-text-muted text-sm">{expanded ? "▾" : "▸"}</span>
+      </button>
+
+      {expanded && (
+        <div className="mt-4">
+          {/* Summary strip */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <StatCard label="Audited" value={summary.total} color="text-text-secondary" />
+            <StatCard label="Exact" value={summary.exact} color="text-accent-green" />
+            <StatCard label="Miss" value={summary.miss} color="text-red-400" />
+            <StatCard label="Patches proposed" value={summary.patchesProposed} color="text-amber-400" />
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-text-secondary">
+                  <th className="py-2 pr-2 font-medium">Match</th>
+                  <th className="py-2 px-2 font-medium text-center">Actual</th>
+                  <th className="py-2 px-2 font-medium text-center">CLI Pick</th>
+                  <th className="py-2 px-2 font-medium text-center">Status</th>
+                  <th className="py-2 pl-2 font-medium">Proposed Patch</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pickJudgeAuditData.map((entry) => (
+                  <PickJudgeAuditRow
+                    key={entry.matchId}
+                    entry={entry}
+                    expanded={expandedRowId === entry.matchId}
+                    onToggle={() => onToggleRow(entry.matchId)}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AuditStatusBadge({ status }: { status: PickJudgeAuditEntry["status"] }) {
+  if (status === "exact") {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-accent-green/10 text-accent-green border border-accent-green/30">
+        ✅ Exact
+      </span>
+    );
+  }
+  if (status === "miss") {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/30">
+        ❌ Miss
+      </span>
+    );
+  }
+  return (
+    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-bg-tertiary text-text-muted border border-border">
+      Unverified
+    </span>
+  );
+}
+
+function PickJudgeAuditRow({
+  entry,
+  expanded,
+  onToggle,
+}: {
+  entry: PickJudgeAuditEntry;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const pick = entry.originalPick;
+  const pickStr = pick
+    ? `${pick.home}-${pick.away}${pick.tier != null ? ` (Tier ${pick.tier})` : ""}`
+    : "—";
+
+  return (
+    <>
+      <tr
+        className="border-b border-border/30 hover:bg-bg-tertiary/50 cursor-pointer"
+        onClick={onToggle}
+      >
+        <td className="py-2 pr-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-mono text-text-muted">{entry.matchId}</span>
+            <span className="text-xs font-medium text-text-primary">{entry.homeTeamId}</span>
+            <span className="text-text-muted text-xs">vs</span>
+            <span className="text-xs font-medium text-text-primary">{entry.awayTeamId}</span>
+            <span className="text-text-muted text-xs ml-1">{expanded ? "▾" : "▸"}</span>
+          </div>
+        </td>
+        <td className="py-2 px-2 text-center font-mono text-xs text-text-primary">
+          {entry.actualResult.home}-{entry.actualResult.away}
+        </td>
+        <td className="py-2 px-2 text-center font-mono text-xs text-text-secondary">
+          {pickStr}
+        </td>
+        <td className="py-2 px-2 text-center">
+          <AuditStatusBadge status={entry.status} />
+        </td>
+        <td className="py-2 pl-2 text-xs text-text-secondary max-w-xs">
+          {entry.proposedPatch ? (
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap">
+                Candidate — not applied
+              </span>
+              <span className="truncate">{entry.proposedPatch}</span>
+            </div>
+          ) : (
+            <span className="text-text-muted">—</span>
+          )}
+        </td>
+      </tr>
+      {expanded && (
+        <tr className="border-b border-border/30">
+          <td colSpan={5} className="py-3 px-4 bg-bg-tertiary/40 text-xs">
+            {pick && pick.rulesTriggered.length > 0 && (
+              <div className="mb-2">
+                <span className="text-text-muted">Rules triggered: </span>
+                <span className="text-text-secondary font-mono">
+                  {pick.rulesTriggered.join(", ")}
+                </span>
+              </div>
+            )}
+            {entry.beforePickUnverified && (
+              <div className="mb-2 text-amber-400">
+                Before pick unverified from existing artifacts.
+              </div>
+            )}
+            {entry.patchVerifiedResult && (
+              <div className="mb-2">
+                <span className="text-text-muted">Patch-verified result: </span>
+                <span className="text-accent-green font-mono font-bold">
+                  {entry.patchVerifiedResult.home}-{entry.patchVerifiedResult.away}
+                </span>
+                <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                  Candidate — not applied to live engine
+                </span>
+              </div>
+            )}
+            {entry.auditNote && (
+              <div className="text-text-secondary italic leading-relaxed">{entry.auditNote}</div>
+            )}
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
