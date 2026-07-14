@@ -323,60 +323,63 @@ function MatchesView({
 
   return (
     <div>
-      <button
-        onClick={() => setCollapsed((c) => !c)}
-        className="flex items-center gap-3 mb-6 cursor-pointer group w-full"
-      >
-        <h2 className="text-xl font-bold text-text-primary group-hover:text-accent-gold transition-colors">
-          Group Stage
-        </h2>
-        <span className="ml-auto text-text-muted text-sm">
-          {collapsed ? "▸" : "▾"}
-        </span>
-      </button>
+      <KnockoutSection />
 
-      {!collapsed && (
-        <>
-          <div className="flex items-center justify-between mb-6">
-            <div />
-            <div className="flex items-center gap-3">
-              {completed > 0 && !locked && (
-                <button
-                  onClick={clearAllPredictions}
-                  className="text-xs text-text-muted hover:text-accent-red transition-colors cursor-pointer"
-                >
-                  Clear all
-                </button>
-              )}
-              {/* View toggle */}
-              <div className="flex bg-bg-tertiary rounded-lg p-0.5">
-                <button
-                  onClick={() => switchMode("date")}
-                  className={`text-xs px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
-                    mode === "date"
-                      ? "bg-bg-tertiary text-text-primary font-medium shadow-sm"
-                      : "text-text-muted hover:text-text-secondary"
-                  }`}
-                >
-                  By Date
-                </button>
-                <button
-                  onClick={() => switchMode("group")}
-                  className={`text-xs px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
-                    mode === "group"
-                      ? "bg-bg-tertiary text-text-primary font-medium shadow-sm"
-                      : "text-text-muted hover:text-text-secondary"
-                  }`}
-                >
-                  By Group
-                </button>
+      <div className="mt-10">
+        <button
+          onClick={() => setCollapsed((c) => !c)}
+          className="flex items-center gap-3 mb-6 cursor-pointer group w-full"
+        >
+          <h2 className="text-xl font-bold text-text-primary group-hover:text-accent-gold transition-colors">
+            Group Stage
+          </h2>
+          <span className="ml-auto text-text-muted text-sm">
+            {collapsed ? "▸" : "▾"}
+          </span>
+        </button>
+
+        {!collapsed && (
+          <>
+            <div className="flex items-center justify-between mb-6">
+              <div />
+              <div className="flex items-center gap-3">
+                {completed > 0 && !locked && (
+                  <button
+                    onClick={clearAllPredictions}
+                    className="text-xs text-text-muted hover:text-accent-red transition-colors cursor-pointer"
+                  >
+                    Clear all
+                  </button>
+                )}
+                {/* View toggle */}
+                <div className="flex bg-bg-tertiary rounded-lg p-0.5">
+                  <button
+                    onClick={() => switchMode("date")}
+                    className={`text-xs px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
+                      mode === "date"
+                        ? "bg-bg-tertiary text-text-primary font-medium shadow-sm"
+                        : "text-text-muted hover:text-text-secondary"
+                    }`}
+                  >
+                    By Date
+                  </button>
+                  <button
+                    onClick={() => switchMode("group")}
+                    className={`text-xs px-3 py-1.5 rounded-md cursor-pointer transition-colors ${
+                      mode === "group"
+                        ? "bg-bg-tertiary text-text-primary font-medium shadow-sm"
+                        : "text-text-muted hover:text-text-secondary"
+                    }`}
+                  >
+                    By Group
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-          {mode === "date" ? <MatchesByDate /> : <GroupStage />}
-        </>
-      )}
-      <KnockoutSection />
+            {mode === "date" ? <MatchesByDate /> : <GroupStage />}
+          </>
+        )}
+      </div>
     </div>
   );
 }

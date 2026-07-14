@@ -19,11 +19,13 @@ function RoundSection({
   badge,
   matches,
   defaultCollapsed = false,
+  className = "mt-10",
 }: {
   title: string;
   badge: string;
   matches: KnockoutMatch[];
   defaultCollapsed?: boolean;
+  className?: string;
 }) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const predictions = useModelPredictionStore((s) => s.predictions);
@@ -62,7 +64,7 @@ function RoundSection({
   if (matches.length === 0) return null;
 
   return (
-    <div className="mt-10">
+    <div className={className}>
       <button
         onClick={() => setCollapsed((c) => !c)}
         className="flex items-center gap-3 mb-6 cursor-pointer group w-full"
@@ -144,27 +146,25 @@ export function KnockoutSection() {
   return (
     <>
       <RoundSection
-        title="Round of 32"
+        title="Semi-Finals"
         badge="Knockout Stage"
-        matches={r32Matches}
-        defaultCollapsed={true}
-      />
-      <RoundSection
-        title="Round of 16"
-        badge="Knockout Stage"
-        matches={r16Matches}
-        defaultCollapsed={true}
+        matches={sfMatches}
+        className="mt-0"
       />
       <RoundSection
         title="Quarter-Finals"
         badge="Knockout Stage"
         matches={qfMatches}
-        defaultCollapsed={true}
       />
       <RoundSection
-        title="Semi-Finals"
+        title="Round of 16"
         badge="Knockout Stage"
-        matches={sfMatches}
+        matches={r16Matches}
+      />
+      <RoundSection
+        title="Round of 32"
+        badge="Knockout Stage"
+        matches={r32Matches}
       />
     </>
   );
