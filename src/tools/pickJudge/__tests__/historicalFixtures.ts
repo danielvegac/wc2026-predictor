@@ -2129,3 +2129,93 @@ export const arg_sui: PickJudgeInput = {
   fieldTopPickPct: 0,
 };
 // BLIND — no expectedOutput injected. Run via CLI: npx tsx src/tools/pickJudge/cli.ts --match=QF-4
+
+/**
+ * SF-1: France vs Spain (July 14, 2026, AT&T Stadium, Arlington)
+ * homeTournament/awayTournament chain-forward from fra_mar (QF-1 pre-match) + QF-1
+ * result (FRA 2-0 MAR, clean sheet) and esp_bel (QF-2 pre-match) + QF-2 result
+ * (ESP 2-1 BEL, not clean sheet) — cross-checked against formOverrides.ts FRA/ESP
+ * notes ("7W-0D-0L, 16 goals, 2 conceded" / "5-match clean sheet streak ended").
+ * homeFormMultiplier/awayFormMultiplier both 1.45 — matchInsights.ts QF-1/QF-2
+ * entries show both attack+defense multipliers capped at 1.45 for FRA and ESP.
+ * alphaImpliedHomeLambda/alphaImpliedAwayLambda computed as the probability-weighted
+ * mean of the provided (truncated, top-cells-only) Alpha scoreline matrix, normalized
+ * over the 92% of observed probability mass (FRA: 95/92=1.03, ESP: 122/92=1.33).
+ * BLIND — no expectedOutput injected. Run via CLI: npx tsx src/tools/pickJudge/cli.ts --match=SF-1
+ */
+export const fra_esp: PickJudgeInput = {
+  matchId: 'SF-1',
+  homeTeam: 'France',
+  awayTeam: 'Spain',
+  stage: 'knockout',
+
+  modelPick: { home: 2, away: 2 },
+  homeLambda: 2.12,
+  awayLambda: 2.48,
+  homeElo: 2068,
+  awayElo: 2083,
+
+  // FRA: chain-forward from fra_mar (6W-0D-0L pre-QF1) + QF-1 2-0 win (clean sheet)
+  // = 7W-0D-0L, 16 goals, 2 conceded, 5 CS — matches formOverrides.ts FRA note exactly.
+  homeTournament: { wins: 7, draws: 0, losses: 0, cleanSheets: 5, goalsConceded: 2, goalsScored: 16, scoredEveryMatch: true },
+  // ESP: chain-forward from esp_bel (4W-1D-0L pre-QF2) + QF-2 2-1 win (not clean sheet)
+  // = 5W-1D-0L, 11 goals, 1 conceded, 5 CS. scoredEveryMatch=false (0-0 vs CPV group stage).
+  awayTournament: { wins: 5, draws: 1, losses: 0, cleanSheets: 5, goalsConceded: 1, goalsScored: 11, scoredEveryMatch: false },
+
+  homeFormMultiplier: 1.45,
+  awayFormMultiplier: 1.45,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,   // AT&T Stadium, Arlington — neutral venue
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  alpha: {
+    underTopScore: 54,             // Totals Under 3 Score=54 (highest of the Under cascade)
+    bttsNoScore: 49,                // BTTS No Score=49
+
+    bttsYesScore: 0,                // not supplied — no BTTS Yes market listed
+    overTopScore: 0,                // not supplied — no Over market listed
+
+    homeAHBestScore: 0,             // Result France group: 0 of 46 markets passed threshold
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    // Spain AH cascade — best line +0.25 (Score=67), no line reaches 80
+    awayAHBestScore: 67,
+    awayAHBestLine: 0.25,
+    awayAHConsecutiveAbove80: 0,
+
+    homeWinScore: 0,                // no 1X2 France market supplied (Result France 0 markets)
+    awayWinScore: 44,               // 1X2 Spain Score=44
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 14,      // count of Result Spain group markets listed
+
+    cs00Score: 0,                   // Correct Score 0-0 not supplied
+    csHomeCleanSheetScore: 0,       // no France clean-sheet CS markets supplied
+    csAwayCleanSheetScore: 1,       // Correct Score 0-1 Score=1 (best of the away-CS group)
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 31.2,
+    alphaDrawPct: 28.6,
+    alphaAwayWinPct: 40.2,
+
+    leagueBttsPct: 0,               // not provided this session
+    matchProjectedBttsPct: 0,
+    leagueOver25Pct: 0,
+    matchProjectedOver25Pct: 0,
+    projectedGoalsPerMatch: 2.54,   // 1.17 + 1.37 from Alpha's own Expected Goals (adjusted) chart
+
+    climateNetFactor: 1.0,          // not provided this session
+
+    homeAdjustedLambda: 1.17,       // Alpha λ France (range 0.81-1.71)
+    awayAdjustedLambda: 1.37,       // Alpha λ Spain (range 0.96-1.95)
+
+    alphaImpliedHomeLambda: 1.03,   // from Alpha scoreline matrix — see file header note
+    alphaImpliedAwayLambda: 1.33,
+  },
+
+  fieldTopPick: { home: 0, away: 0 },
+  fieldTopPickPct: 0,
+};
