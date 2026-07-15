@@ -841,9 +841,9 @@ function ModelTrackRecord({
       </div>
 
       {/* Match rows */}
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[600px]">
         <table className="w-full text-sm">
-          <thead>
+          <thead className="sticky top-0 z-10 bg-bg-secondary">
             <tr className="border-b border-border text-left text-text-secondary">
               <th className="py-2 pr-2 font-medium">Date</th>
               <th className="py-2 pr-2 font-medium">Stage</th>
