@@ -5,6 +5,7 @@ import { teams, getTeamMap } from "./data/teams";
 import { getFlagClass } from "./data/flags";
 import { indexBy } from "./utils/collections";
 import { groups } from "./data/groups";
+import { groupStageSchedule } from "./data/schedule";
 import { GroupStage } from "./components/bracket/GroupStage";
 import { MatchesByDate } from "./components/prediction/MatchesByDate";
 import { KnockoutSection } from "./components/prediction/KnockoutSection";
@@ -333,6 +334,9 @@ function MatchesView({
           <h2 className="text-xl font-bold text-text-primary group-hover:text-accent-gold transition-colors">
             Group Stage
           </h2>
+          <span className="text-xs text-text-muted">
+            · {groupStageSchedule.length} matches
+          </span>
           <span className="ml-auto text-text-muted text-sm">
             {collapsed ? "▸" : "▾"}
           </span>

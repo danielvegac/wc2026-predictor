@@ -565,7 +565,7 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
            "9.396% vs 9.363%) — the rank number was off by one in the transcription, the " +
            "probability itself was accurate. rule25Flagged: AET result, regulation-score " +
            "comparison used per R32-09 convention for the primary rank fields. England " +
-           "advance to face Argentina (SF-1, Atlanta, Jul 15).",
+           "advance to face Argentina (SF-2, Atlanta, Jul 15).",
   },
   {
     matchId: "QF-4", round: "QF", homeTeamId: "ARG", awayTeamId: "SUI",
@@ -626,30 +626,64 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
            "fixture) and corrected: true #3 is Argentina 5-0 at 8.2%, with 2-0 actually " +
            "#4 at 7.7% (10.2/10.2/8.2/7.7 is the verified order — 2-0 was likely swapped " +
            "in for 5-0 in transcription as the more 'plausible-looking' scoreline). " +
-           "Argentina advance to face England (SF-1, Atlanta, Jul 15).",
+           "Argentina advance to face England (SF-2, Atlanta, Jul 15).",
+  },
+
+  // ==========================================
+  // SEMI-FINALS
+  // ==========================================
+  {
+    matchId: "SF-1", round: "SF", homeTeamId: "FRA", awayTeamId: "ESP",
+    date: "2026-07-14",
+    modelLambdaHome: 2.12, modelLambdaAway: 2.48,
+    modelTopScorelines: [
+      { home: 2, away: 2, probability: 7.0 }, { home: 1, away: 2, probability: 6.6 }, { home: 1, away: 1, probability: 6.0 },
+    ],
+    alphaTopScorelines: [
+      { home: 1, away: 1, probability: 14 }, { home: 0, away: 1, probability: 10 }, { home: 0, away: 0, probability: 9 },
+    ],
+    regulationResult: { home: 0, away: 2 }, wentToExtraTime: false, finalResult: { home: 0, away: 2 },
+    modelActualRank: 12, modelActualProbability: 3.1,
+    alphaActualRank: 5, alphaActualProbability: 7,
+    rule23Triggered: true, rule25Flagged: false,
+    notes: "France 0-2 Spain. Model's Tier-1 anchor (2-2) was shaped by both teams' " +
+           "strong tournament form (7W-0D-0L / 5W-1D-0L) and never priced in a shutout — " +
+           "ranked the actual 0-2 scoreline #12 at 3.1%. Alpha's tighter, draw-leaning " +
+           "matrix (1-1 top pick) ranked 0-2 #5 at 7% — closer read. Rank 5 beats rank 12: " +
+           "alpha closer.",
+  },
+  {
+    matchId: "SF-2", round: "SF", homeTeamId: "ENG", awayTeamId: "ARG",
+    date: "2026-07-15",
+    modelLambdaHome: 0, modelLambdaAway: 0,
+    modelTopScorelines: [],
+    alphaTopScorelines: [],
+    notes: "Pending — not yet played (Mercedes-Benz Stadium, Atlanta, Jul 15). No forecast data recorded yet.",
   },
 ];
 
 export function getSignalAccuracySummary() {
-  const comparable = signalAccuracyData.filter(
-    (e) => !e.rule25Flagged && e.finalResult != null
-  );
+  // Matches with no finalResult yet (upcoming/pending) are excluded from
+  // every count below — they aren't played, AET-excluded, or comparable.
+  const tracked = signalAccuracyData.filter((e) => e.finalResult != null);
+
+  const comparable = tracked.filter((e) => !e.rule25Flagged);
   const withSignal = comparable.map((e) => ({ e, signal: computeCloserSignal(e) }));
 
   const alphaCloser = withSignal.filter((x) => x.signal === "alpha").length;
   const modelCloser = withSignal.filter((x) => x.signal === "model").length;
   const tie = withSignal.filter((x) => x.signal === "tie").length;
 
-  const rule23Matches = signalAccuracyData.filter((e) => e.rule23Triggered);
+  const rule23Matches = tracked.filter((e) => e.rule23Triggered);
   const rule23Signals = rule23Matches.map((e) => computeCloserSignal(e));
   const rule23AlphaWins = rule23Signals.filter((s) => s === "alpha").length;
   const rule23Ties = rule23Signals.filter((s) => s === "tie").length;
   const rule23ModelWins = rule23Signals.filter((s) => s === "model").length;
 
   return {
-    totalMatches: signalAccuracyData.length,
+    totalMatches: tracked.length,
     comparableMatches: comparable.length,
-    aetExcluded: signalAccuracyData.length - comparable.length,
+    aetExcluded: tracked.length - comparable.length,
     alphaCloser,
     modelCloser,
     tie,

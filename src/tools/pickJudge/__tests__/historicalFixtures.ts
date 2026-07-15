@@ -2219,3 +2219,148 @@ export const fra_esp: PickJudgeInput = {
   fieldTopPick: { home: 0, away: 0 },
   fieldTopPickPct: 0,
 };
+
+/**
+ * SF-2: England vs Argentina (July 15, 2026, Mercedes-Benz Stadium, Atlanta)
+ * Live Elo per task brief: ENG 2024, ARG 2102 (gap 78, below 300 — no mismatch
+ * multiplier). homeFormMultiplier/awayFormMultiplier computed by actually
+ * calling getTeamFormMultipliers('ENG'/'ARG') against the current
+ * matchInsights.ts (recency-weighted attackMultiplier): ENG 1.088, ARG 1.346
+ * — not hand-estimated. Used attackMultiplier (goal-output driver) since prior
+ * fixtures (fra_esp) used a single number for both attack/defense when they
+ * happened to be equal; here they diverge (ENG defenseMultiplier 1.052, ARG
+ * defenseMultiplier 0.900) so attackMultiplier is the more defensible single
+ * value for the engine's homeFormMultiplier/awayFormMultiplier field.
+ *
+ * homeTournament/awayTournament chain-forward from nor_eng (QF-3 pre-match,
+ * England as away) + QF-3 result (ENG 2-1 NOR, AET, not clean sheet) and
+ * arg_sui (QF-4 pre-match, Argentina as home) + QF-4 result (ARG 3-1 SUI,
+ * AET, not clean sheet) — cross-checked against formOverrides.ts ENG/ARG
+ * notes ("QF-3 vs NOR: won 2-1 (AET)" / "PATRÓN CONFIRMADO: 3 goles en 5 de
+ * 6 partidos" implying ARG's 6th tournament match).
+ * ENG: 4W-1D-0L pre-QF3 (12 scored/5 conceded, scoredEveryMatch=false — 0-0
+ *   vs GHA) + QF-3 (2-1) = 5W-1D-0L, 14 scored/6 conceded, scoredEveryMatch
+ *   stays false (the Ghana 0-0 doesn't unhappen).
+ * ARG: 5W-0D-0L pre-QF4 (14 scored/4 conceded, scoredEveryMatch=true) + QF-4
+ *   (3-1) = 6W-0D-0L, 17 scored/5 conceded, scoredEveryMatch stays true.
+ *
+ * homeAdjustedLambda/awayAdjustedLambda set equal to the model's own xG
+ * (1.18/2.38, "xG modelo" per task brief) — same convention as arg_sui: this
+ * session's brief did not distinguish a separate Alphametrico "adjusted
+ * dots" chart from the model's xG, only the model's own figures were given.
+ *
+ * alphaImpliedHomeLambda/alphaImpliedAwayLambda computed as the
+ * probability-weighted mean of the provided (truncated, top-cells-only)
+ * Alpha scoreline matrix, normalized over the 43.8% of observed probability
+ * mass (0-0 3.9, 0-1 5.7, 0-2 8.1, 1-1 9.0, 1-2 9.5, 1-3 7.6):
+ * ENG = 26.1/43.8 = 0.60, ARG = 72.7/43.8 = 1.66. Only 43.8% of the matrix's
+ * mass was supplied this session (vs. 92% for fra_esp) — this estimate is
+ * much less reliable than SF-1's; flagging per task Step 4's Rule 23 ask.
+ *
+ * awayAHBestLine = +1.0, the line where the single highest cascade score
+ * (86) occurs — same convention as can_mar/fra_esp (best score's own line,
+ * not the tightest line ≥80). awayAHConsecutiveAbove80 = 4: scanning by line
+ * value, +0.5(81)/+0.75(83)/+1.0(86)/+1.25(84) are all >80 consecutively;
+ * +0.25(80) breaks the chain (exactly 80, not >80).
+ *
+ * homeGoalPatternMatches/homeGoalPatternValue left UNSET: Rule 28 only reads
+ * an established pattern for the HOME team (England). Argentina's own 3-goal
+ * pattern (see arg_sui) has no home-side field to carry it in this fixture
+ * since Argentina is the AWAY team here — this is a genuine schema gap the
+ * task asked to surface, not an oversight.
+ *
+ * DATA GAPS (flagged, not guessed):
+ *  - leagueBttsPct / matchProjectedBttsPct / leagueOver25Pct /
+ *    matchProjectedOver25Pct: not supplied this session — left at 0. This
+ *    makes Rule 11b's `leagueNotSuppressed` and Rule 13's
+ *    `scoringNotSuppressed` both evaluate false regardless of the real
+ *    market context (same limitation as fra_esp).
+ *  - homeWinScore/awayWinScore: no explicit 1X2 England/Argentina market was
+ *    supplied (only 1X2 Draw Score=8, sub-threshold) — left at 0.
+ *  - csHomeCleanSheetScore/csAwayCleanSheetScore/csHighScoringHomeScore: no
+ *    explicit correct-score line beyond 0-0 (Score=7) was supplied — left at 0.
+ * BLIND — no expectedOutput injected. Run via CLI: npx tsx src/tools/pickJudge/cli.ts --match=SF-2
+ */
+export const eng_arg: PickJudgeInput = {
+  matchId: 'SF-2',
+  homeTeam: 'England',
+  awayTeam: 'Argentina',
+  stage: 'knockout',
+
+  modelPick: { home: 1, away: 2 },
+  homeLambda: 1.18,
+  awayLambda: 2.38,
+  homeElo: 2024,
+  awayElo: 2102,
+
+  homeTournament: { wins: 5, draws: 1, losses: 0, cleanSheets: 2, goalsConceded: 6, goalsScored: 14, scoredEveryMatch: false },
+  awayTournament: { wins: 6, draws: 0, losses: 0, cleanSheets: 3, goalsConceded: 5, goalsScored: 17, scoredEveryMatch: true },
+
+  homeFormMultiplier: 1.088,
+  awayFormMultiplier: 1.346,
+
+  homeIsCoHost: false,
+  awayIsCoHost: false,
+  playingAtIconicHomeStadium: false,   // Mercedes-Benz Stadium, Atlanta — neutral venue
+  hasDocumentedRotation: false,
+  hasDocumentedDemoralization: false,
+
+  // Rule 31 input — Argentina's QF-4 vs Switzerland went to extra time (regulation
+  // 1-1, ARG won 3-1 AET). NOTE: England's QF-3 also went to AET, but the schema
+  // only models the AWAY team's prior-round resilience — see file header note.
+  awayWentToExtraTimeOrPenaltiesPriorRound: true,
+
+  alpha: {
+    underTopScore: 81,              // Totals Under 3 Score=81 (highest of the Under cascade)
+    bttsNoScore: 78,                 // BTTS No Score=78
+
+    bttsYesScore: 0,                 // not supplied — no BTTS Yes market listed
+    overTopScore: 0,                 // not supplied — no Over market listed
+
+    homeAHBestScore: 0,              // Result England: 0 of 45 markets cleared Score 60
+    homeAHBestLine: 0,
+    homeAHConsecutiveAbove80: 0,
+
+    // Argentina handicap cascade — best line +1 (Score=86), 4 consecutive lines >80
+    // (+0.5/+0.75/+1.0/+1.25); +0.25 (Score=80, not >80) breaks the chain.
+    awayAHBestScore: 86,
+    awayAHBestLine: 1,
+    awayAHConsecutiveAbove80: 4,
+
+    homeWinScore: 0,                 // no explicit 1X2 England market supplied
+    awayWinScore: 0,                 // no explicit 1X2 Argentina market supplied
+    homeValueMarketsFound: 0,
+    awayValueMarketsFound: 8,        // Handicap +1/+1.25/+0.75/+0.5/+0.25/0/-0.25 + DC Draw/ARG
+
+    cs00Score: 7,                    // Correct Score 0-0 Score=7 (below threshold, supplied)
+    csHomeCleanSheetScore: 0,
+    csAwayCleanSheetScore: 0,
+    csHighScoringHomeScore: 0,
+
+    alphaHomeWinPct: 23.4,
+    alphaDrawPct: 34.8,
+    alphaAwayWinPct: 41.8,
+
+    leagueBttsPct: 0,                // not provided this session
+    matchProjectedBttsPct: 0,
+    leagueOver25Pct: 0,
+    matchProjectedOver25Pct: 0,
+    projectedGoalsPerMatch: 3.56,    // 1.18 + 2.38 from model's own xG
+
+    climateNetFactor: 1.0,           // not provided this session
+
+    homeAdjustedLambda: 1.18,        // = model xG (no separate Alpha adjusted chart supplied)
+    awayAdjustedLambda: 2.38,
+
+    alphaImpliedHomeLambda: 0.60,    // from Alpha scoreline matrix — see file header note
+    alphaImpliedAwayLambda: 1.66,
+
+    goalDistribution: {
+      awayPeakAtZeroPct: 36,         // Argentina peaks 0/1 goals ~35-37% each — midpoint used
+      homePeakAtZeroPct: 50,         // England peaks hard at 0 goals (~50%)
+    },
+  },
+
+  fieldTopPick: { home: 0, away: 0 },
+  fieldTopPickPct: 0,
+};

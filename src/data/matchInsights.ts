@@ -1311,7 +1311,7 @@ export const matchInsights: MatchInsight[] = [
            "consecutive Norway matches. Bellingham equalized just before " +
            "halftime (1-1 regulation), scoreless second half, then Bellingham's " +
            "extra-time strike won it (brace on the day). England advance to " +
-           "face Argentina in the semifinal (SF-1, Mercedes-Benz Stadium, " +
+           "face Argentina in the semifinal (SF-2, Mercedes-Benz Stadium, " +
            "Atlanta, Jul 15) after needing extra time despite conceding first.",
   },
   {
@@ -1335,7 +1335,39 @@ export const matchInsights: MatchInsight[] = [
            "R16 0-0 AET / 4-3 PK win over Colombia) — eliminated, but this " +
            "pattern motivated Rule 31 (Underdog Resilience Floor) in the pick " +
            "judge engine. Argentina advance to face England in the semifinal " +
-           "(SF-1, Mercedes-Benz Stadium, Atlanta, Jul 15).",
+           "(SF-2, Mercedes-Benz Stadium, Atlanta, Jul 15).",
+  },
+
+  // ==========================================
+  // SEMI-FINALS
+  // ==========================================
+
+  // July 14
+  {
+    matchId: "SF-1",
+    date: "2026-07-14",
+    homeTeamId: "FRA", awayTeamId: "ESP",
+    homeGoals: 0, awayGoals: 2,
+    // Spain totally suppressed France's attack — 10 shots, only 3 on target,
+    // Mbappe recorded ZERO shots on target (only 2nd time in his last 15 WC
+    // appearances). Oyarzabal converted a Yamal-won penalty (Digne foul) 22',
+    // Porro added a second 58' via a Olmo give-and-go. Spain never trailed
+    // in any match this tournament. France's 0.3 xG is their lowest output
+    // of the World Cup by a wide margin.
+    // Form multipliers (formula: attack = ownXG/1.35, defense = 1.35/oppXG,
+    // both floored 0.65 / capped 1.45):
+    // FRA attack: 0.3/1.35 = 0.222 -> floored 0.65
+    // FRA defense: 1.35/1.63 = 0.828 -> 0.83 (no clamp)
+    // ESP attack: 1.63/1.35 = 1.207 -> 1.21 (no clamp)
+    // ESP defense: 1.35/0.3 = 4.5 -> capped 1.45
+    homeAttackMultiplier: 0.65,
+    homeDefenseMultiplier: 0.83,
+    awayAttackMultiplier: 1.21,
+    awayDefenseMultiplier: 1.45,
+    notes: "Spain totally suppressed France 0.3 xG (10 shots, 3 on target, " +
+           "Mbappe 0 SOT). Oyarzabal pen 22 (Digne foul on Yamal), Porro 58 " +
+           "(Olmo assist). Spain 8th straight knockout win at a major " +
+           "tournament (record), never trailed all tournament. FRA eliminated.",
   },
 ];
 

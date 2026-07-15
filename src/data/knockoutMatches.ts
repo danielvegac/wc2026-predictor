@@ -154,8 +154,10 @@ export const knockoutMatches: KnockoutMatch[] = [
   // ==========================================
 
   // July 14
+  // Form multipliers for SF-1 are stored in matchInsights.ts
   { matchId: "SF-1", round: "SF", date: "2026-07-14", homeTeamId: "FRA", awayTeamId: "ESP",
-    venue: "AT&T Stadium, Arlington, USA", kickoffCOT: "2:00 PM", status: "upcoming" },
+    venue: "AT&T Stadium, Arlington, USA", kickoffCOT: "2:00 PM", status: "completed",
+    homeGoals: 0, awayGoals: 2 },
 
   // July 15
   { matchId: "SF-2", round: "SF", date: "2026-07-15", homeTeamId: "ENG", awayTeamId: "ARG",

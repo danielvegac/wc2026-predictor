@@ -5,7 +5,6 @@ import { getMatchResult, getResultBorderClass, extractScoreline, parseScoreline 
 import { formatMatchDate } from "../../data/schedule";
 import { useResultsStore } from "../../store/resultsStore";
 import { useModelPredictionStore, useBaselinePrediction } from "../../store/modelPredictionStore";
-import { getExpertPicksForMatch } from "../../data/expertPicks";
 import { getTeamInsights } from "../../data/matchInsights";
 import { getOddsForMatch, noVigProbs } from "../../data/matchOdds";
 import { getAlphaData } from "../../data/alphametrico";
@@ -234,9 +233,6 @@ export function MatchCard({
         );
       })()}
 
-      {/* Expert picks row */}
-      <ExpertPicksRow matchId={match.id} />
-
       {/* alphametrico signal — always visible */}
       <AlphaSignalRow matchId={match.id} actualResult={actualResult ?? undefined} />
 
@@ -281,28 +277,6 @@ function MarketOddsRow({ matchId, hasResult }: { matchId: string; hasResult: boo
   );
 }
 
-function ExpertPicksRow({ matchId }: { matchId: string }) {
-  const picks = getExpertPicksForMatch(matchId);
-  if (picks.length === 0) return null;
-
-  return (
-    <div className="mt-1 flex items-center justify-center gap-1.5 flex-wrap">
-      {picks.map((pick, i) => (
-        <span
-          key={`${pick.source}-${i}`}
-          className="inline-flex items-center gap-1 bg-bg-secondary text-text-secondary rounded px-1.5 py-0.5"
-          style={{ fontSize: "0.7rem" }}
-          title={pick.note ?? `${pick.source} prediction`}
-        >
-          <span className="font-medium text-text-muted">{pick.source}:</span>
-          <span className="font-mono font-semibold">
-            {pick.homeGoals}–{pick.awayGoals}
-          </span>
-        </span>
-      ))}
-    </div>
-  );
-}
 
 function AlphaSignalRow({
   matchId,

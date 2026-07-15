@@ -321,31 +321,31 @@ describe('computeCloserSignal', () => {
 // ─── getSignalAccuracySummary ────────────────────────────────────────────────
 
 describe('getSignalAccuracySummary', () => {
-  it('reports 28 total matches', () => {
-    expect(getSignalAccuracySummary().totalMatches).toBe(28);
+  it('reports 29 total (tracked) matches — pending matches (e.g. SF-2) are not tracked', () => {
+    expect(getSignalAccuracySummary().totalMatches).toBe(29);
   });
 
-  it('reports 24 comparable matches (excluding AET-flagged and pending entries)', () => {
-    expect(getSignalAccuracySummary().comparableMatches).toBe(24);
+  it('reports 25 comparable matches (excluding AET-flagged entries)', () => {
+    expect(getSignalAccuracySummary().comparableMatches).toBe(25);
   });
 
-  it('reports 4 AET-excluded/pending matches', () => {
+  it('reports 4 AET-excluded matches', () => {
     expect(getSignalAccuracySummary().aetExcluded).toBe(4);
   });
 
-  it('reports Rule 23 triggered on exactly 5 matches', () => {
-    expect(getSignalAccuracySummary().rule23TriggeredCount).toBe(5);
+  it('reports Rule 23 triggered on exactly 6 matches', () => {
+    expect(getSignalAccuracySummary().rule23TriggeredCount).toBe(6);
   });
 
-  it('reports alphaCloser: 10, modelCloser: 12, tie: 2', () => {
+  it('reports alphaCloser: 11, modelCloser: 12, tie: 2', () => {
     const s = getSignalAccuracySummary();
-    expect(s.alphaCloser).toBe(10);
+    expect(s.alphaCloser).toBe(11);
     expect(s.modelCloser).toBe(12);
     expect(s.tie).toBe(2);
   });
 
-  it('reports rule23Breakdown: { alpha: 3, tie: 1, model: 1 }', () => {
-    expect(getSignalAccuracySummary().rule23Breakdown).toEqual({ alpha: 3, tie: 1, model: 1 });
+  it('reports rule23Breakdown: { alpha: 4, tie: 1, model: 1 }', () => {
+    expect(getSignalAccuracySummary().rule23Breakdown).toEqual({ alpha: 4, tie: 1, model: 1 });
   });
 
   it('comparable + excluded = total', () => {
@@ -358,9 +358,16 @@ describe('getSignalAccuracySummary', () => {
     expect(s.alphaCloser + s.modelCloser + s.tie).toBe(s.comparableMatches);
   });
 
-  it('all rule25Flagged and pending entries are excluded from comparable count', () => {
+  it('pending entries (no finalResult) are excluded from totalMatches entirely', () => {
+    const pending = signalAccuracyData.filter((e) => e.finalResult == null);
+    expect(pending.length).toBeGreaterThan(0);
+    const s = getSignalAccuracySummary();
+    expect(s.totalMatches).toBe(signalAccuracyData.length - pending.length);
+  });
+
+  it('all rule25Flagged tracked entries are excluded from comparable count', () => {
     const excluded = signalAccuracyData.filter(
-      (e) => e.rule25Flagged || e.finalResult == null
+      (e) => e.finalResult != null && e.rule25Flagged
     );
     expect(excluded.length).toBe(getSignalAccuracySummary().aetExcluded);
   });
