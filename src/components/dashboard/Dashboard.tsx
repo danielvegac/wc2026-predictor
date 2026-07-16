@@ -36,6 +36,7 @@ import {
   aggregateByStage,
   STAGE_ORDER,
   STAGE_LABELS,
+  type AggregatedChartPoint,
 } from "../../utils/trackRecordAggregation";
 
 const NUM_SIMS = 10_000;
@@ -1008,6 +1009,10 @@ function PointsByMatchday({
     userPts: number;
     modelPts: number;
     userHome: number | null;
+    userIsResult: boolean;
+    modelIsResult: boolean;
+    alphaPts: number | null;
+    alphaIsResult: boolean;
   }>;
 }) {
   const [view, setView] = useState<"matchday" | "stage">("matchday");
@@ -1073,15 +1078,24 @@ function PointsByMatchday({
             <YAxis yAxisId="line" orientation="right" tick={{ fontSize: 11 }} allowDecimals={false} hide />
             <Tooltip
               contentStyle={{ fontSize: 12, borderRadius: 8 }}
-              formatter={(value, name) => {
-                const labels: Record<string, string> = {
-                  userPts: "Your pts",
-                  modelPts: "Model pts",
-                  cumUser: "Your cumulative",
-                  cumModel: "Model cumulative",
-                };
-                return [String(value), labels[String(name)] ?? name];
-              }}
+              content={
+                view === "stage"
+                  ? (props) => <StageTooltipContent {...props} />
+                  : undefined
+              }
+              formatter={
+                view === "matchday"
+                  ? (value, name) => {
+                      const labels: Record<string, string> = {
+                        userPts: "Your pts",
+                        modelPts: "Model pts",
+                        cumUser: "Your cumulative",
+                        cumModel: "Model cumulative",
+                      };
+                      return [String(value), labels[String(name)] ?? name];
+                    }
+                  : undefined
+              }
             />
             <Legend
               formatter={(value: string) => {
@@ -1143,6 +1157,49 @@ function PointsByMatchday({
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function StageTooltipContent({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: AggregatedChartPoint }>;
+  label?: string;
+}) {
+  if (!active || !payload || payload.length === 0) return null;
+  const d = payload[0].payload;
+
+  const fmt = (pointsPct: number, earned: number, max: number, correctPct: number, correct: number, total: number) =>
+    `${pointsPct.toFixed(1)}% pts (${earned}/${max})  |  ${correctPct.toFixed(1)}% results (${correct}/${total})`;
+
+  return (
+    <div className="bg-bg-secondary border border-border rounded-lg p-3 text-xs shadow-lg">
+      <div className="font-bold text-text-primary mb-1.5">{label}</div>
+      <div className="text-blue-500 mb-1">
+        <span className="font-medium">You:</span>{" "}
+        {fmt(d.userPointsPct, d.userPts, d.maxPossible, d.userCorrectPct, d.userCorrectResults, d.matches)}
+      </div>
+      <div className="text-amber-600 mb-1">
+        <span className="font-medium">Model:</span>{" "}
+        {fmt(d.modelPointsPct, d.modelPts, d.maxPossible, d.modelCorrectPct, d.modelCorrectResults, d.matches)}
+      </div>
+      {d.alphaPicked > 0 && (
+        <div className="text-purple-500">
+          <span className="font-medium">Alpha:</span>{" "}
+          {fmt(
+            d.alphaPointsPct,
+            d.alphaPtsTotal,
+            d.alphaMaxPossible,
+            d.alphaCorrectPct,
+            d.alphaCorrectResults,
+            d.alphaPicked
+          )}
+        </div>
+      )}
     </div>
   );
 }

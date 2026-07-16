@@ -142,4 +142,35 @@ describe("aggregateByStage", () => {
     expect(tableRows.map((r) => r.key)).toEqual<Stage[]>(["group", "final"]);
     expect(tableRows[0].label).toBe(STAGE_LABELS.group);
   });
+
+  it("computes points % and correct-results % per bucket for user, model, and alpha", () => {
+    const groupMap = new Map<string, MatchDateStage>([
+      ["m1", { date: "2026-06-11", stage: "group" }],
+      ["m2", { date: "2026-06-11", stage: "group" }],
+    ]);
+    const { chartData } = aggregateByStage(
+      [
+        { matchId: "m1", userPts: 9, modelPts: 3, userIsResult: true, modelIsResult: true, alphaPts: 3, alphaIsResult: true },
+        { matchId: "m2", userPts: 0, modelPts: 6, userIsResult: false, modelIsResult: true, alphaPts: null, alphaIsResult: false },
+      ],
+      groupMap
+    );
+
+    expect(chartData).toHaveLength(1);
+    const bucket = chartData[0];
+    expect(bucket.matches).toBe(2);
+    expect(bucket.maxPossible).toBe(18);
+    expect(bucket.userPointsPct).toBeCloseTo((9 / 18) * 100);
+    expect(bucket.userCorrectResults).toBe(1);
+    expect(bucket.userCorrectPct).toBeCloseTo(50);
+    expect(bucket.modelPointsPct).toBeCloseTo((9 / 18) * 100);
+    expect(bucket.modelCorrectResults).toBe(2);
+    expect(bucket.modelCorrectPct).toBeCloseTo(100);
+    expect(bucket.alphaPicked).toBe(1);
+    expect(bucket.alphaPtsTotal).toBe(3);
+    expect(bucket.alphaMaxPossible).toBe(9);
+    expect(bucket.alphaPointsPct).toBeCloseTo((3 / 9) * 100);
+    expect(bucket.alphaCorrectResults).toBe(1);
+    expect(bucket.alphaCorrectPct).toBeCloseTo(100);
+  });
 });

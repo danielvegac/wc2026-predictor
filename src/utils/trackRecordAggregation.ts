@@ -64,9 +64,31 @@ export interface ScoredMatchRow {
   matchId: string;
   userPts: number;
   modelPts: number;
+  userIsResult?: boolean;
+  modelIsResult?: boolean;
+  alphaPts?: number | null;
+  alphaIsResult?: boolean;
 }
 
-export interface AggregatedChartPoint {
+/** Points %/correct-results % breakdown for a bucket (stage or matchday), per source */
+export interface BucketPercentages {
+  matches: number;
+  maxPossible: number;
+  userPointsPct: number;
+  userCorrectResults: number;
+  userCorrectPct: number;
+  modelPointsPct: number;
+  modelCorrectResults: number;
+  modelCorrectPct: number;
+  alphaPicked: number;
+  alphaPtsTotal: number;
+  alphaMaxPossible: number;
+  alphaPointsPct: number;
+  alphaCorrectResults: number;
+  alphaCorrectPct: number;
+}
+
+export interface AggregatedChartPoint extends BucketPercentages {
   label: string;
   userPts: number;
   modelPts: number;
@@ -121,12 +143,36 @@ function buildAggregation<T extends ScoredMatchRow>(
     cumUser += bucketUser;
     cumModel += bucketModel;
 
+    const matches = bucket.rows.length;
+    const maxPossible = matches * 9;
+    const userCorrectResults = bucket.rows.filter((r) => r.userIsResult).length;
+    const modelCorrectResults = bucket.rows.filter((r) => r.modelIsResult).length;
+    const alphaRows = bucket.rows.filter((r) => r.alphaPts != null);
+    const alphaPicked = alphaRows.length;
+    const alphaPtsTotal = alphaRows.reduce((s, r) => s + (r.alphaPts ?? 0), 0);
+    const alphaMaxPossible = alphaPicked * 9;
+    const alphaCorrectResults = alphaRows.filter((r) => r.alphaIsResult).length;
+
     chartData.push({
       label: bucket.label,
       userPts: bucketUser,
       modelPts: bucketModel,
       cumUser,
       cumModel,
+      matches,
+      maxPossible,
+      userPointsPct: maxPossible > 0 ? (bucketUser / maxPossible) * 100 : 0,
+      userCorrectResults,
+      userCorrectPct: matches > 0 ? (userCorrectResults / matches) * 100 : 0,
+      modelPointsPct: maxPossible > 0 ? (bucketModel / maxPossible) * 100 : 0,
+      modelCorrectResults,
+      modelCorrectPct: matches > 0 ? (modelCorrectResults / matches) * 100 : 0,
+      alphaPicked,
+      alphaPtsTotal,
+      alphaMaxPossible,
+      alphaPointsPct: alphaMaxPossible > 0 ? (alphaPtsTotal / alphaMaxPossible) * 100 : 0,
+      alphaCorrectResults,
+      alphaCorrectPct: alphaPicked > 0 ? (alphaCorrectResults / alphaPicked) * 100 : 0,
     });
     tableRows.push({
       key,
