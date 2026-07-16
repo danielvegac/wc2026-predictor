@@ -26,6 +26,8 @@ import {
   Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, ComposedChart, Line,
 } from "recharts";
+import type { TooltipContentProps } from "recharts";
+import type { ValueType, NameType } from "recharts/types/component/DefaultTooltipContent";
 import { getAlphaData } from "../../data/alphametrico";
 import { knockoutMatches } from "../../data/knockoutMatches";
 import type { MonteCarloResults, Prediction, Stage } from "../../types";
@@ -1165,13 +1167,9 @@ function StageTooltipContent({
   active,
   payload,
   label,
-}: {
-  active?: boolean;
-  payload?: Array<{ payload: AggregatedChartPoint }>;
-  label?: string;
-}) {
+}: TooltipContentProps<ValueType, NameType>) {
   if (!active || !payload || payload.length === 0) return null;
-  const d = payload[0].payload;
+  const d = payload[0].payload as AggregatedChartPoint;
 
   const fmt = (pointsPct: number, earned: number, max: number, correctPct: number, correct: number, total: number) =>
     `${pointsPct.toFixed(1)}% pts (${earned}/${max})  |  ${correctPct.toFixed(1)}% results (${correct}/${total})`;
