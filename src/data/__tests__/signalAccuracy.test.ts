@@ -321,12 +321,12 @@ describe('computeCloserSignal', () => {
 // ─── getSignalAccuracySummary ────────────────────────────────────────────────
 
 describe('getSignalAccuracySummary', () => {
-  it('reports 29 total (tracked) matches — pending matches (e.g. SF-2) are not tracked', () => {
-    expect(getSignalAccuracySummary().totalMatches).toBe(29);
+  it('reports 30 total (tracked) matches — all matches through SF-2 are now played', () => {
+    expect(getSignalAccuracySummary().totalMatches).toBe(30);
   });
 
-  it('reports 25 comparable matches (excluding AET-flagged entries)', () => {
-    expect(getSignalAccuracySummary().comparableMatches).toBe(25);
+  it('reports 26 comparable matches (excluding AET-flagged entries)', () => {
+    expect(getSignalAccuracySummary().comparableMatches).toBe(26);
   });
 
   it('reports 4 AET-excluded matches', () => {
@@ -337,11 +337,11 @@ describe('getSignalAccuracySummary', () => {
     expect(getSignalAccuracySummary().rule23TriggeredCount).toBe(6);
   });
 
-  it('reports alphaCloser: 11, modelCloser: 12, tie: 2', () => {
+  it('reports alphaCloser: 11, modelCloser: 12, tie: 3', () => {
     const s = getSignalAccuracySummary();
     expect(s.alphaCloser).toBe(11);
     expect(s.modelCloser).toBe(12);
-    expect(s.tie).toBe(2);
+    expect(s.tie).toBe(3);
   });
 
   it('reports rule23Breakdown: { alpha: 4, tie: 1, model: 1 }', () => {
@@ -360,7 +360,6 @@ describe('getSignalAccuracySummary', () => {
 
   it('pending entries (no finalResult) are excluded from totalMatches entirely', () => {
     const pending = signalAccuracyData.filter((e) => e.finalResult == null);
-    expect(pending.length).toBeGreaterThan(0);
     const s = getSignalAccuracySummary();
     expect(s.totalMatches).toBe(signalAccuracyData.length - pending.length);
   });

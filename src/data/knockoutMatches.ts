@@ -161,7 +161,8 @@ export const knockoutMatches: KnockoutMatch[] = [
 
   // July 15
   { matchId: "SF-2", round: "SF", date: "2026-07-15", homeTeamId: "ENG", awayTeamId: "ARG",
-    venue: "Mercedes-Benz Stadium, Atlanta, USA", kickoffCOT: "2:00 PM", status: "upcoming" },
+    venue: "Mercedes-Benz Stadium, Atlanta, USA", kickoffCOT: "2:00 PM", status: "completed",
+    homeGoals: 1, awayGoals: 2 },
 ];
 
 /** Get all knockout matches for a specific round */

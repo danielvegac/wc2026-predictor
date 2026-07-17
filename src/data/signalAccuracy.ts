@@ -655,10 +655,20 @@ export const signalAccuracyData: SignalAccuracyEntry[] = [
   {
     matchId: "SF-2", round: "SF", homeTeamId: "ENG", awayTeamId: "ARG",
     date: "2026-07-15",
-    modelLambdaHome: 0, modelLambdaAway: 0,
-    modelTopScorelines: [],
-    alphaTopScorelines: [],
-    notes: "Pending — not yet played (Mercedes-Benz Stadium, Atlanta, Jul 15). No forecast data recorded yet.",
+    modelLambdaHome: 1.18, modelLambdaAway: 2.38,
+    modelTopScorelines: [
+      { home: 1, away: 2, probability: 9.5 }, { home: 1, away: 1, probability: 9.1 }, { home: 0, away: 2, probability: 8.1 },
+    ],
+    alphaTopScorelines: [
+      { home: 1, away: 2, probability: 9.5 }, { home: 1, away: 1, probability: 9.0 }, { home: 0, away: 2, probability: 8.1 },
+    ],
+    regulationResult: { home: 1, away: 2 }, wentToExtraTime: false, finalResult: { home: 1, away: 2 },
+    modelActualRank: 1, modelActualProbability: 9.5,
+    alphaActualRank: 1, alphaActualProbability: 9.5,
+    rule23Triggered: false, rule25Flagged: false,
+    notes: "England 1-2 Argentina. Both matrices nailed the exact final scoreline as " +
+           "their #1 cell — model (lambda 1.18/2.38) ranked 1-2 #1 at 9.5%, alpha's " +
+           "registered matrix also had 1-2 #1 at 9.5%. Rank tied, probability tied: tie.",
   },
 ];
 

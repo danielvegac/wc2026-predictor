@@ -30,6 +30,7 @@ import type { TooltipContentProps } from "recharts";
 import type { ValueType, NameType } from "recharts/types/component/DefaultTooltipContent";
 import { getAlphaData } from "../../data/alphametrico";
 import { knockoutMatches } from "../../data/knockoutMatches";
+import { getAlphaResultForMatch } from "../../data/alphaMatchOutcomes";
 import type { MonteCarloResults, Prediction, Stage } from "../../types";
 import {
   getMatchDateStageMap,
@@ -578,6 +579,7 @@ function ModelTrackRecord({
       userIsResult: boolean;
       modelIsExact: boolean;
       modelIsResult: boolean;
+      alphaResultCorrect: boolean | null;
     }> = [];
 
     // Build a lookup of matchInsights by matchId for fallback actual scores
@@ -692,6 +694,7 @@ function ModelTrackRecord({
         userIsResult,
         modelIsExact: mb.isExactScore,
         modelIsResult: mb.isCorrectResult,
+        alphaResultCorrect: null, // Alpha Result tracker only covers R32+
       });
     }
 
@@ -771,6 +774,7 @@ function ModelTrackRecord({
         userIsResult,
         modelIsExact: mb.isExactScore,
         modelIsResult: mb.isCorrectResult,
+        alphaResultCorrect: getAlphaResultForMatch(ko.matchId)?.correct ?? null,
       });
     }
 
@@ -793,6 +797,12 @@ function ModelTrackRecord({
   const alphaPicked = rows.filter((r) => r.alphaPts !== null).length;
   const userPredicted = rows.filter((r) => r.userHome !== null).length;
   const maxPts = rows.length * 9;
+
+  const alphaResultTracked = rows.filter((r) => r.alphaResultCorrect !== null);
+  const alphaResultCorrectCount = alphaResultTracked.filter((r) => r.alphaResultCorrect === true).length;
+  const alphaResultPct = alphaResultTracked.length > 0
+    ? (alphaResultCorrectCount / alphaResultTracked.length) * 100
+    : 0;
 
   const diff = userTotal - modelTotal;
   const verdict =
@@ -857,7 +867,8 @@ function ModelTrackRecord({
               <th className="py-2 px-2 font-medium text-center">Actual</th>
               <th className="py-2 px-2 font-medium text-center">Your pts</th>
               <th className="py-2 px-2 font-medium text-center text-blue-500">Model pts</th>
-              <th className="py-2 pl-2 font-medium text-center text-violet-500">α Pts</th>
+              <th className="py-2 px-2 font-medium text-center text-violet-500">α Pts</th>
+              <th className="py-2 pl-2 font-medium text-center text-violet-500">Alpha Result</th>
             </tr>
           </thead>
           <tbody>
@@ -939,7 +950,7 @@ function ModelTrackRecord({
                       )}
                     </div>
                   </td>
-                  <td className="py-2 pl-2 text-center">
+                  <td className="py-2 px-2 text-center">
                     {r.alphaPts !== null ? (
                       <div className="flex items-center justify-center gap-1">
                         {ptsIcon(r.alphaIsExact, r.alphaIsResult, true)}
@@ -951,6 +962,17 @@ function ModelTrackRecord({
                       </div>
                     ) : (
                       <span className="text-text-muted text-xs">—</span>
+                    )}
+                  </td>
+                  <td className="py-2 pl-2 text-center">
+                    {r.alphaResultCorrect === true && (
+                      <span className="text-accent-green" title="Alphametrico's Match Outcome chart correctly favored the actual result (verified pre-kickoff read)">✓</span>
+                    )}
+                    {r.alphaResultCorrect === false && (
+                      <span className="text-accent-red" title="Alphametrico's Match Outcome chart did not favor the actual result (verified pre-kickoff read)">✗</span>
+                    )}
+                    {r.alphaResultCorrect === null && (
+                      <span className="text-text-muted text-xs" title="N/A — Group Stage, or no verified pre-kickoff read available">—</span>
                     )}
                   </td>
                 </tr>
@@ -996,6 +1018,24 @@ function ModelTrackRecord({
       <div className="mt-3 text-center">
         <span className="text-sm font-bold text-text-primary">{verdict}</span>
       </div>
+
+      {/* ─── Alpha Result — verified pre-kickoff correct-result tracker ─── */}
+      {alphaResultTracked.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <div className="bg-bg-tertiary rounded-lg border border-border p-4 text-sm text-text-secondary">
+            <span className="font-medium text-violet-500">Alpha correct results (verified pre-kickoff):</span>{" "}
+            <span className="font-mono font-bold text-violet-500">
+              {alphaResultCorrectCount} / {alphaResultTracked.length}
+            </span>
+            <span className="text-text-muted"> ({alphaResultPct.toFixed(1)}%)</span>
+            <p className="text-xs text-text-muted mt-1">
+              Excludes 2 matches without a verified pre-kickoff read (R32-15, R32-16),
+              1 AET match (Switzerland vs Colombia, decided on penalties), and any
+              match without a recorded result yet (e.g. R32-14).
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ─── Points by Matchday ─────────────────────────── */}
       <PointsByMatchday rows={rows} />

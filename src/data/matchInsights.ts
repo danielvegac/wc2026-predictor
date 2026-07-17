@@ -1369,6 +1369,40 @@ export const matchInsights: MatchInsight[] = [
            "(Olmo assist). Spain 8th straight knockout win at a major " +
            "tournament (record), never trailed all tournament. FRA eliminated.",
   },
+
+  // July 15
+  {
+    matchId: "SF-2",
+    date: "2026-07-15",
+    homeTeamId: "ENG", awayTeamId: "ARG",
+    homeGoals: 1, awayGoals: 2,
+    // Extremely cagey first half — combined 0.08 xG, second-lowest in a WC
+    // first half in 60 years. Gordon opened the scoring 55' (Rogers assist).
+    // Fernández equalized 85' (Messi assist — his 11th straight WC game with
+    // a goal or assist, longest streak on record). Lautaro Martínez scored
+    // the stoppage-time winner (also Messi assist). Argentina's attacking
+    // output surged post-73': 5 shots/0.18 xG before Gordon's goal vs 10
+    // shots/1.48 xG after. Resolved in 90+ minutes, no AET.
+    // Form multipliers (formula: attack = ownXG/1.35, defense = 1.35/oppXG,
+    // both floored 0.65 / capped 1.45):
+    // ENG attack: 0.53/1.35 = 0.393 -> floored 0.65
+    // ENG defense: 1.35/1.84 = 0.734 -> 0.73 (no clamp)
+    // ARG attack: 1.84/1.35 = 1.363 -> 1.36 (no clamp)
+    // ARG defense: 1.35/0.53 = 2.547 -> capped 1.45
+    homeAttackMultiplier: 0.65,
+    homeDefenseMultiplier: 0.73,
+    awayAttackMultiplier: 1.36,
+    awayDefenseMultiplier: 1.45,
+    notes: "Argentina came from behind after Gordon's 55' opener (Rogers " +
+           "assist). Fernández equalized 85' (Messi assist, his 11th " +
+           "straight WC game with a goal or assist — longest streak on " +
+           "record). Lautaro Martínez scored the winner in stoppage time " +
+           "(also Messi assist). Extremely cagey first half — combined " +
+           "0.08 xG, second-lowest in a WC first half in 60 years. " +
+           "Argentina's attacking output surged post-73': 5 shots/0.18xG " +
+           "before Gordon's goal vs 10 shots/1.48xG after. No AET — " +
+           "resolved in 90+ minutes. Argentina advance to the Final vs Spain.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */
