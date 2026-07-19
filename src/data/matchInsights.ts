@@ -1441,6 +1441,27 @@ export const matchInsights: MatchInsight[] = [
            "playoff (Opta). Last match of the tournament for both sides — " +
            "no forward-looking impact on predictions.",
   },
+
+  // ==========================================
+  // FINAL
+  // ==========================================
+
+  // July 19
+  {
+    matchId: "F-1",
+    date: "2026-07-19",
+    homeTeamId: "ESP", awayTeamId: "ARG",
+    homeGoals: 1, awayGoals: 0,
+    // Neutral placeholder multipliers — last match of the tournament,
+    // no forward-looking impact on predictions.
+    homeAttackMultiplier: 1.0,
+    homeDefenseMultiplier: 1.0,
+    awayAttackMultiplier: 1.0,
+    awayDefenseMultiplier: 1.0,
+    notes: "F-1: Spain 1-0 Argentina. Spain are 2026 World Cup champions, " +
+           "Argentina finish runners-up. Final match of the tournament — " +
+           "no forward-looking impact on predictions.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

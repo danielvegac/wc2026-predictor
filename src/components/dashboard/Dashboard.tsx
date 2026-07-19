@@ -31,6 +31,7 @@ import type { ValueType, NameType } from "recharts/types/component/DefaultToolti
 import { getAlphaData } from "../../data/alphametrico";
 import { knockoutMatches } from "../../data/knockoutMatches";
 import { getAlphaResultForMatch } from "../../data/alphaMatchOutcomes";
+import { bracketPick, actualFinalResults, computeTournamentBonus } from "../../data/tournamentBonus";
 import type { MonteCarloResults, Prediction, Stage } from "../../types";
 import {
   getMatchDateStageMap,
@@ -785,8 +786,10 @@ function ModelTrackRecord({
 
   const filteredRows = stageFilter === "all" ? rows : rows.filter((r) => r.stage === stageFilter);
 
-  const userTotal = rows.reduce((s, r) => s + r.userPts, 0);
-  const modelTotal = rows.reduce((s, r) => s + r.modelPts, 0);
+  const tournamentBonus = computeTournamentBonus(bracketPick, actualFinalResults);
+
+  const userTotal = rows.reduce((s, r) => s + r.userPts, 0) + tournamentBonus.totalBonusPoints;
+  const modelTotal = rows.reduce((s, r) => s + r.modelPts, 0) + tournamentBonus.totalBonusPoints;
   const alphaTotal = rows.reduce((s, r) => s + (r.alphaPts ?? 0), 0);
   const userCorrect = rows.filter((r) => r.userIsResult).length;
   const userExact = rows.filter((r) => r.userIsExact).length;
@@ -796,7 +799,7 @@ function ModelTrackRecord({
   const alphaExact = rows.filter((r) => r.alphaIsExact).length;
   const alphaPicked = rows.filter((r) => r.alphaPts !== null).length;
   const userPredicted = rows.filter((r) => r.userHome !== null).length;
-  const maxPts = rows.length * 9;
+  const maxPts = rows.length * 9 + 30;
 
   const alphaResultTracked = rows.filter((r) => r.alphaResultCorrect !== null);
   const alphaResultCorrectCount = alphaResultTracked.filter((r) => r.alphaResultCorrect === true).length;
@@ -1019,6 +1022,49 @@ function ModelTrackRecord({
         <span className="text-sm font-bold text-text-primary">{verdict}</span>
       </div>
 
+      {/* ─── Tournament Bracket Bonus ─────────────────────── */}
+      <div className="mt-4 pt-4 border-t border-border">
+        <h3 className="text-sm font-bold text-text-primary mb-2">Tournament Bracket Bonus</h3>
+        <div className="bg-bg-tertiary rounded-lg border border-border p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          {(["You", "Model"] as const).map((who) => (
+            <div key={who}>
+              <div className={`font-medium mb-1 ${who === "You" ? "text-blue-500" : "text-amber-600"}`}>
+                {who}
+              </div>
+              <div className="text-xs text-text-secondary space-y-0.5">
+                <div>
+                  Champion: {bracketPick.champion}{" "}
+                  {tournamentBonus.championCorrect ? (
+                    <span className="text-accent-green">✓ (+{tournamentBonus.championPoints})</span>
+                  ) : (
+                    <span className="text-accent-red">✗ (+0)</span>
+                  )}
+                </div>
+                <div>
+                  Runner-up: {bracketPick.runnerUp}{" "}
+                  {tournamentBonus.runnerUpCorrect ? (
+                    <span className="text-accent-green">✓ (+{tournamentBonus.runnerUpPoints})</span>
+                  ) : (
+                    <span className="text-accent-red">✗ (+0)</span>
+                  )}
+                </div>
+                <div>
+                  Third Place: {bracketPick.thirdPlace}{" "}
+                  {tournamentBonus.thirdPlaceCorrect ? (
+                    <span className="text-accent-green">✓ (+{tournamentBonus.thirdPlacePoints})</span>
+                  ) : (
+                    <span className="text-accent-red">✗ (+0)</span>
+                  )}
+                </div>
+              </div>
+              <div className="text-xs font-bold text-text-primary mt-1.5">
+                Total: +{tournamentBonus.totalBonusPoints} pts
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ─── Alpha Result — verified pre-kickoff correct-result tracker ─── */}
       {alphaResultTracked.length > 0 && (
         <div className="mt-4 pt-4 border-t border-border">
@@ -1038,13 +1084,14 @@ function ModelTrackRecord({
       )}
 
       {/* ─── Points by Matchday ─────────────────────────── */}
-      <PointsByMatchday rows={rows} />
+      <PointsByMatchday rows={rows} bonusPoints={tournamentBonus.totalBonusPoints} />
     </div>
   );
 }
 
 function PointsByMatchday({
   rows,
+  bonusPoints,
 }: {
   rows: Array<{
     matchId: string;
@@ -1056,6 +1103,7 @@ function PointsByMatchday({
     alphaPts: number | null;
     alphaIsResult: boolean;
   }>;
+  bonusPoints: number;
 }) {
   const [view, setView] = useState<"matchday" | "stage">("matchday");
 
@@ -1063,10 +1111,58 @@ function PointsByMatchday({
   const dateStageMap = useMemo(() => getMatchDateStageMap(), []);
 
   const { chartData, tableRows, userGrandTotal, modelGrandTotal } = useMemo(() => {
-    return view === "matchday"
+    const base = view === "matchday"
       ? aggregateByMatchday(rows, dateStageMap)
       : aggregateByStage(rows, dateStageMap);
-  }, [rows, dateStageMap, view]);
+
+    if (bonusPoints === 0 || base.chartData.length === 0) return base;
+
+    // Append a synthetic final data point for the tournament bracket bonus
+    // (champion/runner-up/third place) so the cumulative lines step up
+    // visibly at the end instead of the bonus staying invisible.
+    const cumUser = base.userGrandTotal + bonusPoints;
+    const cumModel = base.modelGrandTotal + bonusPoints;
+
+    return {
+      chartData: [
+        ...base.chartData,
+        {
+          label: "Tournament Bonus",
+          userPts: bonusPoints,
+          modelPts: bonusPoints,
+          cumUser,
+          cumModel,
+          matches: 0,
+          maxPossible: 0,
+          userPointsPct: 0,
+          userCorrectResults: 0,
+          userCorrectPct: 0,
+          modelPointsPct: 0,
+          modelCorrectResults: 0,
+          modelCorrectPct: 0,
+          alphaPicked: 0,
+          alphaPtsTotal: 0,
+          alphaMaxPossible: 0,
+          alphaPointsPct: 0,
+          alphaCorrectResults: 0,
+          alphaCorrectPct: 0,
+        },
+      ],
+      tableRows: [
+        ...base.tableRows,
+        {
+          key: "tournament-bonus",
+          label: "Tournament Bonus",
+          matches: 0,
+          userPts: bonusPoints,
+          modelPts: bonusPoints,
+          leader: "Tie" as const,
+        },
+      ],
+      userGrandTotal: cumUser,
+      modelGrandTotal: cumModel,
+    };
+  }, [rows, dateStageMap, view, bonusPoints]);
 
   if (chartData.length === 0) return null;
 

@@ -179,8 +179,10 @@ export const knockoutMatches: KnockoutMatch[] = [
   // ==========================================
 
   // July 19
+  // Form multipliers for F-1 are stored in matchInsights.ts
   { matchId: "F-1", round: "F", date: "2026-07-19", homeTeamId: "ESP", awayTeamId: "ARG",
-    venue: "MetLife Stadium, East Rutherford, NJ", kickoffCOT: "2:00 PM", status: "upcoming" },
+    venue: "MetLife Stadium, East Rutherford, NJ", kickoffCOT: "2:00 PM", status: "completed",
+    homeGoals: 1, awayGoals: 0 },
 ];
 
 /** Get all knockout matches for a specific round */
