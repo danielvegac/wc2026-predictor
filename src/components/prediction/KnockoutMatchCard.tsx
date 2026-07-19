@@ -136,8 +136,8 @@ export function KnockoutMatchCard({ ko, homeTeam, awayTeam, modelPred }: Knockou
             )}
           </div>
 
-          {/* Advance probability */}
-          {modelPred.koAdvanceProbability != null && (
+          {/* Advance probability — not applicable for the third-place playoff */}
+          {modelPred.koAdvanceProbability != null && ko.round !== "3P" && (
             <div className="mt-1 flex items-center justify-center gap-1.5" style={{ fontSize: "0.7rem" }}>
               <span className="text-text-muted font-medium">Win to advance:</span>
               <span className="font-mono font-semibold text-accent-green">

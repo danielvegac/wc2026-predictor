@@ -1403,6 +1403,44 @@ export const matchInsights: MatchInsight[] = [
            "before Gordon's goal vs 10 shots/1.48xG after. No AET — " +
            "resolved in 90+ minutes. Argentina advance to the Final vs Spain.",
   },
+
+  // ==========================================
+  // THIRD PLACE
+  // ==========================================
+
+  // July 18
+  {
+    matchId: "3P-1",
+    date: "2026-07-18",
+    homeTeamId: "FRA", awayTeamId: "ENG",
+    homeGoals: 4, awayGoals: 6,
+    // Most goals in a World Cup match since 1982 (Hungary 10-1 El Salvador,
+    // per Opta) and the most-ever in a third-place playoff. England raced to
+    // a 4-0 half-time lead: Rice (3', also assisted Konsa's header), Konsa
+    // (18'), Saka brace before the break. France stormed back in the second
+    // half through Mbappe (48', and again later — his second goal made him
+    // the outright all-time FIFA World Cup top scorer with 22, overtaking
+    // Messi) and Barcola (assisted by Mbappe). Saka completed his hat-trick
+    // from the penalty spot (87') to push England back ahead by two, before
+    // Dembele (90+5', assisted by Upamecano) pulled France within one.
+    // Bellingham's solo strike (90+7') sealed the 6-4 win and England's
+    // third-place finish — their best World Cup result since 1966.
+    // Form multipliers (formula: attack = ownXG/1.35, defense = 1.35/oppXG,
+    // both floored 0.65 / capped 1.45):
+    // FRA attack: 2.92/1.35 = 2.163 -> capped 1.45
+    // FRA defense: 1.35/3.21 = 0.421 -> floored 0.65
+    // ENG attack: 3.21/1.35 = 2.378 -> capped 1.45
+    // ENG defense: 1.35/2.92 = 0.462 -> floored 0.65
+    homeAttackMultiplier: 1.45,
+    homeDefenseMultiplier: 0.65,
+    awayAttackMultiplier: 1.45,
+    awayDefenseMultiplier: 0.65,
+    notes: "3P-1: England 6-4 France (AET not needed, decided in regulation). " +
+           "Both teams eliminated in SF; final placement match. Combined 10 " +
+           "goals — most in a WC game since 1982, most ever in a 3rd-place " +
+           "playoff (Opta). Last match of the tournament for both sides — " +
+           "no forward-looking impact on predictions.",
+  },
 ];
 
 /** Get all insights for a team across all matches played */

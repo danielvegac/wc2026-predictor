@@ -163,6 +163,24 @@ export const knockoutMatches: KnockoutMatch[] = [
   { matchId: "SF-2", round: "SF", date: "2026-07-15", homeTeamId: "ENG", awayTeamId: "ARG",
     venue: "Mercedes-Benz Stadium, Atlanta, USA", kickoffCOT: "2:00 PM", status: "completed",
     homeGoals: 1, awayGoals: 2 },
+
+  // ==========================================
+  // THIRD PLACE
+  // ==========================================
+
+  // July 18
+  // Form multipliers for 3P-1 are stored in matchInsights.ts
+  { matchId: "3P-1", round: "3P", date: "2026-07-18", homeTeamId: "FRA", awayTeamId: "ENG",
+    venue: "Hard Rock Stadium, Miami Gardens, FL", kickoffCOT: "4:00 PM", status: "completed",
+    homeGoals: 4, awayGoals: 6 },
+
+  // ==========================================
+  // FINAL
+  // ==========================================
+
+  // July 19
+  { matchId: "F-1", round: "F", date: "2026-07-19", homeTeamId: "ESP", awayTeamId: "ARG",
+    venue: "MetLife Stadium, East Rutherford, NJ", kickoffCOT: "2:00 PM", status: "upcoming" },
 ];
 
 /** Get all knockout matches for a specific round */
