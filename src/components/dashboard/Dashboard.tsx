@@ -32,6 +32,12 @@ import { getAlphaData } from "../../data/alphametrico";
 import { knockoutMatches } from "../../data/knockoutMatches";
 import { getAlphaResultForMatch } from "../../data/alphaMatchOutcomes";
 import { bracketPick, actualFinalResults, computeTournamentBonus } from "../../data/tournamentBonus";
+import {
+  poolTotalParticipants,
+  danielOfficialScore,
+  danielOfficialRank,
+  computeQuinielaPlacement,
+} from "../../data/quinielaPoolBenchmark";
 import type { MonteCarloResults, Prediction, Stage } from "../../types";
 import {
   getMatchDateStageMap,
@@ -1065,6 +1071,9 @@ function ModelTrackRecord({
         </div>
       </div>
 
+      {/* ─── Quiniela Standing (anonymized real pool benchmark) ─── */}
+      <QuinielaStandingCard modelFinalTotal={modelTotal} />
+
       {/* ─── Alpha Result — verified pre-kickoff correct-result tracker ─── */}
       {alphaResultTracked.length > 0 && (
         <div className="mt-4 pt-4 border-t border-border">
@@ -1085,6 +1094,41 @@ function ModelTrackRecord({
 
       {/* ─── Points by Matchday ─────────────────────────── */}
       <PointsByMatchday rows={rows} bonusPoints={tournamentBonus.totalBonusPoints} />
+    </div>
+  );
+}
+
+function QuinielaStandingCard({ modelFinalTotal }: { modelFinalTotal: number }) {
+  const modelPlacement = computeQuinielaPlacement(modelFinalTotal);
+
+  return (
+    <div className="mt-4 pt-4 border-t border-border">
+      <h3 className="text-sm font-bold text-text-primary mb-2">Quiniela Standing</h3>
+      <p className="text-xs text-text-muted mb-3">
+        Anonymized comparison against the real-world pool ({poolTotalParticipants} participants) —
+        point thresholds only, no participant names.
+      </p>
+      <div className="bg-bg-tertiary rounded-lg border border-border p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <div className="font-medium mb-1 text-blue-500">Daniel (official)</div>
+          <div className="font-mono font-bold text-text-primary">
+            {danielOfficialScore} pts
+          </div>
+          <div className="text-xs text-text-muted">{danielOfficialRank}th of {poolTotalParticipants}</div>
+        </div>
+        <div>
+          <div className="font-medium mb-1 text-amber-600">Model (computed)</div>
+          <div className="font-mono font-bold text-text-primary">
+            {modelPlacement.total} pts
+          </div>
+          <div className="text-xs text-text-muted mb-1">{modelPlacement.estimatedRank}</div>
+          {modelPlacement.wouldHaveWon ? (
+            <div className="text-xs font-bold text-accent-gold">Would have won the pool 🏆</div>
+          ) : (
+            <p className="text-xs text-text-muted">{modelPlacement.note}</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
