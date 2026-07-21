@@ -81,6 +81,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
+    console.error("[api/elo] Failed to fetch Elo ratings:", error);
     return res.status(200).json({
       teams: [],
       source: "unavailable",

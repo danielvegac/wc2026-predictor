@@ -44,22 +44,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const results: MatchResult[] = [];
     const dates = getWC2026Dates();
 
-    // Fetch each day's scoreboard from ESPN
+    // Fetch each day's scoreboard from ESPN.
+    // A single day's failure (network/timeout/parse) must not discard the
+    // results already gathered from other days, so each day is isolated.
     for (const date of dates) {
-      const espnRes = await fetch(
-        `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=${date}`,
-        {
-          headers: {
-            "User-Agent": "WC2026-Predictor/1.0",
-            Accept: "application/json",
-          },
-          signal: AbortSignal.timeout(10000),
-        }
-      );
-
-      if (!espnRes.ok) continue;
-
-      const data = await espnRes.json() as {
+      let data: {
         events?: Array<{
           competitions?: Array<{
             competitors?: Array<{
@@ -73,6 +62,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }>;
         }>;
       };
+
+      try {
+        const espnRes = await fetch(
+          `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=${date}`,
+          {
+            headers: {
+              "User-Agent": "WC2026-Predictor/1.0",
+              Accept: "application/json",
+            },
+            signal: AbortSignal.timeout(10000),
+          }
+        );
+
+        if (!espnRes.ok) {
+          console.warn(`[api/results] ESPN scoreboard for ${date} returned ${espnRes.status}`);
+          continue;
+        }
+
+        data = await espnRes.json();
+      } catch (dayError) {
+        console.warn(`[api/results] Failed to fetch/parse ESPN scoreboard for ${date}:`, dayError);
+        continue;
+      }
 
       const events = data?.events ?? [];
       for (const event of events) {
@@ -119,6 +131,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       totalCompleted: results.filter((m) => m.completed).length,
     });
   } catch (error) {
+    console.error("[api/results] Failed to fetch match results:", error);
     return res.status(200).json({
       matches: [],
       source: "unavailable",

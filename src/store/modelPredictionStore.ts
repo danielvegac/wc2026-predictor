@@ -49,12 +49,21 @@ function loadBaseline(): Record<string, ModelPrediction> {
   try {
     const raw = localStorage.getItem(BASELINE_STORAGE_KEY);
     if (raw) return JSON.parse(raw);
-  } catch { /* ignore */ }
+  } catch (error) {
+    console.warn("[modelPredictionStore] Failed to load baseline predictions, recomputing:", error);
+  }
   return {};
 }
 
 function saveBaseline(baseline: Record<string, ModelPrediction>) {
-  localStorage.setItem(BASELINE_STORAGE_KEY, JSON.stringify(baseline));
+  try {
+    localStorage.setItem(BASELINE_STORAGE_KEY, JSON.stringify(baseline));
+  } catch (error) {
+    // Quota exceeded / storage disabled (e.g. Safari private mode). The
+    // baseline simply won't persist across reloads — don't let a storage
+    // failure abort the whole prediction computation.
+    console.warn("[modelPredictionStore] Failed to persist baseline predictions:", error);
+  }
 }
 
 export const useModelPredictionStore = create<ModelPredictionState>()(
